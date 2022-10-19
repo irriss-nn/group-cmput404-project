@@ -29,7 +29,6 @@ pip install -r requirements.txt
 
 `uvicorn main:app --reload`
 
-this will create a new database "Ulivit", a new schema "CCC" and all the requried tables
 
 
 ## When working:
