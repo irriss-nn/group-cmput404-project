@@ -27,7 +27,7 @@ pip install -r requirements.txt
 
 ## To run the live server:
 
-`uvicorn main:app --reload`
+python .\main.py
 
 
 
