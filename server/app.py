@@ -1,7 +1,6 @@
-from fastapi import FastAPI
-import pymongo
+from fastapi import FastAPI, APIRouter
 from pymongo import MongoClient
-
+from .routers import authors
 
 app = FastAPI()
 
@@ -14,6 +13,9 @@ def startup_db_client():
 @app.on_event("shutdown")
 def shutdown_db_client():
     app.mongodb_client.close()
+
+
+app.include_router(authors.router)
 
 @app.get("/")
 async def root():
