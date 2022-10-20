@@ -18,14 +18,15 @@ async def read_authors(request: Request,page: int| None = None, size: int | None
     print(author.Author)
     return authors
 
-@router.post("/",status_code=status.HTTP_201_CREATED, response_model=author.Author)
+@router.post("/")
 async def create_author(request: Request, author: author.Author = Body(...)):
     author = jsonable_encoder(author)
-    new_author = request.app.database["authors"].insert_one(author)
-    created_author = request.app.database["authors"].find_one(
-        {"_id": new_author.inserted_id}
-    )
-    return create_author
+    author["_id"] = author["id"]
+    author.pop('id', None)
+    if request.app.database["authors"].find_one({"_id": author["_id"]}):
+        request.app.database["authors"].update_one({"_id": author["_id"]}, {"$set":author})
+    else:
+        request.app.database["authors"].insert_one(author)
 
 
 @router.get("/{author_id}")
