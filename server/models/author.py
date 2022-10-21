@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class Author(BaseModel):
+    type = 'author'
     id: str 
     url: str 
     host:str 

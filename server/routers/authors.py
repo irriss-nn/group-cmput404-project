@@ -14,8 +14,7 @@ async def read_authors(request: Request,page: int| None = None, size: int | None
     if(page is None or size is None):
         authors = list(request.app.database["authors"].find(limit=100))
     else:
-        authors = list(request.app.database["authors"].find(limit=size,skip=page*size))
-    print(author.Author)
+        authors = list(request.app.database["authors"].find().sort("_id",1).skip(( ( page - 1 ) * size ) if page > 0 else 0).limit(size))
     return authors
 
 @router.post("/")
