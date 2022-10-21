@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 class Author(BaseModel):
     type = 'author'
-    id: str 
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     url: str 
     host:str 
     displayName: str 
