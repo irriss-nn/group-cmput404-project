@@ -1,8 +1,14 @@
-from fastapi import FastAPI, APIRouter
+from re import template
+from urllib import request
+from fastapi import FastAPI, APIRouter, Request
 from pymongo import MongoClient
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from .routers import authors, posts
 
 app = FastAPI()
+
+templates = Jinja2Templates(directory="templates")
 
 @app.on_event("startup")
 def startup_db_client():
@@ -23,4 +29,7 @@ async def root():
     return {"message": "Hello World"}
 
 
-
+@app.get("/login", response_class=HTMLResponse)
+async def read_item(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+    
