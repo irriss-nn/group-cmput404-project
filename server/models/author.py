@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 class Author(BaseModel):
     type = 'author'
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    id: str = Field(default_factory=lambda: str(uuid.uuid4())) # If no ID is provided we generate one
     url: str 
     host:str 
     displayName: str 
