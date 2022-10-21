@@ -13,7 +13,7 @@ pip install -r requirements.txt
 
 Windows (powershell)
 ```
-python -3.10 -m venv .\venv
+python -m virtualenv venv
 .\venv\Scripts/Activate.ps1
 pip install -r requirements.txt
 ```
