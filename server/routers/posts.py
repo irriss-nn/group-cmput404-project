@@ -1,4 +1,3 @@
-from types import NoneType
 from fastapi import APIRouter, HTTPException, Request, status
 from ..models import post
 from fastapi.encoders import jsonable_encoder
@@ -12,8 +11,9 @@ router = APIRouter(
 @router.get("/{author_id}/posts/{post_id}")
 async def read_post(request: Request, author_id:str, post_id:str):
     document = request.app.database["post"].find_one({"_id":post_id})
-    print(document)
-    return document
+    if document:
+        return document
+    raise HTTPException(status_code=404, detail="Post_not_found")
 
 @router.post("/{author_id}/posts/{post_id}")
 async def update_post(request: Request, author_id:str, post_id:str, post: post.Post):
@@ -44,3 +44,4 @@ async def put_post(request: Request, author_id:str, post_id:str, post: post.Post
         raise HTTPException(status_code=403, detail="Post_already_exist")
     post["_id"] = post.pop("id")
     request.app.database["post"].insert_one(post)    
+    return request.app.database["post"].find_one({"_id":post["_id"]})  
