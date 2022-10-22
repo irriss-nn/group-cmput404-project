@@ -1,10 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <link
+      href="{{ url_for('static', path='/css/style.css') }}"
+      rel="stylesheet"
+    />
   </head>
-  <body></body>
+  <body>
+    <div id="login-container">
+      <div id="login-top">
+        <div id="login-logo">REGISTER</div>
+        <form id="login-form" method="post" action="">
+          <input
+            type="text"
+            name="username"
+            placeholder="username"
+            class="login-form"
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="password"
+            class="login-form"
+          />
+          <input type="submit" class="login-button" value="Register" />
+        </form>
+      </div>
+      <span id="login-register"
+        >Already have an account? <a href="/login">Login</a></span
+      >
+    </div>
+  </body>
 </html>
