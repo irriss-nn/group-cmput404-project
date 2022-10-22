@@ -1,0 +1,83 @@
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #232A2D;
+    color: white;
+}
+
+nav {
+    display: flex;
+    max-width: 100%;
+    min-height: 4rem;
+    background-color: #141B1E;
+}
+
+main {
+    display: grid;
+    grid-template-areas:
+        "profile content"
+        ".       content";
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 25rem 1fr;
+    column-gap: 1rem;
+    justify-content: center;
+
+    min-height: calc(100% - 4rem - 2rem);
+    max-width: 100%;
+    padding: 1rem;
+}
+
+/* Information on the Current Profile */
+.profile {
+    grid-area: profile;
+    position: sticky;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+
+    margin-inline: auto;
+    padding: 2rem;
+    width: 20rem;
+    border-radius: 1rem;
+    background-color: #141B1E;
+}
+
+.follow-counts {
+    display: flex;
+}
+
+.follow-counts > div {
+    text-align: center;
+    font-size: 1ch;
+    margin-inline: 1rem;
+}
+
+.follow-counts > div > :nth-child(odd) {
+    color: hsl(0 0% 60%);
+}
+
+.follow-counts > div > :nth-child(even) {
+    font-size: 2ch;
+}
+
+.profile > .username {
+    font-weight: 400;
+    font-size: 3ch;
+    text-align: center;
+}
+
+article {
+    grid-area: content;
+    width: 80ch;
+    margin-inline: auto;
+    border-radius: 0.25rem;
+
+    background-color: #141B1E;
+}
