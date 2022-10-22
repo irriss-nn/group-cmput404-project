@@ -60,7 +60,7 @@ Fake_Post = {
         }
 
 def test_add_post():
-
+    '''Adding a test posts'''
     startup_db_client()
 
     response = client.put(f"/service/authors/'fakeAuthor'/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
@@ -72,7 +72,7 @@ def test_add_post():
     shutdown_db_client()
 
 def test_add_post_again():
-    '''This should receive a 403 for duplicate'''
+    '''This should receive a 403 for duplicate posts'''
     startup_db_client()
     response = client.put(f"/service/authors/'fakeAuthor'/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
     assert response.status_code == 403
