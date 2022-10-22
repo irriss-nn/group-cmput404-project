@@ -22,6 +22,7 @@ async def create_author(request: Request, author: author.Author = Body(...)):
     author = jsonable_encoder(author)
     author["_id"] = author["id"]
     author.pop('id', None)
+    
     if request.app.database["authors"].find_one({"_id": author["_id"]}):
         request.app.database["authors"].update_one({"_id": author["_id"]}, {"$set":author})
     else:
@@ -31,6 +32,7 @@ async def create_author(request: Request, author: author.Author = Body(...)):
         authm.pop('id', None)
         request.app.database["authors"].insert_one(author)
         request.app.database["authorManagers"].insert_one(authm)
+    return request.app.database["authors"].find_one({"_id": author["_id"]})
 '''
 Get author by id
 '''
