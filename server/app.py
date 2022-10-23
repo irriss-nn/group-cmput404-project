@@ -50,4 +50,8 @@ async def read_item(request: Request):
 @app.post("/register")
 async def register_author(request: Request):
     
-    return {"message": "Hello World"}
+    return {"message": "register"}
+
+@app.post("/login")
+async def read_item(request: Request):
+    return {"message": "login"}
