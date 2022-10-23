@@ -26,7 +26,7 @@ def test_add_author():
     assert response.status_code == 200
     assert author["_id"] == Fake_Author["id"]
 
-    #shutdown_db_client()
+    shutdown_db_client()
 
 def test_get_one_author():
     '''Get added author'''
@@ -38,6 +38,7 @@ def test_get_one_author():
     assert author["author_id"] == Fake_Author["id"]
 
 def test_get_authors():
+    startup_db_client()
     '''Use get method to get all authors in one time'''
     Fake_Author2 = {
                     "id": "fakeid2",
@@ -53,11 +54,12 @@ def test_get_authors():
     authors = response.json()
     assert response.status_code == 200
     assert Fake_Author["id"], Fake_Author2["id"] in authors["author_id"] 
-    #print('yyyyyyyuuuuuuuuuu',author)
+    shutdown_db_client()
 
     
 
 def test_update_author():
+    startup_db_client()
     '''Update an author's attribute via post method'''
     Fake_Author_Modified = {
                     "id": "fakeid1",
@@ -70,4 +72,9 @@ def test_update_author():
     response = client.post("/service/authors/",headers={"Content-Type":"application/json"}, json = Fake_Author_Modified)
     author = response.json()
     assert response.status_code == 200
-    assert author["_id"] == Fake_Author["id"]
+    set1 = set(author.items())
+    set2 = set(Fake_Author.items())
+    assert author["_id"]== Fake_Author["id"]
+    assert len(set1^set2)!=0
+    #pass
+    shutdown_db_client()
