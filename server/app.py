@@ -46,3 +46,8 @@ async def read_item(request: Request):
 @app.get("/register", response_class=HTMLResponse)
 async def read_item(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
+
+@app.post("/register")
+async def register_author(request: Request):
+    
+    return {"message": "Hello World"}
