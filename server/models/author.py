@@ -11,6 +11,7 @@ class Author(BaseModel):
     displayName: str 
     github: str 
     profileImage: str
+    authLevel: str = 'user'
 
     @root_validator
     def compute_url(cls, values) -> typing.Dict:
