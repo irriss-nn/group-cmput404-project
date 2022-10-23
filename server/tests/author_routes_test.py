@@ -52,7 +52,7 @@ def test_get_authors():
     response = client.get(f"/service/authors/{Fake_Author['id'],Fake_Author2['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author)
     authors = response.json()
     assert response.status_code == 200
-    assert "('fakeid1', 'fakeid2')" in authors["author_id"] 
+    assert Fake_Author["id"], Fake_Author2["id"] in authors["author_id"] 
     #print('yyyyyyyuuuuuuuuuu',author)
 
     
