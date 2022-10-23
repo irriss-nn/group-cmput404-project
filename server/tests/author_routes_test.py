@@ -26,17 +26,16 @@ def test_add_author():
     assert response.status_code == 200
     assert author["_id"] == Fake_Author["id"]
 
-    shutdown_db_client()
+    #shutdown_db_client()
 
 def test_get_one_author():
     '''Get added author'''
     startup_db_client()
     response = client.get(f"/service/authors/{Fake_Author['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author)
     author = response.json()
-    print(author)
+    print('hhhhhhhh',author)
     assert response.status_code==200
     assert author["author_id"] == Fake_Author["id"]
-    shutdown_db_client()
 
 def test_get_authors():
     '''Use get method to get all authors in one time'''
@@ -49,7 +48,14 @@ def test_get_authors():
                     "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
                 }
     client.post("/service/authors/",headers={"Content-Type":"application/json"}, json = Fake_Author2)
-    pass
+    
+    response = client.get(f"/service/authors/{Fake_Author['id'],Fake_Author2['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author)
+    authors = response.json()
+    assert response.status_code == 200
+    assert "('fakeid1', 'fakeid2')" in authors["author_id"] 
+    #print('yyyyyyyuuuuuuuuuu',author)
+
+    
 
 def test_update_author():
     '''Update an author's attribute via post method'''
@@ -61,6 +67,7 @@ def test_update_author():
                     "github": "http://github.com/modified",
                     "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
                 }
-    client.post("/service/authors/",headers={"Content-Type":"application/json"}, json = Fake_Author_Modified)
-
-    pass
+    response = client.post("/service/authors/",headers={"Content-Type":"application/json"}, json = Fake_Author_Modified)
+    author = response.json()
+    assert response.status_code == 200
+    assert author["_id"] == Fake_Author["id"]
