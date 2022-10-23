@@ -1,16 +1,27 @@
 import uuid
 from typing import Optional
-from pydantic import BaseModel, Field
-
+from pydantic import BaseModel, Field, root_validator
+import typing
 
 class Author(BaseModel):
     type = 'author'
     id: str = Field(default_factory=lambda: str(uuid.uuid4())) # If no ID is provided we generate one
-    url: str 
-    host:str 
+    url: str = "http://http://127.0.0.1:8000/" + str(uuid.uuid4())
+    host:str = "http://127.0.0.1:8000/"
     displayName: str 
     github: str 
-    profileImage: str 
+    profileImage: str
+
+    @root_validator
+    def compute_url(cls, values) -> typing.Dict:
+
+        new_url = values["host"] + "authors/"+ values["id"]
+
+        if values["url"] is not None:
+            values["url"] = new_url
+        
+        return values
+
 
     class Config:
         allow_population_by_field_name = True
