@@ -1,0 +1,108 @@
+:root {
+    --bg-primary: hsl(198 13% 16%);
+    --bg-secondary: hsl(198 20% 10%);
+    --bg-hover: hsl(198 18% 11%);
+    --fg-primary: (0 0% 85%);
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: white;
+}
+
+nav {
+    display: flex;
+    max-width: 100%;
+    min-height: 4rem;
+    background-color: var(--bg-secondary);
+}
+
+main {
+    display: grid;
+    grid-template-areas:
+        "profile content"
+        ".       content";
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 25rem 1fr;
+    column-gap: 1rem;
+    justify-content: center;
+
+    min-height: calc(100% - 4rem - 4rem);
+    max-width: 100%;
+    padding: 2rem;
+}
+
+/* Information on the Current Profile */
+.profile {
+    grid-area: profile;
+    position: sticky;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+
+    margin-inline: auto;
+    padding: 2rem;
+    width: 20rem;
+    border-radius: 1rem;
+    background-color: var(--bg-secondary);
+}
+
+.profile > h1 {
+    font-weight: 400;
+    font-size: 3ch;
+    text-align: center;
+}
+
+.follow-counts {
+    display: flex;
+}
+
+.follow-counts > div {
+    text-align: center;
+    font-size: 1.5ch;
+    margin-inline: 1rem;
+}
+
+.follow-counts > div > :nth-child(odd) {
+    color: hsl(0 0% 60%);
+}
+
+.follow-counts > div > :nth-child(even) {
+    font-size: 2.25ch;
+}
+
+article {
+    grid-area: content;
+    width: 80ch;
+    margin-inline: auto;
+    border-radius: 0.25rem;
+
+    background-color: var(--bg-secondary);
+}
+
+article > * {
+    padding-block: 1rem;
+    padding-inline: 2rem;
+}
+
+.stream-post {
+    border-bottom: 0.1rem solid var(--bg-primary);
+    transition: background-color 0.1s ease-in-out;
+}
+
+.stream-post:first-of-type {
+    border-top: 0.1rem solid var(--bg-primary);
+}
+
+.stream-post:hover {
+    background-color: var(--bg-hover);
+}
