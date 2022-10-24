@@ -24,7 +24,7 @@ def test_add_author():
     # TODO: probably remove this test in future when starts using data import to database directly 
     startup_db_client()
 
-    response = client.post("/service/authors/",headers={"Content-Type":"application/json"}, json = Fake_Author)
+    response = client.post(f"/service/authors/{Fake_Author['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author)
     author = response.json()
     assert response.status_code == 200
     assert author["_id"] == Fake_Author["id"]
@@ -50,7 +50,7 @@ def test_get_authors():
                     "github": "http://github.com/fakeThopson",
                     "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
                 }
-    client.post("/service/authors/",headers={"Content-Type":"application/json"}, json = Fake_Author2)
+    client.post(f"/service/authors/{Fake_Author2['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author2)
     
     response = client.get(f"/service/authors/",headers={"Content-Type":"application/json"})
     authors = response.json()
@@ -72,7 +72,7 @@ def test_update_author():
                     "github": "http://github.com/modified",
                     "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
                 }
-    response = client.post("/service/authors/",headers={"Content-Type":"application/json"}, json = Fake_Author_Modified)
+    response = client.post(f"/service/authors/{Fake_Author_Modified['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author_Modified)
     author = response.json()
     assert response.status_code == 200
     assert author["displayName"]== Fake_Author_Modified["displayName"]
