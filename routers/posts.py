@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request, status
-from ..models import post
+from models import post
 from fastapi.encoders import jsonable_encoder
 
 router = APIRouter(

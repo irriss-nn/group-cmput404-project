@@ -7,7 +7,7 @@ class Author(BaseModel):
     type = 'author'
     id: str = Field(default_factory=lambda: str(uuid.uuid4())) # If no ID is provided we generate one
     url: str = "http://http://127.0.0.1:8000/" + str(uuid.uuid4())
-    host:str = "http://127.0.0.1:8000/"
+    host: str = "http://127.0.0.1:8000/"
     displayName: str 
     github: str 
     profileImage: str
