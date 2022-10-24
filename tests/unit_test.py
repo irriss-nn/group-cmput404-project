@@ -17,15 +17,8 @@ def test_read_main():
     assert response.status_code == 200
     assert response.json() == {"message": "Hello World"}
 
-Fake_Author = {
-    "id": "fakeid1",
-    "url":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
-    "host":"http://127.0.0.1:8000/",
-    "displayName":"Fake Croft",
-    "github": "http://github.com/laracroft",
-    "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
-}
 
+################################################################### Author tests ##################################################################
 def test_add_author():
     '''Add author via post request'''
     # TODO: probably remove this test in future when starts using data import to database directly 
@@ -68,8 +61,6 @@ def test_get_authors():
     assert Fake_Author2["id"] in authors
     shutdown_db_client()
 
-    
-
 def test_update_author():
     startup_db_client()
     '''Update an author's attribute via post method'''
@@ -85,11 +76,50 @@ def test_update_author():
     author = response.json()
     assert response.status_code == 200
     assert author["displayName"]== Fake_Author_Modified["displayName"]
+    assert author["github"]== Fake_Author_Modified["github"]
 
     # remove fake authors
     app.database["authors"].delete_one({"_id":"fakeid1"})
     app.database["authors"].delete_one({"_id":"fakeid2"})
     shutdown_db_client()
+
+
+################################################################### Posts tests ##################################################################
+def test_add_post():
+    '''Adding a test posts'''
+    startup_db_client()
+
+    response = client.put(f"/service/authors/'fakeAuthor'/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
+    post = response.json()
+    # print(post)
+    assert response.status_code == 200
+    assert post["_id"] == Fake_Post["id"]
+
+    shutdown_db_client()
+
+def test_add_post_again():
+    '''This should receive a 403 for duplicate posts'''
+    startup_db_client()
+    response = client.put(f"/service/authors/'fakeAuthor'/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
+    assert response.status_code == 403
+    shutdown_db_client()
+
+def test_delete_post():
+    '''Should return 404 once searching for a deleted document'''
+    startup_db_client()
+    client.delete(f"/service/authors/'fakeAuthor'/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
+    response = client.get(f"/service/authors/'fakeAuthor'/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
+    assert response.status_code == 404 
+    shutdown_db_client()
+
+Fake_Author = {
+    "id": "fakeid1",
+    "url":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+    "host":"http://127.0.0.1:8000/",
+    "displayName":"Fake Croft",
+    "github": "http://github.com/laracroft",
+    "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
+}
 
 Fake_Post = {
             "type":"post",
@@ -142,30 +172,3 @@ Fake_Post = {
             "visibility":"PUBLIC",
             "unlisted":"false"
         }
-
-def test_add_post():
-    '''Adding a test posts'''
-    startup_db_client()
-
-    response = client.put(f"/service/authors/'fakeAuthor'/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
-    post = response.json()
-    # print(post)
-    assert response.status_code == 200
-    assert post["_id"] == Fake_Post["id"]
-
-    shutdown_db_client()
-
-def test_add_post_again():
-    '''This should receive a 403 for duplicate posts'''
-    startup_db_client()
-    response = client.put(f"/service/authors/'fakeAuthor'/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
-    assert response.status_code == 403
-    shutdown_db_client()
-
-def test_delete_post():
-    '''Should return 404 once searching for a deleted document'''
-    startup_db_client()
-    client.delete(f"/service/authors/'fakeAuthor'/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
-    response = client.get(f"/service/authors/'fakeAuthor'/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
-    assert response.status_code == 404 
-    shutdown_db_client()
