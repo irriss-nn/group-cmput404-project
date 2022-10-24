@@ -81,6 +81,8 @@ def test_update_author():
     # remove fake authors
     app.database["authors"].delete_one({"_id":"fakeid1"})
     app.database["authors"].delete_one({"_id":"fakeid2"})
+    app.database["authorManagers"].delete_many({"owner":"fakeid1"})
+    app.database["authorManagers"].delete_many({"owner":"fakeid2"})
     shutdown_db_client()
 
 

@@ -62,7 +62,7 @@ def main(args=None):
         post = {
             "type": "post",
             "title": fake.sentence(),
-            "_id": fakeuuid,
+            "id": fakeuuid,
             "source": fake.url(),
             "origin": fake.url(),
             "contentType":"text/plain",
