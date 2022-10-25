@@ -1,0 +1,45 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="{{ url_for('static', path='/css/post.css') }}"
+      rel="stylesheet"
+    />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="post-container">
+      <div id="post-top">
+        <div id="post-title">{{post.title}}</div>
+        <div id="post-description">{{post.description}}</div>
+      </div>
+      {% if post.contentType != 'text/plain' %}
+      <img
+        src="data:image/png;base64, {{post.content}}"
+        alt="post"
+        id="post-image"
+      />
+      {% else %}
+      <div id="post-blog">{{post.content}}</div>
+      {% endif %}
+      <div id="post-info">
+        <div id="post-primary">
+          <a href="{{post.author.id}}" id="post-author">
+            <img
+              src="{{post.author.profileImage}}"
+              alt="author-picture"
+              id="post-author-img"
+            />
+            <span id="post-author-name">{{post.author.displayName}}</span>
+          </a>
+          <div id="post-date">{{post.published.split("T")[0]}}</div>
+        </div>
+        <div id="post-comments">
+          <button id="post-comment-more">View comments</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
