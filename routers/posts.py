@@ -18,12 +18,15 @@ async def read_post(request: Request, author_id:str, post_id:str):
 @router.post("/{author_id}/posts/{post_id}")
 async def update_post(request: Request, author_id:str, post_id:str, post: post.Post):
     post = jsonable_encoder(post)
-    existed_post = request.app.database["post"].find_one({"_id":post["id"]})
+    if post["id"] != post_id :
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Updating post id is not the same as url post id")
+    post["_id"] = post["id"]
+    existed_post = request.app.database["post"].find_one({"_id":post["_id"]})
     if existed_post: # the post to be modified exists:
         for key in post.keys():
             if post[key] != type(existed_post[key]): # if new data has different type on the same parameter except commentSrc:
                 if not (key=="commentSrc" and (post[key] == None or type(post[key]) == str)):
-                    raise HTTPException(status_code=405, detail="Method_not_allowed")
+                    raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Update field type is incorrect")
     else:
         raise HTTPException(status_code=404, detail="Post_not_found")
 
