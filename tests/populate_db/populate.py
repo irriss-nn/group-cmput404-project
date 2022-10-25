@@ -13,6 +13,7 @@ fake = Faker()
 def main(args=None):
     inserted_authors = []
     inserted_posts = []
+    inserted_comments = []
     numAuthorsToCreate = 10
     howToPopulate = 0
     if args is None:
@@ -80,7 +81,24 @@ def main(args=None):
         }
         ins_post = database["post"].insert_one(post)
         inserted_posts.append(post)
+    # Make fake comments
+    for i in range(numAuthorsToCreate):
+        chosenPost = random.choice(inserted_posts)
+        chosenAuthor = random.choice(inserted_authors)
+        fakeuuid = fake.uuid4()
+        comment = {
+            "type": "comment",
+            "_id":  fakeuuid,
+            "author": chosenAuthor["_id"], # Author ID of the post
+            "post": chosenPost["_id"],#ObjectId of the post
+            "comment":  fake.sentence(),
+            "contentType": "text/markdown",
+            "published": str((fake.date_time()).isoformat())
+        }
+        ins_comment = database["comments"].insert_one(comment)
+        inserted_comments.append(comment)
     print("Inserted {} posts successfully".format(len(inserted_posts)))
+    print("Inserted {} comments successfully".format(len(inserted_comments)))
     destroy_connect_to_db(mongodb_client)
 
 def populate_through_api():
