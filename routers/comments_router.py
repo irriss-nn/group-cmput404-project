@@ -10,24 +10,25 @@ router = APIRouter(
 
 @router.post("/{author_id}/posts/{post_id}/comments")
 async def create_comment(author_id: str,post_id:str, request: Request, comment: Comment = Body(...)):
-    
-    return author_id
-    # if "id" in comment.keys() and comment["id"] != author_id:
-    #     raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Updating comment id is not the same as url comment id")
-    # comment["_id"] = comment["id"]
-    # comment.pop('id', None)
-    # if request.app.database["comments"].find_one({"_id": comment_id}):
-    #     request.app.database["comments"].update_one({"_id": comment_id}, {"$set": comment})
-    # else:
-    #     request.app.database["comments"].insert_one(comment)
-    # return request.app.database["comments"].find_one({"_id": comment["_id"]})
+    comment = jsonable_encoder(comment)
+    comment['author']=author_id
+    comment['post']=post_id
+    comment["_id"] = comment["id"]
+    comment.pop('id', None)
+    comment_id = comment["_id"]
+    # inserting comment into database
+    request.app.database["comments"].insert_one(comment)
+    # Adding comment to post
+    return request.app.database["comments"].find_one({"_id": comment_id})
 
 @router.get("/{author_id}/posts/{post_id}/comments")
-async def read_comments(request: Request, author_id:str, post_id:str):
+async def read_comments(request: Request, author_id:str, post_id:str, page: int|None = None, size: int|None = None):
     return_list = []
-    comment_list =  request.app.database["authorManagers"].find_one({"owner": author_id})
-    if comment_list is None:
-        return { "type": "followers", "items": return_list }
-    for objId in comment_list["followers"]:
-        return_list.append(request.app.database["authors"].find_one({"_id": objId}))
-    return { "type": "followers", "items": return_list }
+    if (page is None or size is None):
+        page = 1
+        size = 5
+        comments = list(request.app.database["comments"].find({"post":post_id}).sort("_id",1).skip(( ( page - 1 ) * size ) if page > 0 else 0).limit(size))
+        return {"type":"comments","page":page,"size":size, "post":"http://127.0.0.1:5454/authors/{}/posts/{}".format(author_id,post_id), "id":"http://127.0.0.1:5454/authors/{}/posts/{}/comments".format(author_id,post_id),"comments": comments}
+    else:
+        comments = list(request.app.database["comments"].find({"post":post_id}).sort("_id",1).skip(( ( page - 1 ) * size ) if page > 0 else 0).limit(size))
+        return {"type":"comments","page":page,"size":size, "post":"http://127.0.0.1:5454/authors/{}/posts/{}".format(author_id,post_id), "id":"http://127.0.0.1:5454/authors/{}/posts/{}/comments".format(author_id,post_id),"comments": comments}
