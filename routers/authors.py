@@ -20,14 +20,15 @@ async def read_authors(request: Request, page: int|None = None, size: int|None =
 
     return authors
 
-@router.post("/")
-async def create_author(request: Request, author: Author = Body(...)):
+@router.post("/{author_id}")
+async def create_author(author_id: str, request: Request, author: Author = Body(...)):
     author = jsonable_encoder(author)
+    if "id" in author.keys() and author["id"] != author_id:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Updating author id is not the same as url author id")
     author["_id"] = author["id"]
     author.pop('id', None)
-    
-    if request.app.database["authors"].find_one({"_id": author["_id"]}):
-        request.app.database["authors"].update_one({"_id": author["_id"]}, {"$set": author})
+    if request.app.database["authors"].find_one({"_id": author_id}):
+        request.app.database["authors"].update_one({"_id": author_id}, {"$set": author})
     else:
         # We create a new author manager when creating a new author, assume if updating author, author manager already exists
         authm = jsonable_encoder(AuthorManager(owner=author["_id"]))
