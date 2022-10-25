@@ -12,7 +12,7 @@ from urllib import request
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 # Local imports
-from routers import authors, posts
+from routers import authors, posts, comments_router
 # All login and registering related fields
 SECRET_KEY = 'f015cb10b5caa9dd69ebeb340d580f0ad37f1dfcac30aef8b713526cc9191fa3'
 ALGORITHM = "HS256"
@@ -50,8 +50,7 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 app.include_router(authors.router)
 app.include_router(posts.router)
-
-
+app.include_router(comments_router.router)
 @app.on_event("startup")
 def startup_db_client():
     app.mongodb_client = MongoClient("mongodb://localhost:27017")
