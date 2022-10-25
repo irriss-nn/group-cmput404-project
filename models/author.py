@@ -1,7 +1,8 @@
 import uuid
 from typing import Optional
 from pydantic import BaseModel, Field, root_validator
-import typing
+import typing, secrets
+from passlib.hash import bcrypt
 
 class Author(BaseModel):
     type = 'author'
@@ -12,6 +13,7 @@ class Author(BaseModel):
     github: str 
     profileImage: str
     authLevel: str = 'user'
+    hashedPassword: str = secrets.token_urlsafe(8)
 
     @root_validator
     def compute_url(cls, values) -> typing.Dict:
@@ -20,10 +22,11 @@ class Author(BaseModel):
 
         if values["url"] is not None:
             values["url"] = new_url
+        # This basically makes it so the password is still hashed even if it is randomly generated
+        # if(values["hashedPassword"] is not None): Not hashing right now for simplicity
+        #     values["hashedPassword"] = bcrypt.hash(values["hashedPassword"])
         
         return values
-
-
     class Config:
         allow_population_by_field_name = True
         schema_extra = {
@@ -37,3 +40,4 @@ class Author(BaseModel):
             }
         }
         
+    
