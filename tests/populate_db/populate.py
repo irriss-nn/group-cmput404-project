@@ -1,4 +1,5 @@
 from ast import Try, arg
+import secrets
 from faker import Faker
 import requests
 import sys
@@ -39,7 +40,8 @@ def main(args=None):
                 "github": "http://github.com/"+ fakename.replace(" ", "_"),
                 "profileImage": fake.image_url(),
                 "type": "author",
-                "authLevel": "user"
+                "authLevel": "user",
+                "hashedPassword": secrets.token_urlsafe(8)
             }
             author_manager = {
                 "_id": fake.uuid4(),
@@ -62,7 +64,7 @@ def main(args=None):
         post = {
             "type": "post",
             "title": fake.sentence(),
-            "id": fakeuuid,
+            "_id": fakeuuid,
             "source": fake.url(),
             "origin": fake.url(),
             "contentType":"text/plain",
