@@ -22,7 +22,10 @@ async def read_authors(request: Request, page: int|None = None, size: int|None =
         authors = list(request.app.database["authors"].find(limit=100))
     else:
         authors = list(request.app.database["authors"].find().sort("_id",1).skip(( ( page - 1 ) * size ) if page > 0 else 0).limit(size))
-
+    for i in range(len(authors)):
+        authors[i].pop("hashedPassword", None)
+        authors[i]["id"] = authors[i]["_id"]
+        authors[i].pop('_id', None)
     return authors
 
 @router.post("/{author_id}")
@@ -48,8 +51,12 @@ Get author by id
 '''
 @router.get("/{author_id}")
 async def read_item(author_id: str, request: Request):
-    request.app.database["authors"].find_one({"_id": author_id})
-    return { "author_id": author_id}
+    author = request.app.database["authors"].find_one({"_id": author_id})
+    author = jsonable_encoder(author)
+    author.pop("hashedPassword", None)
+    author["id"] = author["_id"]
+    author.pop('_id', None)
+    return author
 
 # Follower functionalities
 '''
