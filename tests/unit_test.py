@@ -120,23 +120,36 @@ def test_get_followers():
     pass
 
 
+
+
+
 ##########################################Comments###########################################################
 def test_add_comment():
     '''Adding a test comment'''
     startup_db_client()
     
     
-    response = client.put(f"/service/authors/'fakeAuthor'/posts/'fakepost'/comments/{Fake_Comments['id']}",headers={"Content-Type":"application/json"}, json = Fake_Comments)
-    comment = response.json()
+    response = client.post(f"/service/authors/'fakeAuthor'/posts/'fakePost'/comments/",headers={"Content-Type":"application/json"}, json = Fake_Comments)
+    #post fail
+    #response = client.get(f"/service/authors/'fakeAuthor'/posts/'fakePost'/comments/",headers={"Content-Type":"application/json"}, json = Fake_Comments)
+    #comment = response.json()
     assert response.status_code ==200
-    #404
-    shutdown_db_client()
-    # print(post)
+    #assert comment["id"]== "fakeid1"
     
-
+    shutdown_db_client()
+    
+    
 def test_get_comments():
-    "get a list of comments"
-    pass
+    startup_db_client()
+    response = client.get(f"/service/authors/'fakeAuthor'/posts/'fakePost'/comments/",headers={"Content-Type":"application/json"}, json = Fake_Comments)
+    comment = response.json()
+    shutdown_db_client()
+   
+
+
+
+
+
 
 Fake_Author = {
     "id": "fakeid1",
@@ -227,34 +240,7 @@ Fake_Follower = {
 
 
 Fake_Comments = {
-    "type":"comments",
-    "page":1,
-    "size":5,
-    "post":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e",
-    "id":"fakeid1",
-    "comments":[
-        {
-            "type":"comment",
-            "author":{
-                "type":"author",
-                # ID of the Author (UUID)
-                "id":"http://127.0.0.1:5454/authors/1d698d25ff008f7538453c120f581471",
-                # url to the authors information
-                "url":"http://127.0.0.1:5454/authors/1d698d25ff008f7538453c120f581471",
-                "host":"http://127.0.0.1:5454/",
-                "displayName":"Greg Johnson",
-                # HATEOS url for Github API
-                "github": "http://github.com/gjohnson",
-                # Image from a public domain
-                "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
-            },
-            "comment":"Sick Olde English",
-            "contentType":"text/markdown",
-            # ISO 8601 TIMESTAMP
-            "published":"2015-03-09T13:07:04+00:00",
-            # ID of the Comment (UUID)
-            "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/de305d54-75b4-431b-adb2-eb6b9e546013/comments/f6255bb01c648fe967714d52a89e8e9c",
-        }
-    ]
-}
+            "comment":  "sick olde Englsih"
+           }
+     
 
