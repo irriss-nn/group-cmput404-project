@@ -96,27 +96,6 @@ body {
   font-size: 14px;
 }
 
-#post-comments {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.post-comment-author {
-  font-weight: 600;
-}
-
-.post-comment-message {
-  font-size: 14px;
-}
-
-#post-comment-more {
-  border: none;
-  color: grey;
-  font-family: var(--main-font);
-}
-
-#post-comment-more:hover {
-  color: black;
+#post-comment {
+  align-self: center;
 }

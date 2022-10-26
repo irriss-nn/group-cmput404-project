@@ -36,9 +36,11 @@
           </a>
           <div id="post-date">{{post.published.split("T")[0]}}</div>
         </div>
-        <div id="post-comments">
-          <button id="post-comment-more">View comments</button>
-        </div>
+        <a
+          href="/service/authors/{{post.author.id.split('/')[-1]}}/posts/{{post._id}}/comments"
+          id="post-comment"
+          >View comments
+        </a>
       </div>
     </div>
   </body>

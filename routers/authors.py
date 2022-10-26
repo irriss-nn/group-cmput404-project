@@ -24,7 +24,10 @@ async def read_authors(request: Request, page: int|None = None, size: int|None =
         authors = list(request.app.database["authors"].find(limit=100))
     else:
         authors = list(request.app.database["authors"].find().sort("_id",1).skip(( ( page - 1 ) * size ) if page > 0 else 0).limit(size))
-
+    for i in range(len(authors)):
+        authors[i].pop("hashedPassword", None)
+        authors[i]["id"] = authors[i]["_id"]
+        authors[i].pop('_id', None)
     return authors
 
 @router.post("/{author_id}")
@@ -46,10 +49,11 @@ async def create_author(author_id: str, request: Request, author: Author = Body(
     return request.app.database["authors"].find_one({"_id": author["_id"]})
 
 @router.get("/{author_id}")
-async def read_item(author_id: str, request: Request):
+async def read_item(author_id: str):
     '''Get author by id'''
-    author = SocialDatabase().get_author(author_id)
-    return asdict(author)
+    author = asdict(SocialDatabase().get_author(author_id))
+    author.pop("hashedPassword", None)
+    return author
 
 # Follower functionalities
 @router.delete("/{author_id}/followers/{foreign_author_id}")

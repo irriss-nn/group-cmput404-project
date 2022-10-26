@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <title>Document</title>
+    <link
+      href="{{ url_for('static', path='/css/allpost.css') }}"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <body>
+      <div id="allpost-container">
+        {% for post in posts %}
+        <div id="allpost-single-container">
+          <div id="allpost-top">
+            <a href="/author" id="allpost-author">{{post.author.id}}</a>
+            <div id="allpost-date">{{post.published.split("T")[0]}}</div>
+          </div>
+          <div id="allpost-info">
+            <div id="allpost-title">{{post.title}}</div>
+            <div id="allpost-description">{{post.description}}</div>
+          </div>
+          <div id="allpost-btn-container">
+            <a
+              class="allpost-btn"
+              href="/service/authors/{{post.author.id}}/posts/{{post._id}}/comments"
+              >View Comments</a
+            >
+            <a
+              class="allpost-btn"
+              href="/service/authors/{{post.author.id}}/posts/{{post._id}}/view"
+              >View Post</a
+            >
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </body>
+  </body>
+</html>
