@@ -118,7 +118,6 @@ def test_add_no_id_post():
     response = client.post(f"/service/authors/{Fake_Author['id']}/posts/",headers={"Content-Type":"application/json"}, json = Fake_Post_no_id)
     author = client.get(f"/service/authors/{Fake_Author['id']}")
     author = author.json()
-    print(response.content)
     assert len(author["posts"]), len(author_before["posts"])+1
     assert response.status_code == 200
 
@@ -179,11 +178,6 @@ def test_get_comments():
     response = client.get(f"/service/authors/'fakeAuthor'/posts/'fakePost'/comments/",headers={"Content-Type":"application/json"}, json = Fake_Comments)
     comment = response.json()
     shutdown_db_client()
-   
-
-
-
-
 
 
 Fake_Author = {

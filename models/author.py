@@ -17,7 +17,7 @@ class Author:
     host: str = "http://127.0.0.1:8000/"
     authLevel: str = "user"  # TODO: More efficient to store bool or int
     hashedPassword: str = secrets.token_urlsafe(8)
-    posts: dict|None = {}
+    posts:dict|None = None
 
     @root_validator
     def compute_url(cls, values) -> dict:
@@ -33,14 +33,15 @@ class Author:
     @staticmethod
     def init_with_dict(data: dict):
         return Author(
-                    id=data["id"],
+                    id=data["_id"],
                     url=data["url"],
                     host=data["host"],
                     displayName=data["displayName"],
                     github=data["github"],
                     profileImage=data["profileImage"],
                     authLevel=data["authLevel"],
-                    hashedPassword=data["hashedPassword"])
+                    hashedPassword=data["hashedPassword"],
+                    posts=data["posts"])
 
     class Config:
         allow_population_by_field_name = True
