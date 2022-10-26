@@ -52,6 +52,8 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 app.include_router(authors.router)
 app.include_router(posts.router)
 app.include_router(comments_router.router)
+
+
 @app.on_event("startup")
 def startup_db_client():
     app.mongodb_client = MongoClient("mongodb://localhost:27017")
@@ -83,9 +85,10 @@ async def read_item(request: Request):
 async def register_author(request: Request):
     return {"message": "register"}
 
-@app.get("/posts" , response_class=HTMLResponse)
+
+@app.get("/posts", response_class=HTMLResponse)
 async def get_all_posts(request: Request):
-    post_cursor= app.database["post"].find({})
+    post_cursor = app.database["post"].find({})
     all_posts = []
     for items in post_cursor:
         all_posts.append(items)
@@ -95,6 +98,8 @@ async def get_all_posts(request: Request):
 # 1. Redirect User to proper page after login !!
 # 2. Make use of hashing for passwords
 # 3. Make sure that the user is not already logged in
+
+
 @app.post("/login")
 async def read_item(request: Request, response: Response, username: str = Form(), password: str = Form()):
     found_user = get_user(request, username, password)
@@ -128,9 +133,9 @@ async def get_post(request: Request):
 
 @app.get("/author", response_class=HTMLResponse)
 async def get_post(request: Request):
-    foundAuthor = request.app.database["author"].find({})
-    print(foundAuthor[5])
-    return templates.TemplateResponse("post.html", {"request": request, "post": foundAuthor[5]})
+    foundAuthor = request.app.database["authors"].find({})
+    print(foundAuthor[0])
+    return templates.TemplateResponse("author.html", {"request": request, "post": foundAuthor[0]})
 
 
 if __name__ == "__main__":
