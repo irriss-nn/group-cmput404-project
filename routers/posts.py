@@ -1,12 +1,33 @@
+from pprint import pprint
 from fastapi import APIRouter, HTTPException, Request, status
 from models import post
 from fastapi.encoders import jsonable_encoder
-
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
+import pprint
 router = APIRouter(
     prefix="/service/authors",
     tags=["posts"],
     responses={404: {"description": "Not found"}},
 )
+
+static_dir = f"{Path.cwd()}/static"
+templates = Jinja2Templates(directory=f"{static_dir}/templates")
+
+'''
+Method to view post form template
+'''
+@router.get("/{author_id}/posts/{post_id}/view")
+async def read_post(request: Request, author_id:str, post_id:str):
+    document = request.app.database["post"].find_one({"_id":post_id})
+    postAuthor = document["author"]["id"]
+    author = request.app.database["authors"].find_one({"_id":postAuthor})
+    document["author"] = author
+
+    if document:
+        return templates.TemplateResponse("post.html", {"request": request, "post": document})
+    raise HTTPException(status_code=404, detail="Post_not_found")
+
 
 @router.get("/{author_id}/posts/{post_id}")
 async def read_post(request: Request, author_id:str, post_id:str):

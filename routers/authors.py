@@ -65,7 +65,7 @@ async def add_follower(author_id: str, foreign_author_id: str, request: Request)
     return {"message": "Successfully added follower", "author_id": author_id, "foreign_author_id": foreign_author_id}
 
 '''
-Get a list of all followers of the author
+Check if foreign author id is a follower of author id, if it is return message if not return error
 '''
 @router.get("/{author_id}/followers/{foreign_author_id}")
 # Check if foreign author id is a follower of author id, if it is return message if not return error
@@ -81,10 +81,9 @@ Get a list of all followers of the author
 @router.get("/{author_id}/followers")
 async def read_followers(author_id: str, request: Request):
     return_list = []
-    follower_list =  request.app.database["authorManagers"].find_one({"owner": author_id})["followers"]
+    follower_list =  request.app.database["authorManagers"].find_one({"owner": author_id})
     if follower_list is None:
         return { "type": "followers", "items": return_list }
-
-    for objId in follower_list:
+    for objId in follower_list["followers"]:
         return_list.append(request.app.database["authors"].find_one({"_id": objId}))
     return { "type": "followers", "items": return_list }

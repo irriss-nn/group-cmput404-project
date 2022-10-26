@@ -1,4 +1,5 @@
 from ast import Try, arg
+import secrets
 from faker import Faker
 import requests
 import sys
@@ -12,6 +13,7 @@ fake = Faker()
 def main(args=None):
     inserted_authors = []
     inserted_posts = []
+    inserted_comments = []
     numAuthorsToCreate = 10
     howToPopulate = 0
     if args is None:
@@ -39,7 +41,8 @@ def main(args=None):
                 "github": "http://github.com/"+ fakename.replace(" ", "_"),
                 "profileImage": fake.image_url(),
                 "type": "author",
-                "authLevel": "user"
+                "authLevel": "user",
+                "hashedPassword": secrets.token_urlsafe(8)
             }
             author_manager = {
                 "_id": fake.uuid4(),
@@ -62,9 +65,10 @@ def main(args=None):
         post = {
             "type": "post",
             "title": fake.sentence(),
-            "id": fakeuuid,
+            "_id": fakeuuid,
             "source": fake.url(),
             "origin": fake.url(),
+            "description": fake.sentence(),
             "contentType":"text/plain",
             "content": fake.paragraph(),
             "author": {"id": chosenAuthor["_id"]},
@@ -78,7 +82,24 @@ def main(args=None):
         }
         ins_post = database["post"].insert_one(post)
         inserted_posts.append(post)
+    # Make fake comments
+    for i in range(numAuthorsToCreate):
+        chosenPost = random.choice(inserted_posts)
+        chosenAuthor = random.choice(inserted_authors)
+        fakeuuid = fake.uuid4()
+        comment = {
+            "type": "comment",
+            "_id":  fakeuuid,
+            "author": chosenAuthor["_id"], # Author ID of the post
+            "post": chosenPost["_id"],#ObjectId of the post
+            "comment":  fake.sentence(),
+            "contentType": "text/markdown",
+            "published": str((fake.date_time()).isoformat())
+        }
+        ins_comment = database["comments"].insert_one(comment)
+        inserted_comments.append(comment)
     print("Inserted {} posts successfully".format(len(inserted_posts)))
+    print("Inserted {} comments successfully".format(len(inserted_comments)))
     destroy_connect_to_db(mongodb_client)
 
 def populate_through_api():
