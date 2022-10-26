@@ -92,7 +92,8 @@ async def get_all_posts(request: Request):
     all_posts = []
     for items in post_cursor:
         all_posts.append(items)
-    return templates.TemplateResponse(".html", {"request": request, "posts": all_posts})
+    print(all_posts)
+    return templates.TemplateResponse("all-posts.html", {"request": request, "posts": all_posts})
 
 # To Do For Login:
 # 1. Redirect User to proper page after login !!
