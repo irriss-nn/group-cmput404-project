@@ -68,6 +68,7 @@ def main(args=None):
             "_id": fakeuuid,
             "source": fake.url(),
             "origin": fake.url(),
+            "description": fake.sentence(),
             "contentType":"text/plain",
             "content": fake.paragraph(),
             "author": {"id": chosenAuthor["_id"]},

@@ -82,6 +82,13 @@ async def read_item(request: Request):
 async def register_author(request: Request):
     return {"message": "register"}
 
+@app.get("/posts" , response_class=HTMLResponse)
+async def get_all_posts(request: Request):
+    post_cursor= app.database["post"].find({})
+    all_posts = []
+    for items in post_cursor:
+        all_posts.append(items)
+    return templates.TemplateResponse(".html", {"request": request, "posts": all_posts})
 
 # To Do For Login:
 # 1. Redirect User to proper page after login !!
