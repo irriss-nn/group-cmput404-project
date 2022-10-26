@@ -15,8 +15,6 @@ def test_read_main():
     '''An example unit test'''
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"message": "Hello World"}
-
 
 ################################################################### Author tests ##################################################################
 def test_add_author():
@@ -37,7 +35,7 @@ def test_get_one_author():
     response = client.get(f"/service/authors/{Fake_Author['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author)
     author = response.json()
     assert response.status_code==200
-    assert author["author_id"] == Fake_Author["id"]
+    assert author["id"] == Fake_Author["id"]
 
 def test_get_authors():
     startup_db_client()
@@ -55,7 +53,7 @@ def test_get_authors():
     response = client.get(f"/service/authors/",headers={"Content-Type":"application/json"})
     authors = response.json()
     for i in range(len(authors)):
-        authors[i] = authors[i]["_id"]
+        authors[i] = authors[i]["id"]
     assert response.status_code == 200
     assert Fake_Author["id"] in authors
     assert Fake_Author2["id"] in authors
@@ -136,16 +134,9 @@ def test_add_comment():
     # print(post)
     
 
-    shutdown_db_client()
 def test_get_comments():
     "get a list of comments"
     pass
-
-
-
-
-
-
 
 Fake_Author = {
     "id": "fakeid1",
