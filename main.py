@@ -9,9 +9,10 @@ from pathlib import Path
 from pymongo import MongoClient
 from re import template
 from urllib import request
+from faker import Faker
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-
+fake = Faker()
 # Local imports
 from routers import authors, posts, comments_router
 # All login and registering related fields
@@ -34,6 +35,10 @@ def get_user(request: Request, username: str, password: str):
         raise HTTPException(
             status_code=404, detail="User not found or Password Incorrect")
 
+
+def create_user(request: Request, username:str, password:str):
+    author = Author()
+    fake.uuid4()
 
 def create_jwt(ecodeddata: dict):
     to_encode = ecodeddata.copy()
@@ -91,7 +96,7 @@ async def read_item(request: Request):
 
 
 @app.post("/register")
-async def register_author(request: Request):
+async def register_author(request: Request, response: Response, username: str = Form(), password: str = Form()):
     return {"message": "register"}
 
 

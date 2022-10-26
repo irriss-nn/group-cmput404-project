@@ -14,6 +14,7 @@ class Author(BaseModel):
     profileImage: str
     authLevel: str = 'user'
     hashedPassword: str = secrets.token_urlsafe(8)
+    posts: None|dict
 
     @root_validator
     def compute_url(cls, values) -> typing.Dict:
@@ -36,7 +37,9 @@ class Author(BaseModel):
                 "host":"http://127.0.0.1:8000/",
                 "displayName":"Lara Croft",
                 "github": "http://github.com/laracroft",
-                "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
+                "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
+                "hashedPassword": "as#!%lls",
+                "posts":{}
             }
         }
         

@@ -2,14 +2,14 @@ import uuid
 from pydantic import BaseModel, Field
 
 class Post(BaseModel):
-    id: str 
+    id: str | None
     title: str 
     source:str 
     origin: str 
     description: str 
     contentType: str 
     content:str
-    author: dict
+    author: dict|None
     categories: list
     count: int
     comments:str
