@@ -92,7 +92,6 @@ async def get_all_posts(request: Request):
     all_posts = []
     for items in post_cursor:
         all_posts.append(items)
-    print(all_posts)
     return templates.TemplateResponse("all-posts.html", {"request": request, "posts": all_posts})
 
 # To Do For Login:
@@ -131,11 +130,13 @@ async def get_post(request: Request):
     foundPosts = request.app.database["post"].find({})
     return templates.TemplateResponse("post.html", {"request": request, "post": foundPosts[5]})
 
+
 @app.get("/authors/{author_id}")
-async def display_author(request: Request, response:Response, author_id: str):
+async def display_author(request: Request, response: Response, author_id: str):
     author = authors.read_item(author_id, request)
     response.set_cookie(key="author_id", value=author)
     return templates.TemplateResponse("user-feed.html", {"request": request})
+
 
 @app.get("/author", response_class=HTMLResponse)
 async def get_post(request: Request):
