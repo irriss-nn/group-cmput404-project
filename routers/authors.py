@@ -1,8 +1,13 @@
+from pydoc import doc
 from fastapi import APIRouter, HTTPException, Request, Body, status
 from fastapi.encoders import jsonable_encoder
 
 from models.author import Author
 from models.author_manager import AuthorManager
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
+static_dir = f"{Path.cwd()}/static"
+templates = Jinja2Templates(directory=f"{static_dir}/templates")
 
 
 router = APIRouter(
@@ -43,7 +48,7 @@ Get author by id
 '''
 @router.get("/{author_id}")
 async def read_item(author_id: str, request: Request):
-    request.app.database["authors"].find_one({"id": author_id})
+    request.app.database["authors"].find_one({"_id": author_id})
     return { "author_id": author_id}
 
 # Follower functionalities
@@ -87,3 +92,20 @@ async def read_followers(author_id: str, request: Request):
     for objId in follower_list["followers"]:
         return_list.append(request.app.database["authors"].find_one({"_id": objId}))
     return { "type": "followers", "items": return_list }
+
+
+
+#### USER FACING VIEWS ####
+
+'''
+Display author profile
+'''
+@router.get("/{author_id}/view")
+async def read_item( request: Request, author_id: str,):
+    try:
+        document = request.app.database["authors"].find_one({"_id": author_id})
+        if(document is None):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
+        return templates.TemplateResponse("author.html", {"request": request, "post": document})
+    except:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
