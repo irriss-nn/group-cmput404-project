@@ -11,6 +11,7 @@ from re import template
 from urllib import request
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+
 # Local imports
 from routers import authors, posts
 # All login and registering related fields
@@ -112,10 +113,18 @@ async def verify_jwt(session: str | None = Cookie(default=None)):
         raise HTTPException(status_code=401, detail="Invalid Token")
 
 
+# currently using hardcoded post value
 @app.get("/post", response_class=HTMLResponse)
 async def get_post(request: Request):
     foundPosts = request.app.database["post"].find({})
     return templates.TemplateResponse("post.html", {"request": request, "post": foundPosts[5]})
+
+
+@app.get("/author", response_class=HTMLResponse)
+async def get_post(request: Request):
+    foundAuthor = request.app.database["author"].find({})
+    print(foundAuthor[5])
+    return templates.TemplateResponse("post.html", {"request": request, "post": foundAuthor[5]})
 
 
 if __name__ == "__main__":
