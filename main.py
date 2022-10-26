@@ -42,7 +42,16 @@ def create_jwt(ecodeddata: dict):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-
+# Use This function to get userId from jwt token
+async def get_userId_from_token( token: str):
+    try:
+        if(token == None):
+            raise HTTPException(status_code=401, detail="Unauthorized")
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        userId: str = payload.get("_id")
+        return userId
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 app = FastAPI()
 
 static_dir = f"{Path.cwd()}/static"
@@ -106,9 +115,19 @@ async def read_item(request: Request, response: Response, username: str = Form()
     found_user.pop("hashedPassword", None)
     madeJWT = create_jwt(found_user)
     # store session cookie in key for future verification
+    response = RedirectResponse(url="/current") # We need to delcare redirect before cookies and return response all totghet
+    response.status_code = 302
     response.set_cookie(key="session", value=madeJWT)
     # We need to redirect to the user's page
-    return RedirectResponse(url="/authors/"+found_user["_id"], status_code=302)
+    return response
+
+@app.get("/current")
+async def get_current_user(request: Request, session: str = Cookie(None)):
+    if(session == None):
+        return RedirectResponse(url="/login")
+    sessionUserId = await get_userId_from_token(session) # must await for this!!
+    found_user = app.database["authors"].find_one({"_id": sessionUserId})
+    return templates.TemplateResponse("author.html", {"request": request, "post": found_user})
 
 
 # Example of how we would get current user from cookie to verify action being done
@@ -128,7 +147,7 @@ async def verify_jwt(session: str | None = Cookie(default=None)):
 @app.get("/post", response_class=HTMLResponse)
 async def get_post(request: Request):
     foundPosts = request.app.database["post"].find({})
-    return templates.TemplateResponse("post.html", {"request": request, "post": foundPosts[5]})
+    return templates.TemplateResponse("post.html", {"request": request, "post": foundPosts[2]})
 
 
 @app.get("/authors/{author_id}")
