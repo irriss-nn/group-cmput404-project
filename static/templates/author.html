@@ -12,7 +12,10 @@
       <div id="author-info">
         <div id="author-name">Name: <b>{{post.displayName}}</b></div>
         <div class="social-container">
-          <img src="./github-logo.png" class="social-img" />
+          <img
+            src="{{ url_for('static', path='assets/github-logo.png') }}"
+            class="social-img"
+          />
           <a href="{{post.github}}" class="social name">{{post.github}}</a>
         </div>
       </div>
