@@ -144,5 +144,11 @@ async def get_post(request: Request):
     return templates.TemplateResponse("author.html", {"request": request, "post": foundAuthor[2]})
 
 
+# currently everything is hardcoded. Just initial design
+@app.get("/comments", response_class=HTMLResponse)
+async def get_post(request: Request):
+    return templates.TemplateResponse("comments.html", {"request": request})
+
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="localhost", port=8000, reload=True)
