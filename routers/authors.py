@@ -1,15 +1,17 @@
-from pydoc import doc
+from dataclasses import asdict
 from fastapi import APIRouter, HTTPException, Request, Body, status
 from fastapi.encoders import jsonable_encoder
-
-from models.author import Author
-from models.author_manager import AuthorManager
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
+from pydoc import doc
+
+from database import SocialDatabase
+from models.author import Author
+from models.author_manager import AuthorManager
+
+
 static_dir = f"{Path.cwd()}/static"
 templates = Jinja2Templates(directory=f"{static_dir}/templates")
-
-
 router = APIRouter(
     prefix="/service/authors",
     tags=["author"],
@@ -43,48 +45,41 @@ async def create_author(author_id: str, request: Request, author: Author = Body(
         request.app.database["authorManagers"].insert_one(authm)
     return request.app.database["authors"].find_one({"_id": author["_id"]})
 
-'''
-Get author by id
-'''
 @router.get("/{author_id}")
 async def read_item(author_id: str, request: Request):
-    request.app.database["authors"].find_one({"_id": author_id})
-    return { "author_id": author_id}
+    '''Get author by id'''
+    author = SocialDatabase().get_author(author_id)
+    return asdict(author)
 
 # Follower functionalities
-'''
-Delete a follower frmo authors follower list
-'''
 @router.delete("/{author_id}/followers/{foreign_author_id}")
 async def delete_follower(author_id: str, foreign_author_id: str, request: Request):
+    '''Delete a follower from authors follower list'''
     request.app.database["authorManagers"].update_one({"owner": author_id}, {"$pull": {"followers": foreign_author_id}})
     return {"message": "Successfully deleted follower", "author_id": author_id, "foreign_author_id": foreign_author_id}
 
-'''
-Add a user to the list of followers of the author
-'''
 @router.put("/{author_id}/followers/{foreign_author_id}")
 async def add_follower(author_id: str, foreign_author_id: str, request: Request):
+    '''Add a user to the list of followers of the author'''
     # We need to handle authentication here !!! TO DO !!!
     request.app.database["authorManagers"].update_one({"owner": author_id}, {"$push": {"followers": foreign_author_id}})
     return {"message": "Successfully added follower", "author_id": author_id, "foreign_author_id": foreign_author_id}
 
-'''
-Check if foreign author id is a follower of author id, if it is return message if not return error
-'''
 @router.get("/{author_id}/followers/{foreign_author_id}")
 # Check if foreign author id is a follower of author id, if it is return message if not return error
 async def check_follower(author_id: str, foreign_author_id: str, request: Request):
+    '''
+    Check if foreign author id is a follower of author id, return message if so
+    otherwise return error
+    '''
     if request.app.database["authorManagers"].find_one({"owner": author_id, "followers": foreign_author_id}):
         return {"message": "Foreign author is a follower of author", "author_id": author_id, "foreign_author_id": foreign_author_id}
-    else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Foreign author is not a follower of author")
 
-'''
-Get a list of all followers of the author
-'''
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Foreign author is not a follower of author")
+
 @router.get("/{author_id}/followers")
 async def read_followers(author_id: str, request: Request):
+    '''Get a list of all followers of the author'''
     return_list = []
     follower_list =  request.app.database["authorManagers"].find_one({"owner": author_id})
     if follower_list is None:
@@ -93,18 +88,15 @@ async def read_followers(author_id: str, request: Request):
         return_list.append(request.app.database["authors"].find_one({"_id": objId}))
     return { "type": "followers", "items": return_list }
 
-
-
 #### USER FACING VIEWS ####
-
-'''
-Display author profile
-'''
 @router.get("/{author_id}/view")
 async def read_item( request: Request, author_id: str,):
+    '''
+    Display author profile
+    '''
     try:
         document = request.app.database["authors"].find_one({"_id": author_id})
-        if(document is None):
+        if (document is None):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
         return templates.TemplateResponse("author.html", {"request": request, "post": document})
     except:

@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 import uvicorn
-from fastapi import FastAPI, APIRouter, Request, Form, Response, HTTPException, Cookie
 from datetime import datetime, timedelta
+from fastapi import FastAPI, APIRouter, Cookie, Form, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
-from pymongo import MongoClient
-from re import template
-from urllib import request
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 # Local imports
+from database import SocialDatabase
 from routers import authors, posts, comments_router
+
 # All login and registering related fields
 SECRET_KEY = 'f015cb10b5caa9dd69ebeb340d580f0ad37f1dfcac30aef8b713526cc9191fa3'
 ALGORITHM = "HS256"
@@ -35,8 +34,8 @@ def get_user(request: Request, username: str, password: str):
             status_code=404, detail="User not found or Password Incorrect")
 
 
-def create_jwt(ecodeddata: dict):
-    to_encode = ecodeddata.copy()
+def create_jwt(encoded_data: dict):
+    to_encode = encoded_data.copy()
     expire = datetime.utcnow() + timedelta(minutes=45)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -56,35 +55,29 @@ app.include_router(comments_router.router)
 
 @app.on_event("startup")
 def startup_db_client():
-    app.mongodb_client = MongoClient("mongodb://localhost:27017")
-    app.database = app.mongodb_client["socialnetwork"]
+    social_db = SocialDatabase()
+    app.database = social_db.database
     print("Connected to MongoDB")
-
 
 @app.on_event("shutdown")
 def shutdown_db_client():
-    app.mongodb_client.close()
-
+    app.database.close()
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
-
 @app.get("/login", response_class=HTMLResponse)
 async def read_item(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
-
 
 @app.get("/register", response_class=HTMLResponse)
 async def read_item(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
 
-
 @app.post("/register")
 async def register_author(request: Request):
     return {"message": "register"}
-
 
 @app.get("/posts", response_class=HTMLResponse)
 async def get_all_posts(request: Request):
@@ -98,8 +91,6 @@ async def get_all_posts(request: Request):
 # 1. Redirect User to proper page after login !!
 # 2. Make use of hashing for passwords
 # 3. Make sure that the user is not already logged in
-
-
 @app.post("/login")
 async def read_item(request: Request, response: Response, username: str = Form(), password: str = Form()):
     found_user = get_user(request, username, password)
@@ -109,7 +100,6 @@ async def read_item(request: Request, response: Response, username: str = Form()
     response.set_cookie(key="session", value=madeJWT)
     # We need to redirect to the user's page
     return RedirectResponse(url="/authors/"+found_user["_id"], status_code=302)
-
 
 # Example of how we would get current user from cookie to verify action being done
 @app.get("/examplejwt")
@@ -123,13 +113,11 @@ async def verify_jwt(session: str | None = Cookie(default=None)):
     else:
         raise HTTPException(status_code=401, detail="Invalid Token")
 
-
 # currently using hardcoded post value
 @app.get("/post", response_class=HTMLResponse)
 async def get_post(request: Request):
     foundPosts = request.app.database["post"].find({})
     return templates.TemplateResponse("post.html", {"request": request, "post": foundPosts[5]})
-
 
 @app.get("/author", response_class=HTMLResponse)
 async def get_post(request: Request):
