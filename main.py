@@ -134,8 +134,7 @@ async def get_post(request: Request):
 @app.get("/author", response_class=HTMLResponse)
 async def get_post(request: Request):
     foundAuthor = request.app.database["authors"].find({})
-    print(foundAuthor[0])
-    return templates.TemplateResponse("author.html", {"request": request, "post": foundAuthor[0]})
+    return templates.TemplateResponse("author.html", {"request": request, "post": foundAuthor[2]})
 
 
 if __name__ == "__main__":

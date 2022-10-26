@@ -27,6 +27,9 @@ body {
 #author-img {
   width: 200px;
   border-radius: 7px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 1px solid rgb(163, 163, 163);
 }
 
 #author-info {
