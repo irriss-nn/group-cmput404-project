@@ -55,13 +55,12 @@ app.include_router(comments_router.router)
 
 @app.on_event("startup")
 def startup_db_client():
-    social_db = SocialDatabase()
-    app.database = social_db.database
+    app.database = SocialDatabase().database
     print("Connected to MongoDB")
 
 @app.on_event("shutdown")
 def shutdown_db_client():
-    app.database.close()
+    SocialDatabase().close()
 
 @app.get("/")
 async def root():
