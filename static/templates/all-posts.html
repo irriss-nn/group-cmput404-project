@@ -20,7 +20,11 @@
             <div id="allpost-description">{{post.description}}</div>
           </div>
           <div id="allpost-btn-container">
-            <a class="allpost-btn" href="{{post.comments}}">View Comments</a>
+            <a
+              class="allpost-btn"
+              href="/service/authors/{{post.author.id}}/posts/{{post._id}}/comments"
+              >View Comments</a
+            >
             <a
               class="allpost-btn"
               href="/service/authors/{{post.author.id}}/posts/{{post._id}}/view"
