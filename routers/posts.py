@@ -19,14 +19,16 @@ Method to view post form template
 '''
 @router.get("/{author_id}/posts/{post_id}/view")
 async def read_post(request: Request, author_id:str, post_id:str):
-    document = request.app.database["post"].find_one({"_id":post_id})
-    postAuthor = document["author"]["id"]
-    author = request.app.database["authors"].find_one({"_id":postAuthor})
-    document["author"] = author
-
+    try:
+        document = request.app.database["post"].find_one({"_id":post_id})
+        postAuthor = document["author"]["id"]
+        author = request.app.database["authors"].find_one({"_id":postAuthor})
+        document["author"] = author
+    except:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
     if document:
         return templates.TemplateResponse("post.html", {"request": request, "post": document})
-    raise HTTPException(status_code=404, detail="Post_not_found")
+    raise HTTPException(status_code=404, detail="Post not found")
 
 
 @router.get("/{author_id}/posts/{post_id}")

@@ -68,7 +68,7 @@ def shutdown_db_client():
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return RedirectResponse(url='/login')
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -131,6 +131,11 @@ async def get_post(request: Request):
     foundPosts = request.app.database["post"].find({})
     return templates.TemplateResponse("post.html", {"request": request, "post": foundPosts[5]})
 
+@app.get("/authors/{author_id}")
+async def display_author(request: Request, response:Response, author_id: str):
+    author = authors.read_item(author_id, request)
+    response.set_cookie(key="author_id", value=author)
+    return templates.TemplateResponse("user-feed.html", {"request": request})
 
 @app.get("/author", response_class=HTMLResponse)
 async def get_post(request: Request):

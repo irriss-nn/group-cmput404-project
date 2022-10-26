@@ -1,8 +1,13 @@
+from pydoc import doc
 from fastapi import APIRouter, HTTPException, Request, Body, status
 from fastapi.encoders import jsonable_encoder
 
 from models.author import Author
 from models.author_manager import AuthorManager
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
+static_dir = f"{Path.cwd()}/static"
+templates = Jinja2Templates(directory=f"{static_dir}/templates")
 
 
 router = APIRouter(
@@ -17,7 +22,10 @@ async def read_authors(request: Request, page: int|None = None, size: int|None =
         authors = list(request.app.database["authors"].find(limit=100))
     else:
         authors = list(request.app.database["authors"].find().sort("_id",1).skip(( ( page - 1 ) * size ) if page > 0 else 0).limit(size))
-
+    for i in range(len(authors)):
+        authors[i].pop("hashedPassword", None)
+        authors[i]["id"] = authors[i]["_id"]
+        authors[i].pop('_id', None)
     return authors
 
 @router.post("/{author_id}")
@@ -43,8 +51,12 @@ Get author by id
 '''
 @router.get("/{author_id}")
 async def read_item(author_id: str, request: Request):
-    request.app.database["authors"].find_one({"id": author_id})
-    return { "author_id": author_id}
+    author = request.app.database["authors"].find_one({"_id": author_id})
+    author = jsonable_encoder(author)
+    author.pop("hashedPassword", None)
+    author["id"] = author["_id"]
+    author.pop('_id', None)
+    return author
 
 # Follower functionalities
 '''
@@ -87,3 +99,20 @@ async def read_followers(author_id: str, request: Request):
     for objId in follower_list["followers"]:
         return_list.append(request.app.database["authors"].find_one({"_id": objId}))
     return { "type": "followers", "items": return_list }
+
+
+
+#### USER FACING VIEWS ####
+
+'''
+Display author profile
+'''
+@router.get("/{author_id}/view")
+async def read_item( request: Request, author_id: str,):
+    try:
+        document = request.app.database["authors"].find_one({"_id": author_id})
+        if(document is None):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
+        return templates.TemplateResponse("author.html", {"request": request, "post": document})
+    except:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
