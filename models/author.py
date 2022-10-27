@@ -11,7 +11,8 @@ class Author:
     github: str 
     profileImage: str
     type = "author"  # TODO: Remove
-    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    _id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    id: str = _id
     # TODO: Remove hardcoded URLs
     url: str = "http://127.0.0.1:8000/" + str(uuid.uuid4())
     host: str = "http://127.0.0.1:8000/"

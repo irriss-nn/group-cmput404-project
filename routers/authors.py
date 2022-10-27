@@ -50,9 +50,15 @@ async def create_author(author_id: str, request: Request, author: Author = Body(
 @router.get("/{author_id}")
 async def read_item(author_id: str):
     '''Get author by id'''
-    author = asdict(SocialDatabase().get_author(author_id))
-    author.pop("hashedPassword", None)
-    return author
+    author = SocialDatabase().get_author(author_id)
+    if not author:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Author does not exist")
+
+    author.id = author._id
+    del author.hashedPassword
+    del author._id
+    return asdict(author)
 
 # Follower functionalities
 @router.delete("/{author_id}/followers/{foreign_author_id}")

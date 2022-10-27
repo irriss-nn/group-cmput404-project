@@ -1,10 +1,9 @@
-# import uuid
+import uuid
 
 from dataclasses import dataclass
 
 @dataclass
 class Post:
-    id: str | None  # TODO: Add default value?
     title: str 
     source: str
     origin: str 
@@ -19,6 +18,8 @@ class Post:
     published: str
     visibility: str
     unlisted: str
+    _id: str | None = str(uuid.uuid4())
+    id: str | None = _id
 
     @staticmethod
     def init_with_dict(data: dict):
