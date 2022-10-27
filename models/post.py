@@ -1,22 +1,43 @@
-import uuid
-from pydantic import BaseModel, Field
+# import uuid
 
-class Post(BaseModel):
-    id: str | None
+from dataclasses import dataclass
+
+@dataclass
+class Post:
+    id: str | None  # TODO: Add default value?
     title: str 
-    source:str 
+    source: str
     origin: str 
     description: str 
     contentType: str 
-    content:str
+    content: str
     author: dict|None  # TODO: Remove
     categories: list
     count: int
-    comments:str
+    comments: str  # TODO: Should be list
     commentSrc: dict | None
-    published:str
-    visibility:str
+    published: str
+    visibility: str
     unlisted: str
+
+    @staticmethod
+    def init_with_dict(data: dict):
+        return Post(
+                    id=data["_id"],
+                    title=data["title"],
+                    source=data["source"],
+                    origin=data["origin"],
+                    description=data["description"],
+                    contentType=data["contentType"],
+                    content=data["content"],
+                    author=data["author"],
+                    categories=data["categories"],
+                    count=data["count"],
+                    comments=data["comments"],
+                    commentSrc=data["commentSrc"],
+                    published=data["published"],
+                    visibility=data["visibility"],
+                    unlisted=data["unlisted"])
 
     class Config:
         allow_population_by_field_name = True

@@ -2,8 +2,8 @@ import secrets
 import uuid
 
 from dataclasses import dataclass, field
-from pydantic import BaseModel, root_validator
-from passlib.hash import bcrypt
+from pydantic import root_validator
+#from passlib.hash import bcrypt
 
 @dataclass
 class Author:
@@ -12,12 +12,12 @@ class Author:
     profileImage: str
     type = "author"  # TODO: Remove
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    # TODO: Remove URLs
+    # TODO: Remove hardcoded URLs
     url: str = "http://127.0.0.1:8000/" + str(uuid.uuid4())
     host: str = "http://127.0.0.1:8000/"
     authLevel: str = "user"  # TODO: More efficient to store bool or int
     hashedPassword: str = secrets.token_urlsafe(8)
-    posts:dict|None = None
+    posts: dict = {}
 
     @root_validator
     def compute_url(cls, values) -> dict:

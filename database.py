@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 
 from models.author import Author
-
+from models.post import Post
 
 class SocialDatabase:
     singleton = None
@@ -33,5 +33,12 @@ class SocialDatabase:
 
         return Author.init_with_dict(data)
 
-    def get_authors(self, limit: int) -> list:
-        pass
+    def get_authors(self, limit: int = 0) -> list[Author]:
+        return []
+
+    def get_post(self, author_id: str, post_id: str) -> Post|None:
+        author = self.get_author(author_id)
+        if author and post_id in author.posts.keys():
+            return Post.init_with_dict(author.posts[post_id])
+
+        return None

@@ -9,7 +9,6 @@ from database import SocialDatabase
 from models.author import Author
 from models.author_manager import AuthorManager
 
-
 static_dir = f"{Path.cwd()}/static"
 templates = Jinja2Templates(directory=f"{static_dir}/templates")
 router = APIRouter(

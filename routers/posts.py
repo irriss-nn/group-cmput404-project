@@ -1,11 +1,14 @@
-from pprint import pprint
+import uuid
+
+from dataclasses import asdict
 from fastapi import APIRouter, HTTPException, Request, status
-from models import post
 from fastapi.encoders import jsonable_encoder
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
-import uuid
-import pprint
+
+from database import SocialDatabase
+from models import post
+
 router = APIRouter(
     prefix="/service/authors",
     tags=["posts"],
@@ -30,18 +33,14 @@ async def read_post(request: Request, author_id:str, post_id:str):
         return templates.TemplateResponse("post.html", {"request": request, "post": document})
     raise HTTPException(status_code=404, detail="Post_not_found")
 
-
 @router.get("/{author_id}/posts/{post_id}")
-async def read_post(request: Request, author_id:str, post_id:str):
+async def read_post(author_id: str, post_id: str):
     '''return one post with author_id and post_id'''
-    author = request.app.database["authors"].find_one({"_id":author_id})
-    if not author:
-        raise HTTPException(status_code=404, detail="Author_not_found")
+    post = SocialDatabase().get_post(author_id, post_id)
+    if post:
+        return asdict(post)
 
-    if post_id not in author["posts"].keys():    
-        raise HTTPException(status_code=404, detail="Post_not_found")
-        
-    return author["posts"][post_id]
+    raise HTTPException(status_code=404, detail="Post not found")
 
 @router.get("/{author_id}/posts/")
 async def read_posts(request: Request, author_id:str):
