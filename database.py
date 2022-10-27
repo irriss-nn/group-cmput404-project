@@ -50,7 +50,7 @@ class SocialDatabase:
         if not author:
             return None
 
-        return [Post.init_with_dict(post) for post in author.posts.values()]
+        return asdict(author)["posts"]
 
     def create_post(self, author_id: str, post: Post) -> bool:
         author = self.get_author(author_id)

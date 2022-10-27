@@ -43,9 +43,9 @@ async def read_post(author_id: str, post_id: str):
 @router.get("/{author_id}/posts/")
 async def read_posts(author_id: str):
     '''Return all posts belonging to an author'''
-    author = SocialDatabase().get_author(author_id)
-    if author:
-        return asdict(author)["posts"]
+    posts = SocialDatabase().get_posts(author_id)
+    if posts:
+        return posts
 
     raise HTTPException(status_code=400, detail="Author does not exist")
 
