@@ -1,33 +1,48 @@
+import secrets
 import uuid
-from typing import Optional
-from pydantic import BaseModel, Field, root_validator
-import typing, secrets
+
+from dataclasses import dataclass, field
+from pydantic import BaseModel, root_validator
 from passlib.hash import bcrypt
 
-class Author(BaseModel):
-    type = 'author'
-    id: str = Field(default_factory=lambda: str(uuid.uuid4())) # If no ID is provided we generate one
-    url: str = "http://http://127.0.0.1:8000/" + str(uuid.uuid4())
-    host: str = "http://127.0.0.1:8000/"
+@dataclass
+class Author:
     displayName: str 
     github: str 
     profileImage: str
-    authLevel: str = 'user'
+    type = "author"  # TODO: Remove
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    # TODO: Remove URLs
+    url: str = "http://127.0.0.1:8000/" + str(uuid.uuid4())
+    host: str = "http://127.0.0.1:8000/"
+    authLevel: str = "user"  # TODO: More efficient to store bool or int
     hashedPassword: str = secrets.token_urlsafe(8)
-    posts: None|dict
+    posts:dict|None = None
 
     @root_validator
-    def compute_url(cls, values) -> typing.Dict:
-
+    def compute_url(cls, values) -> dict:
         new_url = values["host"] + "authors/"+ values["id"]
-
-        if values["url"] is not None:
+        if values["url"]:
             values["url"] = new_url
         # This basically makes it so the password is still hashed even if it is randomly generated
         # if(values["hashedPassword"] is not None): Not hashing right now for simplicity
         #     values["hashedPassword"] = bcrypt.hash(values["hashedPassword"])
         
         return values
+
+    @staticmethod
+    def init_with_dict(data: dict):
+        return Author(
+                    id=data["_id"],
+                    url=data["url"],
+                    host=data["host"],
+                    displayName=data["displayName"],
+                    github=data["github"],
+                    profileImage=data["profileImage"],
+                    authLevel=data["authLevel"],
+                    hashedPassword=data["hashedPassword"],
+                    posts=data["posts"])
+
     class Config:
         allow_population_by_field_name = True
         schema_extra = {
@@ -42,5 +57,3 @@ class Author(BaseModel):
                 "posts":{}
             }
         }
-        
-    

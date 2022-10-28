@@ -9,7 +9,7 @@ class Post(BaseModel):
     description: str 
     contentType: str 
     content:str
-    author: dict|None
+    author: dict|None  # TODO: Remove
     categories: list
     count: int
     comments:str

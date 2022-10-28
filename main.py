@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 from routers import authors, posts, comments_router
 import uvicorn
-from fastapi import FastAPI, APIRouter, Request, Form, Response, HTTPException, Cookie
 from datetime import datetime, timedelta
+from fastapi import FastAPI, APIRouter, Cookie, Form, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
-from pymongo import MongoClient
-from re import template
-from urllib import request
-from faker import Faker
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-fake = Faker()
+
 # Local imports
+from database import SocialDatabase
+from routers import authors, posts, comments_router
+
 # All login and registering related fields
 SECRET_KEY = 'f015cb10b5caa9dd69ebeb340d580f0ad37f1dfcac30aef8b713526cc9191fa3'
 ALGORITHM = "HS256"
@@ -36,13 +35,8 @@ def get_user(request: Request, username: str, password: str):
             status_code=404, detail="User not found or Password Incorrect")
 
 
-def create_user(request: Request, username: str, password: str):
-    author = Author()
-    fake.uuid4()
-
-
-def create_jwt(ecodeddata: dict):
-    to_encode = ecodeddata.copy()
+def create_jwt(encoded_data: dict):
+    to_encode = encoded_data.copy()
     expire = datetime.utcnow() + timedelta(minutes=45)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -73,14 +67,13 @@ app.include_router(comments_router.router)
 
 @app.on_event("startup")
 def startup_db_client():
-    app.mongodb_client = MongoClient("mongodb://localhost:27017")
-    app.database = app.mongodb_client["socialnetwork"]
+    app.database = SocialDatabase().database
     print("Connected to MongoDB")
 
 
 @app.on_event("shutdown")
 def shutdown_db_client():
-    app.mongodb_client.close()
+    SocialDatabase().close()
 
 
 @app.get("/")
@@ -140,8 +133,9 @@ async def get_current_user(request: Request, session: str = Cookie(None)):
     found_user = app.database["authors"].find_one({"_id": sessionUserId})
     return templates.TemplateResponse("author.html", {"request": request, "post": found_user})
 
-
 # Example of how we would get current user from cookie to verify action being done
+
+
 @app.get("/examplejwt")
 async def verify_jwt(session: str | None = Cookie(default=None)):
     if (session):
@@ -153,8 +147,9 @@ async def verify_jwt(session: str | None = Cookie(default=None)):
     else:
         raise HTTPException(status_code=401, detail="Invalid Token")
 
-
 # currently using hardcoded post value
+
+
 @app.get("/post", response_class=HTMLResponse)
 async def get_post(request: Request):
     foundPosts = request.app.database["post"].find({})
