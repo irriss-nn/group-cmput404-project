@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from routers import authors, posts, comments_router
 import uvicorn
 from fastapi import FastAPI, APIRouter, Request, Form, Response, HTTPException, Cookie
 from datetime import datetime, timedelta
@@ -14,7 +15,6 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 fake = Faker()
 # Local imports
-from routers import authors, posts, comments_router
 # All login and registering related fields
 SECRET_KEY = 'f015cb10b5caa9dd69ebeb340d580f0ad37f1dfcac30aef8b713526cc9191fa3'
 ALGORITHM = "HS256"
@@ -36,9 +36,10 @@ def get_user(request: Request, username: str, password: str):
             status_code=404, detail="User not found or Password Incorrect")
 
 
-def create_user(request: Request, username:str, password:str):
+def create_user(request: Request, username: str, password: str):
     author = Author()
     fake.uuid4()
+
 
 def create_jwt(ecodeddata: dict):
     to_encode = ecodeddata.copy()
@@ -48,9 +49,11 @@ def create_jwt(ecodeddata: dict):
     return encoded_jwt
 
 # Use This function to get userId from jwt token
-async def get_userId_from_token( token: str):
+
+
+async def get_userId_from_token(token: str):
     try:
-        if(token == None):
+        if (token == None):
             raise HTTPException(status_code=401, detail="Unauthorized")
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         userId: str = payload.get("_id")
@@ -106,7 +109,7 @@ async def get_all_posts(request: Request):
     all_posts = []
     for items in post_cursor:
         all_posts.append(items)
-    return templates.TemplateResponse("all-posts.html", {"request": request, "posts": all_posts})
+    return templates.TemplateResponse("all-posts.html", {"request": request, "posts": all_posts, "information": {"name": "USER FEED"}})
 
 # To Do For Login:
 # 1. Redirect User to proper page after login !!
@@ -120,17 +123,20 @@ async def read_item(request: Request, response: Response, username: str = Form()
     found_user.pop("hashedPassword", None)
     madeJWT = create_jwt(found_user)
     # store session cookie in key for future verification
-    response = RedirectResponse(url="/current") # We need to delcare redirect before cookies and return response all totghet
+    # We need to delcare redirect before cookies and return response all totghet
+    response = RedirectResponse(url="/current")
     response.status_code = 302
     response.set_cookie(key="session", value=madeJWT)
     # We need to redirect to the user's page
     return response
 
+
 @app.get("/current")
 async def get_current_user(request: Request, session: str = Cookie(None)):
-    if(session == None):
+    if (session == None):
         return RedirectResponse(url="/login")
-    sessionUserId = await get_userId_from_token(session) # must await for this!!
+    # must await for this!!
+    sessionUserId = await get_userId_from_token(session)
     found_user = app.database["authors"].find_one({"_id": sessionUserId})
     return templates.TemplateResponse("author.html", {"request": request, "post": found_user})
 
