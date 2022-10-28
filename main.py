@@ -153,7 +153,7 @@ async def verify_jwt(session: str | None = Cookie(default=None)):
 @app.get("/post", response_class=HTMLResponse)
 async def get_post(request: Request):
     foundPosts = request.app.database["post"].find({})
-    return templates.TemplateResponse("post.html", {"request": request, "post": foundPosts[2]})
+    return templates.TemplateResponse("post.html", {"request": request, "post": foundPosts[2], "information": {"name": "USER FEED"}})
 
 
 @app.get("/authors/{author_id}")
