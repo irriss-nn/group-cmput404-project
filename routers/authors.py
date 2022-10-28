@@ -1,13 +1,11 @@
 from dataclasses import asdict
-from fastapi import APIRouter, HTTPException, Request, Body, status
-from fastapi.encoders import jsonable_encoder
+from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
-from pydoc import doc
+#from pydoc import doc
 
 from database import SocialDatabase
 from models.author import Author
-from models.author_manager import AuthorManager
 
 static_dir = f"{Path.cwd()}/static"
 templates = Jinja2Templates(directory=f"{static_dir}/templates")
@@ -30,22 +28,16 @@ async def read_authors(request: Request, page: int|None = None, size: int|None =
     return authors
 
 @router.post("/{author_id}")
-async def create_author(author_id: str, request: Request, author: Author = Body(...)):
-    author = jsonable_encoder(author)
-    if "id" in author.keys() and author["id"] != author_id:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Updating author id is not the same as url author id")
-    author["_id"] = author["id"]
-    author.pop('id', None)
-    if request.app.database["authors"].find_one({"_id": author_id}):
-        request.app.database["authors"].update_one({"_id": author_id}, {"$set": author})
-    else:
-        # We create a new author manager when creating a new author, assume if updating author, author manager already exists
-        authm = jsonable_encoder(AuthorManager(owner=author["_id"]))
-        authm["_id"] = authm["id"]
-        authm.pop('id', None)
-        request.app.database["authors"].insert_one(author)
-        request.app.database["authorManagers"].insert_one(authm)
-    return request.app.database["authors"].find_one({"_id": author["_id"]})
+async def create_author(author_id: str, author: Author):
+    if author.id != author_id:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail="Author ids do not match")
+
+    db = SocialDatabase()
+    if not db.update_author(author):
+        db.create_author(author)
+
+    return asdict(author)
 
 @router.get("/{author_id}")
 async def read_item(author_id: str):
@@ -55,9 +47,6 @@ async def read_item(author_id: str):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="Author does not exist")
 
-    author.id = author._id
-    del author.hashedPassword
-    del author._id
     return asdict(author)
 
 # Follower functionalities

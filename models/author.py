@@ -10,15 +10,14 @@ class Author:
     displayName: str 
     github: str 
     profileImage: str
+    posts: dict = field(default_factory=dict)  # TODO: Remove
     type = "author"  # TODO: Remove
-    _id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    id: str = _id
+    id: str = str(uuid.uuid4())
     # TODO: Remove hardcoded URLs
     url: str = "http://127.0.0.1:8000/" + str(uuid.uuid4())
     host: str = "http://127.0.0.1:8000/"
     authLevel: str = "user"  # TODO: More efficient to store bool or int
     hashedPassword: str = secrets.token_urlsafe(8)
-    posts: dict = {}
 
     @root_validator
     def compute_url(cls, values) -> dict:
@@ -56,5 +55,31 @@ class Author:
                 "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
                 "hashedPassword": "as#!%lls",
                 "posts":{}
+            }
+        }
+
+@dataclass
+class AuthorManager:
+    id: str
+    followers: list = field(default_factory=list)
+    following: list = field(default_factory=list)
+    posts: dict = field(default_factory=dict)
+    inbox: list = field(default_factory=list)
+    requests: list = field(default_factory=list)
+
+    @staticmethod
+    def init_with_dict(data: dict):
+        return AuthorManager(
+                    id=data["_id"],
+                    followers=data["followers"],
+                    following=data["following"],
+                    posts=data["posts"],
+                    inbox=data["inbox"],
+                    requests=data["requests"])
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "owner": "066de609-b04a-4b30-b97c-32537c7f1f6h"
             }
         }

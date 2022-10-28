@@ -18,8 +18,7 @@ class Post:
     published: str
     visibility: str
     unlisted: str
-    _id: str | None = str(uuid.uuid4())
-    id: str | None = _id
+    id: str | None = str(uuid.uuid4())
 
     @staticmethod
     def init_with_dict(data: dict):

@@ -25,7 +25,7 @@ def test_add_author():
     response = client.post(f"/service/authors/{Fake_Author['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author)
     author = response.json()
     assert response.status_code == 200
-    assert author["_id"] == Fake_Author["id"]
+    assert author["id"] == Fake_Author["id"]
 
     shutdown_db_client()
 

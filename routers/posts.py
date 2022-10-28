@@ -1,5 +1,3 @@
-import uuid
-
 from dataclasses import asdict
 from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.encoders import jsonable_encoder
@@ -19,7 +17,7 @@ static_dir = f"{Path.cwd()}/static"
 templates = Jinja2Templates(directory=f"{static_dir}/templates")
 
 @router.get("/{author_id}/posts/{post_id}/view")
-async def read_post(request: Request, author_id:str, post_id:str):
+async def read_post(request: Request, author_id: str, post_id: str):
     '''Method to view post form template'''
     try:
         author = request.app.database["authors"].find_one({"_id":author_id})
@@ -58,10 +56,9 @@ async def create_post_without_id(author_id: str, post: Post):
     raise HTTPException(status_code=400, detail="Could not create post")
     
 @router.post("/{author_id}/posts/{post_id}")
-async def update_post(request: Request, author_id:str, post_id:str, post: Post):
+async def update_post(request: Request, author_id: str, post_id: str, post: Post):
     '''update a post with post_id'''
-    post = jsonable_encoder(post)
-    if post["id"] != post_id:
+    if post.id != post_id:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Post_id_mismatch")
 
     # check author_id
@@ -79,7 +76,7 @@ async def update_post(request: Request, author_id:str, post_id:str, post: Post):
     request.app.database["authors"].update_one({"_id": author_id}, {"$set": author})
 
 @router.delete("/{author_id}/posts/{post_id}")
-async def delete_post(request: Request, author_id:str, post_id:str):
+async def delete_post(request: Request, author_id: str, post_id: str):
     '''Delete a post'''
     author = request.app.database["authors"].find_one({"_id":author_id})
 
@@ -95,7 +92,7 @@ async def delete_post(request: Request, author_id:str, post_id:str):
 @router.put("/{author_id}/posts/{post_id}")
 async def put_post(author_id: str, post_id: str, post: Post):
     '''Create a new post with given post_id'''
-    post._id, post.id = post_id
+    post.id = post_id
     if SocialDatabase().create_post(author_id, post):
         return
 

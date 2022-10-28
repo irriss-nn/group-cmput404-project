@@ -1,8 +1,15 @@
 from dataclasses import asdict
 from pymongo import MongoClient
 
-from models.author import Author
+from models.author import Author, AuthorManager
 from models.post import Post
+
+def mongo_encode_dataclass(dataclass) -> dict:
+    dataclass = asdict(dataclass)
+    dataclass["_id"] = dataclass["id"]
+    del dataclass["id"]
+
+    return dataclass
 
 class SocialDatabase:
     __slots__ = ['__mongo_client', 'db_name', 'database']
@@ -25,40 +32,64 @@ class SocialDatabase:
     def close(self):
         return self.__del__();
 
-    def add_author(self, data):
-        pass
+    def create_author(self, author: Author) -> bool:
+        # Check not needed if insert_one does not overwrite data
+        if self.get_author(author.id):
+            return False
+
+        data = mongo_encode_dataclass(author)
+        result = self.database.authors.insert_one(data)
+        if not result.acknowledged:
+            return False
+
+        manager = mongo_encode_dataclass(AuthorManager(id=author.id))
+        self.database.authorManagers.insert_one(manager)
+        return True  # Assume success
+
+    def update_author(self, author: Author) -> bool:
+        data = mongo_encode_dataclass(author)
+        result = self.database.author.update_one({"_id": author.id},
+                                                 {"$set": data})
+        return result.acknowledged
 
     def get_author(self, author_id: str) -> Author|None:
-        data = self.database.authors.find_one({"_id": author_id})
-        if data is None:
+        author = self.database.authors.find_one({"_id": author_id})
+        if author is None:
             return None
 
-        return Author.init_with_dict(data)
+        return Author.init_with_dict(author)
+
+    def get_author_manager(self, author_id: str) -> AuthorManager|None:
+        manager = self.database.authorManagers.find_one({"_id": author_id})
+        if not manager:
+            return None
+
+        return AuthorManager.init_with_dict(manager)
 
     def get_authors(self, limit: int = 0) -> list[Author]:
         return []
 
     def get_post(self, author_id: str, post_id: str) -> Post|None:
-        author = self.get_author(author_id)
-        if author and post_id in author.posts.keys():
-            return Post.init_with_dict(author.posts[post_id])
+        manager = self.get_author_manager(author_id)
+        if manager and post_id in manager.posts.keys():
+            return Post.init_with_dict(manager.posts[post_id])
 
         return None
 
     def get_posts(self, author_id: str, limit: int = 0) -> list[Post]|None:
-        author = self.get_author(author_id)
-        if not author:
+        manager = self.get_author_manager(author_id)
+        if not manager:
             return None
 
-        return asdict(author)["posts"]
+        return asdict(manager)["posts"]
 
     def create_post(self, author_id: str, post: Post) -> bool:
-        author = self.get_author(author_id)
-        if not author or post._id in author.posts.keys():
+        manager = self.get_author_manager(author_id)
+        if not manager or post.id in manager.posts.keys():
             return False
 
-        author.posts[post._id] = post
-        posts = asdict(author)["posts"]
-        result = self.database.authors.update_one({"_id": author_id},
+        manager.posts[post.id] = post
+        posts = asdict(manager)["posts"]
+        result = self.database.authorManagers.update_one({"_id": author_id},
                                                   {"$set": {"posts": posts}})
         return result.acknowledged
