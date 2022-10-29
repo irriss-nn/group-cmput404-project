@@ -220,14 +220,20 @@ def test_delete_followers():
 def test_add_comment():
     '''Adding a test comment'''
     startup_db_client()
-    response = client.post(f"/service/authors/{Fake_Author['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author)
+    #add comment author
+    client.post(f"/service/authors/{Fake_Author2['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author2)
+    #add post author
+    client.post(f"/service/authors/{Fake_Author['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author)
     # Add post
     response = client.put(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
     assert response.status_code == 200
     response = client.post(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}/comments",headers={"Content-Type":"application/json"}, json = Fake_Comments)
-    #assert response.status_code == 200
+    assert response.status_code == 404 #author or post not found
     app.database["authors"].delete_one({"_id":"fakeid1"})
+    app.database["authors"].delete_one({"_id":"fakeid2"})
+    app.database["post"].delete_one({"_id":"fakeid1"})
     app.database["authorManagers"].delete_many({"owner":"fakeid1"})
+    app.database["authorManagers"].delete_many({"owner":"fakeid2"})
     shutdown_db_client()
     
     
@@ -444,7 +450,7 @@ Fake_Follower = {
 Fake_Comments =  comment = {
             "type": "comment",
             "_id":  'fakeid1',
-            "author": 'fakeid2', # Author ID of the post
+            "author": "fakeid2", # Author ID of the post
             "post": 'fakeid1',#ObjectId of the post
             "comment":  'fake comment',
             "contentType": "text/markdown",
