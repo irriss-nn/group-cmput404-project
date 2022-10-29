@@ -10,38 +10,38 @@
     <div id="landing-container">
       <div id="landing-header">
         <div id="landing-logo">Social Network</div>
-        <a href="{{landing.url}}" id="landing-user">
+        <a href="/current" id="landing-user">
           <img
             src="{{landing.profileImage}}"
             alt="user pfp"
             id="landing-user-img"
-          />
+          /> 
           <span id="landing-user-name">{{landing.displayName}}</span>
         </a>
       </div>
-      {% for l in landing.posts %}
+      {% for l in feed %}
       <div id="allpost-single-container">
         <div id="allpost-top">
           <a href="/author" id="allpost-author"
-            >{{landing.posts[l].author.id}}</a
+            >{{l.author["id"]}}</a
           >
           <div id="allpost-date">
-            {{landing.posts[l].published.split("T")[0]}}
+            {{l.published.split("T")[0]}}
           </div>
         </div>
         <div id="allpost-info">
-          <div id="allpost-title">{{landing.posts[l].title}}</div>
-          <div id="allpost-description">{{landing.posts[l].description}}</div>
+          <div id="allpost-title">{{l.title}}</div>
+          <div id="allpost-description">{{l.description}}</div>
         </div>
         <div id="allpost-btn-container">
           <a
             class="allpost-btn"
-            href="/service/authors/{{landing.posts[l].author.id}}/posts/{{l}}/comments"
+            href="/service/authors/{{l.author.id}}/posts/{{l._id}}/comments"
             >View Comments</a
           >
           <a
             class="allpost-btn"
-            href="/service/authors/{{landing.posts[l].author.id}}/posts/{{l}}/view"
+            href="/service/authors/{{l.author.id}}/posts/{{l._id}}/view"
             >View Post</a
           >
         </div>

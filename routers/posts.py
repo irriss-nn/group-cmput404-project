@@ -22,8 +22,9 @@ async def read_post(request: Request, author_id:str, post_id:str):
     '''
     try:
         author = request.app.database["authors"].find_one({"_id":author_id})
+        authorImg = author["profileImage"]
         document = author["posts"][post_id]
-        document["author"] = author_id
+        document["author"]["profileImage"] = authorImg
     except:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
     if document:

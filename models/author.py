@@ -9,7 +9,6 @@ from passlib.hash import bcrypt
 class Author:
     displayName: str 
     github: str 
-    profileImage: str
     type = "author"  # TODO: Remove
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     # TODO: Remove URLs
@@ -18,6 +17,7 @@ class Author:
     authLevel: str = "user"  # TODO: More efficient to store bool or int
     hashedPassword: str = secrets.token_urlsafe(8)
     posts:dict|None = None
+    profileImage: str = "https://www.pngitem.com/pimgs/m/22-223968_default-profile-picture-circle-hd-png-download.png"
 
     @root_validator
     def compute_url(cls, values) -> dict:

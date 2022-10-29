@@ -13,6 +13,7 @@ fake = Faker()
 # Use direct connection for now
 def main(args=None):
     inserted_authors = []
+    inserted_author_managers = []
     inserted_posts = []
     inserted_comments = []
     numAuthorsToCreate = 10
@@ -60,6 +61,7 @@ def main(args=None):
             ins_author = database["authors"].insert_one(author)
             ins_author_manager = database["authorManagers"].insert_one(author_manager)
             inserted_authors.append(author)
+            inserted_author_managers.append(author_manager)
     print("Inserted {} authors successfully".format(len(inserted_authors)))
 
     # Create fake posts
@@ -104,6 +106,16 @@ def main(args=None):
         }
         ins_comment = database["comments"].insert_one(comment)
         inserted_comments.append(comment)
+    # Make fake followers
+    inserted = 0
+    for i in range(numAuthorsToCreate*3):
+        chosenAuthorManager = random.choice(inserted_author_managers)
+        chosenFollowerManager = random.choice(inserted_author_managers)
+        if(chosenAuthorManager["owner"] != chosenFollowerManager["owner"]):
+            database["authorManagers"].update_one({"_id": chosenAuthorManager["_id"]}, {"$push": {"followers": chosenFollowerManager["owner"]}})
+            database["authorManagers"].update_one({"_id": chosenFollowerManager["_id"]}, {"$push": {"following": chosenAuthorManager["owner"]}})
+            inserted+=1
+    print("Inserted {} followers successfully".format(inserted))
     print("Inserted {} posts successfully".format(len(inserted_posts)))
     print("Inserted {} comments successfully".format(len(inserted_comments)))
     destroy_connect_to_db(mongodb_client)
