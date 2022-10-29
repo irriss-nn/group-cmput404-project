@@ -10,8 +10,6 @@ class Author:
     displayName: str 
     github: str 
     profileImage: str
-    posts: dict = field(default_factory=dict)  # TODO: Remove
-    type = "author"  # TODO: Remove
     id: str = str(uuid.uuid4())
     # TODO: Remove hardcoded URLs
     url: str = "http://127.0.0.1:8000/" + str(uuid.uuid4())
@@ -40,8 +38,7 @@ class Author:
                     github=data["github"],
                     profileImage=data["profileImage"],
                     authLevel=data["authLevel"],
-                    hashedPassword=data["hashedPassword"],
-                    posts=data["posts"])
+                    hashedPassword=data["hashedPassword"])
 
     class Config:
         allow_population_by_field_name = True

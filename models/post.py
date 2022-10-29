@@ -14,7 +14,7 @@ class Post:
     categories: list
     count: int
     comments: str  # TODO: Should be list
-    commentSrc: dict | None
+    commentsSrc: dict | None
     published: str
     visibility: str
     unlisted: str
@@ -23,7 +23,7 @@ class Post:
     @staticmethod
     def init_with_dict(data: dict):
         return Post(
-                    id=data["_id"],
+                    id=data["id"],
                     title=data["title"],
                     source=data["source"],
                     origin=data["origin"],
@@ -34,7 +34,7 @@ class Post:
                     categories=data["categories"],
                     count=data["count"],
                     comments=data["comments"],
-                    commentSrc=data["commentSrc"],
+                    commentsSrc=data["commentsSrc"],
                     published=data["published"],
                     visibility=data["visibility"],
                     unlisted=data["unlisted"])

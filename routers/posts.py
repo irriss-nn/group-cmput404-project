@@ -16,11 +16,16 @@ router = APIRouter(
 static_dir = f"{Path.cwd()}/static"
 templates = Jinja2Templates(directory=f"{static_dir}/templates")
 
+def encode_post(post: Post):
+    enc_post = asdict(post)
+    enc_post["type"] = "post"
+    return enc_post
+
 @router.get("/{author_id}/posts/{post_id}/view")
 async def read_post(request: Request, author_id: str, post_id: str):
     '''Method to view post form template'''
     try:
-        author = request.app.database["authors"].find_one({"_id":author_id})
+        author = request.app.database["authorManagers"].find_one({"_id": author_id})
         document = author["posts"][post_id]
         document["author"] = author_id
     except:
@@ -34,7 +39,7 @@ async def read_post(author_id: str, post_id: str):
     '''Return a post belonging to an author'''
     post = SocialDatabase().get_post(author_id, post_id)
     if post:
-        return asdict(post)
+        return encode_post(post)
 
     raise HTTPException(status_code=404, detail="Post not found")
 
@@ -45,13 +50,13 @@ async def read_posts(author_id: str):
     if posts:
         return posts
 
-    raise HTTPException(status_code=400, detail="Author does not exist")
+    raise HTTPException(status_code=404, detail="Author does not exist")
 
 @router.post("/{author_id}/posts/")
 async def create_post_without_id(author_id: str, post: Post):
     '''Create a new post'''
     if SocialDatabase().create_post(author_id, post):
-        return
+        return encode_post(post)
 
     raise HTTPException(status_code=400, detail="Could not create post")
     
@@ -62,7 +67,7 @@ async def update_post(request: Request, author_id: str, post_id: str, post: Post
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Post_id_mismatch")
 
     # check author_id
-    author = request.app.database["authors"].find_one({"_id":author_id})
+    author = request.app.database["authorManagers"].find_one({"_id": author_id})
     if not author:
         raise HTTPException(status_code=404, detail="Author_not_found")
 
@@ -71,14 +76,14 @@ async def update_post(request: Request, author_id: str, post_id: str, post: Post
         raise HTTPException(status_code=404, detail="Post_not_found")
 
     # update post under author
-    author["posts"][post_id] = post
+    author["posts"][post_id] = asdict(post)
     # update user at the end
-    request.app.database["authors"].update_one({"_id": author_id}, {"$set": author})
+    request.app.database["authorManagers"].update_one({"_id": author_id}, {"$set": author})
 
 @router.delete("/{author_id}/posts/{post_id}")
 async def delete_post(request: Request, author_id: str, post_id: str):
     '''Delete a post'''
-    author = request.app.database["authors"].find_one({"_id":author_id})
+    author = request.app.database["authorManagers"].find_one({"_id": author_id})
 
     if not author:
         raise HTTPException(status_code=404, detail="Author_not_found")
@@ -87,13 +92,13 @@ async def delete_post(request: Request, author_id: str, post_id: str):
         raise HTTPException(status_code=404, detail="Post_not_found")
 
     author["posts"].pop(post_id, None) # remove post from author's dictionary
-    request.app.database["authors"].update_one({"_id": author_id}, {"$set": author}) # update author
+    request.app.database["authorManagers"].update_one({"_id": author_id}, {"$set": author}) # update author
 
 @router.put("/{author_id}/posts/{post_id}")
 async def put_post(author_id: str, post_id: str, post: Post):
     '''Create a new post with given post_id'''
     post.id = post_id
     if SocialDatabase().create_post(author_id, post):
-        return
+        return encode_post(post)
 
     raise HTTPException(status_code=400, detail="Could not create post")

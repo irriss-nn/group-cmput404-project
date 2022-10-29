@@ -24,9 +24,12 @@ def test_add_author():
     # TODO: probably remove this test in future when starts using data import to database directly 
     startup_db_client()
 
-    response = client.post(f"/service/authors/{Fake_Author['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author)
-    author = response.json()
+    response = client.post(f"/service/authors/{Fake_Author['id']}",
+                           headers={"Content-Type":"application/json"},
+                           json=Fake_Author)
     assert response.status_code == 200
+
+    author = response.json()
     assert author["id"] == Fake_Author["id"]
 
     shutdown_db_client()
@@ -49,8 +52,7 @@ def test_get_authors():
                     "displayName":"Fake Thompson",
                     "github": "http://github.com/fakeThopson",
                     "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
-                    "hashedPassword": "as#!%lls",
-                    "posts":{}
+                    "hashedPassword": "as#!%lls"
                 }
     client.post(f"/service/authors/{Fake_Author2['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author2)
     
@@ -73,8 +75,7 @@ def test_update_author():
                     "displayName":"Modified Croft",
                     "github": "http://github.com/modified",
                     "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
-                    "hashedPassword": "as#!%lls",
-                    "posts":{}
+                    "hashedPassword": "as#!%lls"
                 }
     response = client.post(f"/service/authors/{Fake_Author_Modified['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author_Modified)
     author = response.json()
@@ -93,10 +94,11 @@ def test_add_post():
     '''Adding a test post'''
     startup_db_client()
     # Add author
-    response = client.post(f"/service/authors/{Fake_Author['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author)
+    response = client.post(f"/service/authors/{Fake_Author['id']}", headers={"Content-Type": "application/json"}, json=Fake_Author)
 
     # Add post
-    response = client.put(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
+    response = client.put(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",
+                          headers={"Content-Type":"application/json"}, json=Fake_Post)
     response = client.get(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}")
     post = response.json()
     assert response.status_code == 200
@@ -105,24 +107,29 @@ def test_add_post():
     shutdown_db_client()
 
 def test_add_post_again():
-    '''This should receive a 403 for duplicate posts'''
+    '''This should receive a 400 for duplicate posts'''
     startup_db_client()
-    response = client.put(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
-    assert response.status_code == 403
+    response = client.put(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",headers={"Content-Type": "application/json"}, json=Fake_Post)
+    assert response.status_code == 400
     shutdown_db_client()
 
 def test_add_no_id_post():
     '''This method adds a post without id, host should generate one for it'''
     startup_db_client()
-    author_before = client.get(f"/service/authors/{Fake_Author['id']}").json()
-    response = client.post(f"/service/authors/{Fake_Author['id']}/posts/",headers={"Content-Type":"application/json"}, json = Fake_Post_no_id)
-    author = client.get(f"/service/authors/{Fake_Author['id']}")
-    author = author.json()
-    assert len(author["posts"]), len(author_before["posts"])+1
+
+    # Check we added successfully
+    response = client.post(f"/service/authors/{Fake_Author['id']}/posts/",
+                           headers={"Content-Type": "application/json"},
+                           json=Fake_Post_no_id)
     assert response.status_code == 200
 
+    # Check it was truly added
+    post = response.json()
+    same_post = client.get(f"/service/authors/{Fake_Author['id']}/posts/{post['id']}").json()
+    assert post == same_post
+
 def test_get_posts():
-    '''This method should fetch all psots from one user'''
+    '''This method should fetch all posts from one user'''
     response = client.get(f"/service/authors/{Fake_Author['id']}/posts/").json()
     
     assert len(response.keys()), 2
@@ -130,7 +137,9 @@ def test_get_posts():
 
 def test_update_post():
     '''This method should update one attribute in post that belongs to a user'''
-    response = client.post(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post_modified)
+    response = client.post(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",
+                           headers={"Content-Type": "application/json"},
+                           json=Fake_Post_modified)
     modified_post = client.get(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}").json()
 
     assert response.status_code == 200
@@ -187,8 +196,7 @@ Fake_Author = {
     "displayName":"Fake Croft",
     "github": "http://github.com/laracroft",
     "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
-    "hashedPassword": "as#!%lls",
-    "posts":{}
+    "hashedPassword": "as#!%lls"
 }
 
 Fake_Post = {

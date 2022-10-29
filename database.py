@@ -79,7 +79,7 @@ class SocialDatabase:
 
     def get_post(self, author_id: str, post_id: str) -> Post|None:
         manager = self.get_author_manager(author_id)
-        if manager and post_id in manager.posts.keys():
+        if manager and post_id in manager.posts:
             return Post.init_with_dict(manager.posts[post_id])
 
         return None
@@ -96,8 +96,6 @@ class SocialDatabase:
         if not manager or post.id in manager.posts.keys():
             return False
 
-        manager.posts[post.id] = post
-        posts = asdict(manager)["posts"]
         result = self.database.authorManagers.update_one({"_id": author_id},
-                                                  {"$set": {"posts": posts}})
+                                                         {"$set": {f"posts.{post.id}": asdict(post)}})
         return result.acknowledged

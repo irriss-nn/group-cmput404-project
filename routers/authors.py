@@ -15,6 +15,14 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+def encode_author(author: Author):
+    del author.authLevel
+    del author.hashedPassword
+    enc_author = asdict(author)
+    enc_author["type"] = "author"
+
+    return enc_author
+
 @router.get("/")
 async def read_authors(page: int|None = 0, size: int|None = 0):
     if page is None or size is None:
@@ -22,7 +30,7 @@ async def read_authors(page: int|None = 0, size: int|None = 0):
     else:
         authors = SocialDatabase().get_authors(page*size, size)
 
-    return [asdict(author) for author in authors]
+    return [encode_author(author) for author in authors]
 
 @router.post("/{author_id}")
 async def create_author(author_id: str, author: Author):
@@ -34,17 +42,17 @@ async def create_author(author_id: str, author: Author):
     if not (db.create_author(author) or db.update_author(author)):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
-    return asdict(author)
+    return encode_author(author)
 
 @router.get("/{author_id}")
 async def read_item(author_id: str):
     '''Get author by id'''
     author = SocialDatabase().get_author(author_id)
     if not author:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Author does not exist")
 
-    return asdict(author)
+    return encode_author(author)
 
 # Follower functionalities
 @router.delete("/{author_id}/followers/{foreign_author_id}")
