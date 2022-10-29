@@ -81,10 +81,10 @@ def test_update_author():
     assert author["github"]== Fake_Author_Modified["github"]
 
     # remove fake authors
-    #app.database["authors"].delete_one({"_id":"fakeid1"})
-    #app.database["authors"].delete_one({"_id":"fakeid2"})
-    #app.database["authorManagers"].delete_many({"owner":"fakeid1"})
-    #app.database["authorManagers"].delete_many({"owner":"fakeid2"})
+    app.database["authors"].delete_one({"_id":"fakeid1"})
+    app.database["authors"].delete_one({"_id":"fakeid2"})
+    app.database["authorManagers"].delete_many({"owner":"fakeid1"})
+    app.database["authorManagers"].delete_many({"owner":"fakeid2"})
     shutdown_db_client()
 
 
@@ -149,7 +149,7 @@ def test_delete_post():
 
 
 ##############################################################################Followers########################################################################################################
-def add_followers():
+def test_add_followers():
     Fake_Author2 = {
     "id": "fakeid2",
     "url":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
@@ -164,7 +164,7 @@ def add_followers():
     response = client.put(f"/service/authors/{Fake_Author['id']}/followers/{Fake_Author2['id']}")
     assert response.status_code == 200
     follower = response.json()
-    assert follower['id']==Fake_Author2['id']
+    assert follower['foreign_author_id']== Fake_Author2['id']
 def test_check_followers():
     'get a list of authors who are AUTHOR_ID’s followers'
     pass
