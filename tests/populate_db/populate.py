@@ -42,7 +42,8 @@ def main(args=None):
                 "profileImage": fake.image_url(),
                 "type": "author",
                 "authLevel": "user",
-                "hashedPassword": secrets.token_urlsafe(8)
+                "hashedPassword": secrets.token_urlsafe(8),
+                "posts": []
             }
             author_manager = {
                 "_id": fake.uuid4(),
@@ -80,6 +81,7 @@ def main(args=None):
             "visibility":"PUBLIC",
             "unlisted":"false"
         }
+        adding_to_author = database["authors"].update_one({"_id": chosenAuthor["_id"]}, {"$push": {"posts": post}})
         ins_post = database["post"].insert_one(post)
         inserted_posts.append(post)
     # Make fake comments
