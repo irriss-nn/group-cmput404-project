@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from pprint import pprint
 from fastapi import APIRouter, HTTPException, Request, Body, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.templating import Jinja2Templates
@@ -91,6 +92,16 @@ async def read_followers(author_id: str, request: Request):
     for objId in follower_list["followers"]:
         return_list.append(request.app.database["authors"].find_one({"_id": objId}))
     return { "type": "followers", "items": return_list }
+
+@router.get("/{author_id}/{foreign_author_id}/status")
+async def check_follow_status(author_id: str, foreign_author_id: str, request: Request):
+    '''As an author, When I befriend someone I follow them, only when the other author befriends me do I count as a real friend'''
+    if request.app.database["authorManagers"].find_one({"owner": author_id, "following": {"$in": [foreign_author_id]}}) and request.app.database["authorManagers"].find_one({"owner": foreign_author_id, "following": {"$in": [author_id]}}): 
+        return {"message": "We are true friends", "author_id": author_id, "foreign_author_id": foreign_author_id}
+    elif request.app.database["authorManagers"].find_one({"owner": author_id, "following": {"$in": [foreign_author_id]}}): 
+        return {"message": "I am just a friend", "author_id": author_id, "foreign_author_id": foreign_author_id}
+    else:
+        return {"message": "We are not friends", "author_id": author_id, "foreign_author_id": foreign_author_id}
 
 #### USER FACING VIEWS ####
 @router.get("/{author_id}/view")
