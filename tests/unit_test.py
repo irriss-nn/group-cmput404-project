@@ -149,6 +149,7 @@ def test_delete_post():
 
 
 ##############################################################################Followers########################################################################################################
+
 def test_add_followers():
     startup_db_client()
     
@@ -192,7 +193,14 @@ def test_read_followers():
     assert response.status_code==200
     assert Fake_Author2['id'],Fake_Author3['id'] in follower['item']
     #assert len(follower['items']) == 2
+    app.database["authors"].delete_one({"_id":"fakeid3"}) 
+    shutdown_db_client()
 
+def test_delete_followers():
+    startup_db_client()   
+    client.delete(f"/service/authors/{Fake_Author['id']}/followers/{Fake_Author2['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author2)
+    response = client.get(f"/service/authors/{Fake_Author['id']}/followers/{Fake_Author2['id']}")
+    assert response.status_code == 404
     shutdown_db_client()
     
 
