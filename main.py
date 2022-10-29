@@ -150,6 +150,12 @@ async def verify_jwt(session: str | None = Cookie(default=None)):
 # currently using hardcoded post value
 
 
+@app.get("/landing", response_class=HTMLResponse)
+async def get_landing(request: Request):
+    foundAuthor = request.app.database["authors"].find({})
+    return templates.TemplateResponse("author.html", {"request": request, "post": foundAuthor[1]})
+
+
 @app.get("/post", response_class=HTMLResponse)
 async def get_post(request: Request):
     foundPosts = request.app.database["post"].find({})
@@ -166,7 +172,7 @@ async def display_author(request: Request, response: Response, author_id: str):
 @app.get("/author", response_class=HTMLResponse)
 async def get_post(request: Request):
     foundAuthor = request.app.database["authors"].find({})
-    return templates.TemplateResponse("author.html", {"request": request, "post": foundAuthor[2]})
+    return templates.TemplateResponse("author.html", {"request": request, "post": foundAuthor[1]})
 
 
 # currently everything is hardcoded. Just initial design
