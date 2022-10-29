@@ -165,7 +165,7 @@ def test_check_followers():
     otherwise return error
     '''
     startup_db_client()
-    response = client.put(f"/service/authors/{Fake_Author['id']}/followers/{Fake_Author2['id']}")
+    response = client.get(f"/service/authors/{Fake_Author['id']}/followers/{Fake_Author2['id']}")
     assert response.status_code == 200
     follower = response.json()
     assert follower['foreign_author_id']==Fake_Author2['id']
