@@ -152,8 +152,9 @@ def test_delete_post():
 
 def test_add_followers():
     startup_db_client()
-    
-# add one fakeauthor2 as a follower of fake author 1 
+    response = client.post(f"/service/authors/{Fake_Author['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author)
+    assert response.status_code == 200
+    # add one fakeauthor2 as a follower of fake author 1 
     response = client.put(f"/service/authors/{Fake_Author['id']}/followers/{Fake_Author2['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author2)
     assert response.status_code == 200
     follower = response.json()
@@ -201,6 +202,11 @@ def test_delete_followers():
     client.delete(f"/service/authors/{Fake_Author['id']}/followers/{Fake_Author2['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author2)
     response = client.get(f"/service/authors/{Fake_Author['id']}/followers/{Fake_Author2['id']}")
     assert response.status_code == 404
+    app.database["authors"].delete_one({"_id":"fakeid2"})
+    app.database["authors"].delete_one({"_id":"fakeid1"})
+    app.database["authorManagers"].delete_many({"owner":"fakeid3"})
+    app.database["authorManagers"].delete_many({"owner":"fakeid2"})
+    app.database["authorManagers"].delete_many({"owner":"fakeid3"})
     shutdown_db_client()
     
 
@@ -214,15 +220,14 @@ def test_delete_followers():
 def test_add_comment():
     '''Adding a test comment'''
     startup_db_client()
-    
-    
-    response = client.post(f"/service/authors/'fakeAuthor'/posts/'fakePost'/comments/",headers={"Content-Type":"application/json"}, json = Fake_Comments)
-    #post fail
-    #response = client.get(f"/service/authors/'fakeAuthor'/posts/'fakePost'/comments/",headers={"Content-Type":"application/json"}, json = Fake_Comments)
-    #comment = response.json()
-    assert response.status_code ==307#needed to be fixed 
-    #assert comment["id"]== "fakeid1"
-    
+    response = client.post(f"/service/authors/{Fake_Author['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author)
+    # Add post
+    response = client.put(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
+    assert response.status_code == 200
+    response = client.post(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}/comments",headers={"Content-Type":"application/json"}, json = Fake_Comments)
+    #assert response.status_code == 200
+    app.database["authors"].delete_one({"_id":"fakeid1"})
+    app.database["authorManagers"].delete_many({"owner":"fakeid1"})
     shutdown_db_client()
     
     
@@ -436,8 +441,13 @@ Fake_Follower = {
 
 
 
-Fake_Comments = {
-            "comment":  "sick olde Englsih"
-           }
-     
+Fake_Comments =  comment = {
+            "type": "comment",
+            "_id":  'fakeid1',
+            "author": 'fakeid2', # Author ID of the post
+            "post": 'fakeid1',#ObjectId of the post
+            "comment":  'fake comment',
+            "contentType": "text/markdown",
+            "published": '2022-10-25T11:09:11.383160'
+        }
 
