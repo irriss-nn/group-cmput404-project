@@ -16,16 +16,13 @@ router = APIRouter(
 )
 
 @router.get("/")
-async def read_authors(request: Request, page: int|None = None, size: int|None = None):
-    if (page is None or size is None):
-        authors = list(request.app.database["authors"].find(limit=100))
+async def read_authors(page: int|None = 0, size: int|None = 0):
+    if page is None or size is None:
+        authors = SocialDatabase().get_authors()
     else:
-        authors = list(request.app.database["authors"].find().sort("_id",1).skip(( ( page - 1 ) * size ) if page > 0 else 0).limit(size))
-    for i in range(len(authors)):
-        authors[i].pop("hashedPassword", None)
-        authors[i]["id"] = authors[i]["_id"]
-        authors[i].pop('_id', None)
-    return authors
+        authors = SocialDatabase().get_authors(page*size, size)
+
+    return [asdict(author) for author in authors]
 
 @router.post("/{author_id}")
 async def create_author(author_id: str, author: Author):

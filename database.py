@@ -1,5 +1,5 @@
 from dataclasses import asdict
-from pymongo import MongoClient
+from pymongo import ASCENDING, MongoClient
 
 from models.author import Author, AuthorManager
 from models.post import Post
@@ -65,15 +65,17 @@ class SocialDatabase:
 
         return Author.init_with_dict(author)
 
+    def get_authors(self, offset: int = 0, limit: int = 0) -> list[Author]:
+        return [Author.init_with_dict(author) for author in
+                self.database.authors.find(skip=offset, limit=limit,
+                                           sort=[("_id", ASCENDING)])]
+
     def get_author_manager(self, author_id: str) -> AuthorManager|None:
         manager = self.database.authorManagers.find_one({"_id": author_id})
         if not manager:
             return None
 
         return AuthorManager.init_with_dict(manager)
-
-    def get_authors(self, limit: int = 0) -> list[Author]:
-        return []
 
     def get_post(self, author_id: str, post_id: str) -> Post|None:
         manager = self.get_author_manager(author_id)
