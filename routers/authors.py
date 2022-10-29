@@ -34,8 +34,8 @@ async def create_author(author_id: str, author: Author):
                             detail="Author ids do not match")
 
     db = SocialDatabase()
-    if not db.update_author(author):
-        db.create_author(author)
+    if not (db.create_author(author) or db.update_author(author)):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
     return asdict(author)
 

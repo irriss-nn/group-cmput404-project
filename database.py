@@ -48,7 +48,7 @@ class SocialDatabase:
 
     def update_author(self, author: Author) -> bool:
         data = mongo_encode_dataclass(author)
-        result = self.database.author.update_one({"_id": author.id},
+        result = self.database.authors.update_one({"_id": author.id},
                                                  {"$set": data})
         return result.acknowledged
 
