@@ -39,17 +39,23 @@ class SocialDatabase:
 
         data = mongo_encode_dataclass(author)
         result = self.database.authors.insert_one(data)
-        if not result.acknowledged:
-            return False
+        if result.acknowledged:
+            manager = mongo_encode_dataclass(AuthorManager(id=author.id))
+            self.database.authorManagers.insert_one(manager)
 
-        manager = mongo_encode_dataclass(AuthorManager(id=author.id))
-        self.database.authorManagers.insert_one(manager)
-        return True  # Assume success
+        return result.acknowledged
 
     def update_author(self, author: Author) -> bool:
         data = mongo_encode_dataclass(author)
         result = self.database.authors.update_one({"_id": author.id},
                                                  {"$set": data})
+        return result.acknowledged
+
+    def delete_author(self, author_id: str) -> bool:
+        result = self.database.authors.delete_one({"_id": author_id})
+        if result.acknowledged:
+            self.database.authorManagers.delete_one({"_id": author_id})
+
         return result.acknowledged
 
     def get_author(self, author_id: str) -> Author|None:

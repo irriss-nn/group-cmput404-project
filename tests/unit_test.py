@@ -5,10 +5,12 @@ import os
 
 from requests import request
 
+from database import SocialDatabase
 from models import author
 os.chdir(Path.cwd().parent)
 from main import app, startup_db_client, shutdown_db_client
 
+db = SocialDatabase()
 client = TestClient(app)
 
 def test_read_main():
@@ -81,10 +83,8 @@ def test_update_author():
     assert author["github"]== Fake_Author_Modified["github"]
 
     # remove fake authors
-    app.database["authors"].delete_one({"_id":"fakeid1"})
-    app.database["authors"].delete_one({"_id":"fakeid2"})
-    app.database["authorManagers"].delete_many({"owner":"fakeid1"})
-    app.database["authorManagers"].delete_many({"owner":"fakeid2"})
+    db.delete_author("fakeid1")
+    db.delete_author("fakeid2")
     shutdown_db_client()
 
 
@@ -143,7 +143,7 @@ def test_delete_post():
     response = client.get(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}")
 
     # Delete the author as well
-    app.database["authors"].delete_one({"_id":"fakeid1"}) 
+    db.delete_author("fakeid1")
     assert response.status_code == 404
     shutdown_db_client()
 
