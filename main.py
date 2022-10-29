@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from routers import authors, posts, comments_router
 import uvicorn
 from datetime import datetime, timedelta
 from fastapi import FastAPI, APIRouter, Cookie, Form, HTTPException, Request, Response
@@ -19,6 +20,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 def get_user(request: Request, username: str, password: str):
     found_user = request.app.database["authors"].find_one(
         {"displayName": username})
@@ -32,6 +34,7 @@ def get_user(request: Request, username: str, password: str):
         raise HTTPException(
             status_code=404, detail="User not found or Password Incorrect")
 
+
 def create_jwt(encoded_data: dict):
     to_encode = encoded_data.copy()
     expire = datetime.utcnow() + timedelta(minutes=45)
@@ -40,9 +43,11 @@ def create_jwt(encoded_data: dict):
     return encoded_jwt
 
 # Use This function to get userId from jwt token
-async def get_userId_from_token( token: str):
+
+
+async def get_userId_from_token(token: str):
     try:
-        if(token == None):
+        if (token == None):
             raise HTTPException(status_code=401, detail="Unauthorized")
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         userId: str = payload.get("_id")
@@ -65,25 +70,31 @@ def startup_db_client():
     app.database = SocialDatabase().database
     print("Connected to MongoDB")
 
+
 @app.on_event("shutdown")
 def shutdown_db_client():
     SocialDatabase().close()
+
 
 @app.get("/")
 async def root():
     return RedirectResponse(url='/login')
 
+
 @app.get("/login", response_class=HTMLResponse)
 async def read_item(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
+
 
 @app.get("/register", response_class=HTMLResponse)
 async def read_item(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
 
+
 @app.post("/register")
 async def register_author(request: Request, response: Response, username: str = Form(), password: str = Form()):
     return {"message": "register"}
+
 
 @app.get("/posts", response_class=HTMLResponse)
 async def get_all_posts(request: Request):
@@ -91,33 +102,40 @@ async def get_all_posts(request: Request):
     all_posts = []
     for items in post_cursor:
         all_posts.append(items)
-    return templates.TemplateResponse("all-posts.html", {"request": request, "posts": all_posts})
+    return templates.TemplateResponse("all-posts.html", {"request": request, "posts": all_posts, "information": {"name": "USER FEED"}})
 
 # To Do For Login:
 # 1. Redirect User to proper page after login !!
 # 2. Make use of hashing for passwords
 # 3. Make sure that the user is not already logged in
+
+
 @app.post("/login")
 async def read_item(request: Request, response: Response, username: str = Form(), password: str = Form()):
     found_user = get_user(request, username, password)
     found_user.pop("hashedPassword", None)
     madeJWT = create_jwt(found_user)
     # store session cookie in key for future verification
-    response = RedirectResponse(url="/current") # We need to delcare redirect before cookies and return response all totghet
+    # We need to delcare redirect before cookies and return response all totghet
+    response = RedirectResponse(url="/current")
     response.status_code = 302
     response.set_cookie(key="session", value=madeJWT)
     # We need to redirect to the user's page
     return response
 
+
 @app.get("/current")
 async def get_current_user(request: Request, session: str = Cookie(None)):
-    if(session == None):
+    if (session == None):
         return RedirectResponse(url="/login")
-    sessionUserId = await get_userId_from_token(session) # must await for this!!
+    # must await for this!!
+    sessionUserId = await get_userId_from_token(session)
     found_user = app.database["authors"].find_one({"_id": sessionUserId})
     return templates.TemplateResponse("author.html", {"request": request, "post": found_user})
 
 # Example of how we would get current user from cookie to verify action being done
+
+
 @app.get("/examplejwt")
 async def verify_jwt(session: str | None = Cookie(default=None)):
     if (session):
@@ -130,10 +148,12 @@ async def verify_jwt(session: str | None = Cookie(default=None)):
         raise HTTPException(status_code=401, detail="Invalid Token")
 
 # currently using hardcoded post value
+
+
 @app.get("/post", response_class=HTMLResponse)
 async def get_post(request: Request):
     foundPosts = request.app.database["post"].find({})
-    return templates.TemplateResponse("post.html", {"request": request, "post": foundPosts[2]})
+    return templates.TemplateResponse("post.html", {"request": request, "post": foundPosts[2], "information": {"name": "USER FEED"}})
 
 
 @app.get("/authors/{author_id}")
@@ -141,6 +161,7 @@ async def display_author(request: Request, response: Response, author_id: str):
     author = authors.read_item(author_id, request)
     response.set_cookie(key="author_id", value=author)
     return templates.TemplateResponse("user-feed.html", {"request": request})
+
 
 @app.get("/author", response_class=HTMLResponse)
 async def get_post(request: Request):

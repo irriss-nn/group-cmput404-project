@@ -1,4 +1,5 @@
 from ast import Try, arg
+from http import client
 import secrets
 from faker import Faker
 import requests
@@ -27,6 +28,8 @@ def main(args=None):
             except:
                 howToPopulate = 0
     database, mongodb_client = connect_to_db()
+    mongodb_client.drop_database("socialnetwork")
+    print("Dropped database")
     for i in range(numAuthorsToCreate):
         fakeuuid = fake.uuid4()
         fakename = fake.name()
@@ -42,7 +45,8 @@ def main(args=None):
                 "profileImage": fake.image_url(),
                 "type": "author",
                 "authLevel": "user",
-                "hashedPassword": secrets.token_urlsafe(8)
+                "hashedPassword": secrets.token_urlsafe(8),
+                "posts": {}
             }
             author_manager = {
                 "_id": fake.uuid4(),
@@ -80,6 +84,8 @@ def main(args=None):
             "visibility":"PUBLIC",
             "unlisted":"false"
         }
+        adding_to_author = database["authors"].update_one({"_id": chosenAuthor["_id"]}, { "$set": { "posts.{}".format(fakeuuid): post}})
+        # adding_to_author = database["authors"].update_one({"_id": chosenAuthor["_id"]}, {"$push": {"posts": post}})
         ins_post = database["post"].insert_one(post)
         inserted_posts.append(post)
     # Make fake comments
