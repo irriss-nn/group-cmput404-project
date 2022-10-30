@@ -86,7 +86,6 @@ async def read_item(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 
-
 @app.get("/register", response_class=HTMLResponse)
 async def read_item(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
@@ -94,13 +93,14 @@ async def read_item(request: Request):
 
 @app.post("/register")
 async def register_author_todb(request: Request, response: Response, username: str = Form(), password: str = Form(), github: str = Form()):
-    
+
     usnm = username
     pswd = password
     git = github
-    if(git == None or usnm == None or pswd == None): # Catch errors
+    if (git == None or usnm == None or pswd == None):  # Catch errors
         return RedirectResponse(url='/register')
-    newUser = Author(displayName=usnm, github=git, hashedPassword=pswd)  # TODO: Hash password
+    newUser = Author(displayName=usnm, github=git,
+                     hashedPassword=pswd)  # TODO: Hash password
     # result = await SocialDatabase.add_author(newUser) # Use this when implemented
     ### TEMPORARY  MOVE TO DB FILE ###
     author = jsonable_encoder(newUser)
@@ -118,12 +118,14 @@ async def register_author_todb(request: Request, response: Response, username: s
     authm.pop('id', None)
     app.database["authorManagers"].insert_one(authm)
     ### TEMPORARY ###
-    return RedirectResponse('/login', status_code=status.HTTP_302_FOUND) # Automatically logs user in, maybe we want to change so they log in manually
+    # Automatically logs user in, maybe we want to change so they log in manually
+    return RedirectResponse('/login', status_code=status.HTTP_302_FOUND)
+
 
 @app.post("/login")
 async def read_item(request: Request, response: Response, username: str = Form(), password: str = Form()):
     found_user = get_user(request, username, password)
-    if found_user == None: # Return to login if bad password
+    if found_user == None:  # Return to login if bad password
         response = RedirectResponse(url="/login")
         response.status_code = 302
         response.delete_cookie(key="session")
@@ -139,6 +141,8 @@ async def read_item(request: Request, response: Response, username: str = Form()
     return response
 
 # For when we want to logout user and delete cookie
+
+
 @app.post("/logout")
 async def logout(request: Request, response: Response):
     response = RedirectResponse(url="/login")
@@ -152,20 +156,21 @@ async def logout(request: Request, response: Response):
 # 3. Make sure that the user is not already logged in
 
 
-
-@app.get("/current") # View current profile
+@app.get("/current")  # View current profile
 async def get_current_user(request: Request, session: str = Cookie(None)):
     if (session == None):
         return RedirectResponse(url="/login")
     # must await for this!!
     sessionUserId = await get_userId_from_token(session)
     found_user = app.database["authors"].find_one({"_id": sessionUserId})
-    found_posts = app.database["authorManagers"].find_one({"_id": sessionUserId})["posts"]
+    found_posts = app.database["authorManagers"].find_one({"_id": sessionUserId})[
+        "posts"]
     found_user["posts"] = found_posts
     return templates.TemplateResponse("author.html", {"request": request, "post": found_user})
 
-
  # Page user lands on
+
+
 @app.get("/home")
 async def get_home(request: Request, session: str = Cookie(None)):
     if (session == None):
@@ -174,12 +179,14 @@ async def get_home(request: Request, session: str = Cookie(None)):
     sessionUserId = await get_userId_from_token(session)
     found_user = app.database["authors"].find_one({"_id": sessionUserId})
     ### TEMPORARY MOVE TO DATABASE FILE ###
-    foundAuthMan = app.database["authorManagers"].find_one({"_id": sessionUserId})
+    foundAuthMan = app.database["authorManagers"].find_one(
+        {"_id": sessionUserId})
     allCurrentUserFollowing = foundAuthMan["following"]
     all_feed_posts = []
     for following in allCurrentUserFollowing:
         # Get post of each following
-        found_following = app.database["authorManagers"].find_one({"_id": following})
+        found_following = app.database["authorManagers"].find_one(
+            {"_id": following})
         try:
             for post in found_following["posts"]:
                 all_feed_posts.append(found_following["posts"][post])
@@ -188,9 +195,11 @@ async def get_home(request: Request, session: str = Cookie(None)):
     ### TEMPORARY ###
 
     pprint(all_feed_posts)
-    return templates.TemplateResponse("landing.html", {"request": request, "landing": found_user,"feed": all_feed_posts})
+    return templates.TemplateResponse("landing.html", {"request": request, "landing": found_user, "feed": all_feed_posts})
 
 # Example of how we would get current user from cookie to verify action being done
+
+
 @app.get("/examplejwt")
 async def verify_jwt(session: str | None = Cookie(default=None)):
     if (session):
@@ -205,6 +214,8 @@ async def verify_jwt(session: str | None = Cookie(default=None)):
 # currently using hardcoded post value
 
  ## Testing PAGES ##
+
+
 @app.get("/landing", response_class=HTMLResponse)
 async def get_landing(request: Request):
     foundAuthor = request.app.database["authors"].find({})
@@ -216,6 +227,7 @@ async def get_post(request: Request):
     foundPosts = request.app.database["post"].find({})
     return templates.TemplateResponse("post.html", {"request": request, "post": foundPosts[2], "information": {"name": "USER FEED"}})
 
+
 @app.get("/posts", response_class=HTMLResponse)
 async def get_all_posts(request: Request):
     post_cursor = app.database["post"].find({})
@@ -223,7 +235,6 @@ async def get_all_posts(request: Request):
     for items in post_cursor:
         all_posts.append(items)
     return templates.TemplateResponse("all-posts.html", {"request": request, "posts": all_posts, "information": {"name": "USER FEED"}})
-
 
 
 @app.get("/authors/{author_id}")
