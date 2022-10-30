@@ -100,7 +100,7 @@ async def register_author_todb(request: Request, response: Response, username: s
     git = github
     if(git == None or usnm == None or pswd == None): # Catch errors
         return RedirectResponse(url='/register')
-    newUser = Author(displayName=usnm, github=git, hashedPassword=pswd, profileImage="")  # TODO: Hash password
+    newUser = Author(displayName=usnm, github=git, hashedPassword=pswd)  # TODO: Hash password
     # result = await SocialDatabase.add_author(newUser) # Use this when implemented
     ### TEMPORARY  MOVE TO DB FILE ###
     author = jsonable_encoder(newUser)

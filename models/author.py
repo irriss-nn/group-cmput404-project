@@ -11,7 +11,6 @@ from models.base import Base
 class Author(Base):
     displayName: str 
     github: str 
-    profileImage: str
     id: str = str(uuid.uuid4())
     # TODO: Remove hardcoded URLs
     url: str = "http://127.0.0.1:8000/" + str(uuid.uuid4())

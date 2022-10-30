@@ -22,7 +22,7 @@
       {% for l in feed %}
       <div id="allpost-single-container">
         <div id="allpost-top">
-          <a href="/author" id="allpost-author"
+          <a href="/service/authors/{{l.author.id}}/posts/{{l._id}}/view" id="allpost-author"
             >{{l.author["id"]}}</a
           >
           <div id="allpost-date">
