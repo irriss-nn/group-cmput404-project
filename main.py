@@ -160,6 +160,8 @@ async def get_current_user(request: Request, session: str = Cookie(None)):
     # must await for this!!
     sessionUserId = await get_userId_from_token(session)
     found_user = app.database["authors"].find_one({"_id": sessionUserId})
+    found_posts = app.database["authorManagers"].find_one({"_id": sessionUserId})["posts"]
+    found_user["posts"] = found_posts
     return templates.TemplateResponse("author.html", {"request": request, "post": found_user})
 
 
@@ -177,7 +179,7 @@ async def get_home(request: Request, session: str = Cookie(None)):
     all_feed_posts = []
     for following in allCurrentUserFollowing:
         # Get post of each following
-        found_following = app.database["authors"].find_one({"_id": following})
+        found_following = app.database["authorManagers"].find_one({"_id": following})
         try:
             for post in found_following["posts"]:
                 all_feed_posts.append(found_following["posts"][post])

@@ -5,7 +5,8 @@ import sys
 
 from faker import Faker
 from pymongo import MongoClient
-
+import sys
+sys.path.append('../../')
 from database import SocialDatabase
 from models.author import Author
 
@@ -53,7 +54,8 @@ def main(args=None):
             }
 
             SocialDatabase().create_author(Author.init_from_mongo(author))
-            author_manager = SocialDatabase().get_author_manager(author["_id"])
+            print(author)
+            author_manager = SocialDatabase().get_author_manager(author["id"])
             inserted_authors.append(author)
             inserted_author_managers.append(author_manager)
 
@@ -66,22 +68,22 @@ def main(args=None):
         post = {
             "type": "post",
             "title": fake.sentence(),
-            "id": fakeuuid,
+            "_id": fakeuuid,
             "source": fake.url(),
             "origin": fake.url(),
             "description": fake.sentence(),
             "contentType":"text/plain",
             "content": fake.paragraph(),
-            "author": {"id": chosenAuthor["_id"]},
+            "author": {"id": chosenAuthor["id"]},
             "categories": fake.random_choices(elements=('web', 'tutorial', 'gaming', 'comedy',"documentary", "life", "school")),
             "count": 0,
-            "comments":"http://127.0.0.1:5454/authors/{}/{}/comments".format(chosenAuthor["_id"], fakeuuid),
+            "comments":"http://127.0.0.1:5454/authors/{}/{}/comments".format(chosenAuthor["id"], fakeuuid),
             "commentSrc": {},
             "published": (fake.date_time()).isoformat(),
             "visibility":"PUBLIC",
             "unlisted":"false"
         }
-        database["authorManagers"].update_one({"_id": chosenAuthor["_id"]}, { "$set": { "posts.{}".format(fakeuuid): post}})
+        database["authorManagers"].update_one({"_id": chosenAuthor["id"]}, { "$set": { "posts.{}".format(fakeuuid): post}})
         # adding_to_author = database["authors"].update_one({"_id": chosenAuthor["_id"]}, {"$push": {"posts": post}})
         inserted_posts.append(post)
 
@@ -93,7 +95,7 @@ def main(args=None):
         comment = {
             "type": "comment",
             "_id":  fakeuuid,
-            "author": chosenAuthor["_id"], # Author ID of the post
+            "author": chosenAuthor["id"], # Author ID of the post
             "post": chosenPost["_id"],#ObjectId of the post
             "comment":  fake.sentence(),
             "contentType": "text/markdown",
