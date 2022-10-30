@@ -5,6 +5,9 @@
       href="{{ url_for('static', path='/css/landing.css') }}"
       rel="stylesheet"
     />
+    {% block javascript %}
+    <script src="{{ url_for('static', path='/js/script.js') }}" defer></script>
+    {% endblock %}
   </head>
   <body>
     <div id="landing-container">
@@ -15,19 +18,26 @@
             src="{{landing.profileImage}}"
             alt="user pfp"
             id="landing-user-img"
-          /> 
+          />
           <span id="landing-user-name">{{landing.displayName}}</span>
         </a>
+      </div>
+      <div id="landing-search-container">
+        <h2 style="margin-top: 0">Find User</h2>
+        <form id="search-form">
+          <input type="text" id="landing-search-bar" />
+          <input type="submit" value="Search" id="landing-search-btn" />
+        </form>
       </div>
       {% for l in feed %}
       <div id="allpost-single-container">
         <div id="allpost-top">
-          <a href="/service/authors/{{l.author.id}}/posts/{{l._id}}/view" id="allpost-author"
+          <a
+            href="/service/authors/{{l.author.id}}/posts/{{l._id}}/view"
+            id="allpost-author"
             >{{l.author["id"]}}</a
           >
-          <div id="allpost-date">
-            {{l.published.split("T")[0]}}
-          </div>
+          <div id="allpost-date">{{l.published.split("T")[0]}}</div>
         </div>
         <div id="allpost-info">
           <div id="allpost-title">{{l.title}}</div>
