@@ -66,7 +66,7 @@ body {
 
 #landing-search-container {
   background-color: #f2f2f2;
-  width: 500px;
+  width: 390px;
   border-radius: 15px;
   box-sizing: border-box;
   padding: 30px;
@@ -77,14 +77,20 @@ body {
   gap: 10px;
 }
 
+#search-form {
+  display: flex;
+  gap: 5px;
+  width: 100%;
+}
+
 #landing-search-bar {
   outline: none;
   border: none;
-  width: 300px;
   font-size: 16px;
   padding: 5px;
   border-radius: 5px;
   border: 1px solid grey;
+  flex: 1;
 }
 
 #landing-search-btn {
