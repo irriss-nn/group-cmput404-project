@@ -148,12 +148,15 @@ def test_update_post():
 def test_delete_post():
     '''Should return 404 once searching for a deleted document'''
     startup_db_client()
-    client.delete(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
+    client.delete(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",
+                  headers={"Content-Type": "application/json"}, json=Fake_Post)
+
+    # Check post was deleted
     response = client.get(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}")
+    assert response.status_code == 404
 
     # Delete the author as well
     db.delete_author("fakeid1")
-    assert response.status_code == 404
     shutdown_db_client()
 
 

@@ -30,9 +30,11 @@ async def read_post(request: Request, author_id: str, post_id: str):
         document["author"] = author_id
     except:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+
     if document:
         return templates.TemplateResponse("post.html", {"request": request, "post": document})
-    raise HTTPException(status_code=404, detail="Post_not_found")
+
+    raise HTTPException(status_code=404, detail="Post not found")
 
 @router.get("/{author_id}/posts/{post_id}")
 async def read_post(author_id: str, post_id: str):
@@ -61,38 +63,24 @@ async def create_post_without_id(author_id: str, post: Post):
     raise HTTPException(status_code=400, detail="Could not create post")
     
 @router.post("/{author_id}/posts/{post_id}")
-async def update_post(request: Request, author_id: str, post_id: str, post: Post):
-    '''update a post with post_id'''
+async def update_post(author_id: str, post_id: str, post: Post):
+    '''Update a post'''
     if post.id != post_id:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Post_id_mismatch")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail="Post ids do not match")
 
-    # check author_id
-    author = request.app.database["authorManagers"].find_one({"_id": author_id})
-    if not author:
-        raise HTTPException(status_code=404, detail="Author_not_found")
+    if SocialDatabase().update_post(author_id, post_id, post):
+        return encode_post(post)
 
-    # check post in author
-    if post_id not in author["posts"].keys():
-        raise HTTPException(status_code=404, detail="Post_not_found")
-
-    # update post under author
-    author["posts"][post_id] = asdict(post)
-    # update user at the end
-    request.app.database["authorManagers"].update_one({"_id": author_id}, {"$set": author})
+    raise HTTPException(status_code=400, detail="Failed to update post")
 
 @router.delete("/{author_id}/posts/{post_id}")
-async def delete_post(request: Request, author_id: str, post_id: str):
+async def delete_post(author_id: str, post_id: str):
     '''Delete a post'''
-    author = request.app.database["authorManagers"].find_one({"_id": author_id})
+    if SocialDatabase().delete_post(author_id, post_id):
+        return
 
-    if not author:
-        raise HTTPException(status_code=404, detail="Author_not_found")
-
-    if post_id not in author["posts"].keys():
-        raise HTTPException(status_code=404, detail="Post_not_found")
-
-    author["posts"].pop(post_id, None) # remove post from author's dictionary
-    request.app.database["authorManagers"].update_one({"_id": author_id}, {"$set": author}) # update author
+    raise HTTPException(status_code=404, detail="Post not found")
 
 @router.put("/{author_id}/posts/{post_id}")
 async def put_post(author_id: str, post_id: str, post: Post):

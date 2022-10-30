@@ -23,7 +23,7 @@ class Post:
     @staticmethod
     def init_with_dict(data: dict):
         return Post(
-                    id=data["id"],
+                    id=data["_id"],
                     title=data["title"],
                     source=data["source"],
                     origin=data["origin"],

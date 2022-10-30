@@ -48,7 +48,7 @@ class SocialDatabase:
     def update_author(self, author: Author) -> bool:
         data = mongo_encode_dataclass(author)
         result = self.database.authors.update_one({"_id": author.id},
-                                                 {"$set": data})
+                                                  {"$set": data})
         return result.acknowledged
 
     def delete_author(self, author_id: str) -> bool:
@@ -97,5 +97,23 @@ class SocialDatabase:
             return False
 
         result = self.database.authorManagers.update_one({"_id": author_id},
-                                                         {"$set": {f"posts.{post.id}": asdict(post)}})
+                                                         {"$set": {f"posts.{post.id}": mongo_encode_dataclass(post)}})
+        return result.acknowledged
+
+    def update_post(self, author_id: str, post_id: str, post: Post) -> bool:
+        manager = self.get_author_manager(author_id)
+        if not (manager and post_id in manager.posts.keys()):
+            return False
+
+        result = self.database.authorManagers.update_one({"_id": author_id},
+                                                         {"$set": {f"posts.{post.id}": mongo_encode_dataclass(post)}})
+        return result.acknowledged
+
+    def delete_post(self, author_id: str, post_id: str) -> bool:
+        manager = self.get_author_manager(author_id)
+        if not (manager and post_id in manager.posts.keys()):
+            return False
+
+        result = self.database.authorManagers.update_one({"_id": author_id},
+                                                         {"$unset": {f"posts.{post_id}": ""}})
         return result.acknowledged
