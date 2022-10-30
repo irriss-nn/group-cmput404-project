@@ -1,6 +1,5 @@
 from dataclasses import asdict
 from fastapi import APIRouter, HTTPException, Request, status
-from fastapi.encoders import jsonable_encoder
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 

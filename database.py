@@ -63,10 +63,10 @@ class SocialDatabase:
         if author is None:
             return None
 
-        return Author.init_with_dict(author)
+        return Author.init_from_mongo(author)
 
     def get_authors(self, offset: int = 0, limit: int = 0) -> list[Author]:
-        return [Author.init_with_dict(author) for author in
+        return [Author.init_from_mongo(author) for author in
                 self.database.authors.find(skip=offset, limit=limit,
                                            sort=[("_id", ASCENDING)])]
 
@@ -75,12 +75,12 @@ class SocialDatabase:
         if not manager:
             return None
 
-        return AuthorManager.init_with_dict(manager)
+        return AuthorManager.init_from_mongo(manager)
 
     def get_post(self, author_id: str, post_id: str) -> Post|None:
         manager = self.get_author_manager(author_id)
         if manager and post_id in manager.posts:
-            return Post.init_with_dict(manager.posts[post_id])
+            return Post.init_from_mongo(manager.posts[post_id])
 
         return None
 

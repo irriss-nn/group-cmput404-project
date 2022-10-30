@@ -52,7 +52,7 @@ def main(args=None):
                 "hashedPassword": secrets.token_urlsafe(8)
             }
 
-            SocialDatabase().create_author(Author.init_with_dict(author))
+            SocialDatabase().create_author(Author.init_from_mongo(author))
             author_manager = SocialDatabase().get_author_manager(author["_id"])
             inserted_authors.append(author)
             inserted_author_managers.append(author_manager)

@@ -2,15 +2,17 @@ import uuid
 
 from dataclasses import dataclass
 
+from models.base import Base
+
 @dataclass
-class Post:
+class Post(Base):
     title: str 
     source: str
     origin: str 
     description: str 
     contentType: str 
     content: str
-    author: dict|None  # TODO: Remove
+    author: dict|None  # TODO: Store author id instead
     categories: list
     count: int
     comments: str  # TODO: Should be list
@@ -19,25 +21,6 @@ class Post:
     visibility: str
     unlisted: str
     id: str | None = str(uuid.uuid4())
-
-    @staticmethod
-    def init_with_dict(data: dict):
-        return Post(
-                    id=data["_id"],
-                    title=data["title"],
-                    source=data["source"],
-                    origin=data["origin"],
-                    description=data["description"],
-                    contentType=data["contentType"],
-                    content=data["content"],
-                    author=data["author"],
-                    categories=data["categories"],
-                    count=data["count"],
-                    comments=data["comments"],
-                    commentsSrc=data["commentsSrc"],
-                    published=data["published"],
-                    visibility=data["visibility"],
-                    unlisted=data["unlisted"])
 
     class Config:
         allow_population_by_field_name = True

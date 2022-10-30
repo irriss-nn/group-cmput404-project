@@ -5,8 +5,10 @@ from dataclasses import dataclass, field
 from pydantic import root_validator
 #from passlib.hash import bcrypt
 
+from models.base import Base
+
 @dataclass
-class Author:
+class Author(Base):
     displayName: str 
     github: str 
     profileImage: str
@@ -29,18 +31,6 @@ class Author:
         
         return values
 
-    @staticmethod
-    def init_with_dict(data: dict):
-        return Author(
-                    id=data["_id"],
-                    url=data["url"],
-                    host=data["host"],
-                    displayName=data["displayName"],
-                    github=data["github"],
-                    profileImage=data["profileImage"],
-                    authLevel=data["authLevel"],
-                    hashedPassword=data["hashedPassword"])
-
     class Config:
         allow_population_by_field_name = True
         schema_extra = {
@@ -56,23 +46,13 @@ class Author:
         }
 
 @dataclass
-class AuthorManager:
+class AuthorManager(Base):
     id: str
     followers: list = field(default_factory=list)
     following: list = field(default_factory=list)
     posts: dict = field(default_factory=dict)
     inbox: list = field(default_factory=list)
     requests: list = field(default_factory=list)
-
-    @staticmethod
-    def init_with_dict(data: dict):
-        return AuthorManager(
-                    id=data["_id"],
-                    followers=data["followers"],
-                    following=data["following"],
-                    posts=data["posts"],
-                    inbox=data["inbox"],
-                    requests=data["requests"])
 
     class Config:
         schema_extra = {
