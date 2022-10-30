@@ -1,22 +1,26 @@
 import uuid
-from pydantic import BaseModel, Field
 
-class Post(BaseModel):
-    id: str | None
+from dataclasses import dataclass
+
+from models.base import Base
+
+@dataclass
+class Post(Base):
     title: str 
-    source:str 
+    source: str
     origin: str 
     description: str 
     contentType: str 
-    content:str
-    author: dict|None  # TODO: Remove
+    content: str
+    author: dict|None  # TODO: Store author id instead
     categories: list
     count: int
-    comments:str
-    commentSrc: dict | None
-    published:str
-    visibility:str
+    comments: str  # TODO: Should be list
+    commentsSrc: dict | None
+    published: str
+    visibility: str
     unlisted: str
+    id: str | None = str(uuid.uuid4())
 
     class Config:
         allow_population_by_field_name = True

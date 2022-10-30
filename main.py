@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
-from pprint import pprint
-from routers import authors, posts, comments_router
 import uvicorn
+
 from datetime import datetime, timedelta
-from fastapi import FastAPI, APIRouter, Cookie, Form, HTTPException, Request, Response, status
+from fastapi import FastAPI, Cookie, Form, HTTPException, Request, Response, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from pathlib import Path
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from models.author import Author
-from models.author_manager import AuthorManager
+from pathlib import Path
+from pprint import pprint
+
 # Local imports
 from database import SocialDatabase
 from routers import authors, posts, comments_router
-from fastapi.encoders import jsonable_encoder
+from models.author import Author, AuthorManager
 # All login and registering related fields
 SECRET_KEY = 'f015cb10b5caa9dd69ebeb340d580f0ad37f1dfcac30aef8b713526cc9191fa3'
 ALGORITHM = "HS256"
@@ -100,19 +100,20 @@ async def register_author_todb(request: Request, response: Response, username: s
     git = github
     if(git == None or usnm == None or pswd == None): # Catch errors
         return RedirectResponse(url='/register')
-    newUser = Author(displayName= usnm, github=git, hashedPassword = pswd) # To DO: Hash password
+    newUser = Author(displayName=usnm, github=git, hashedPassword=pswd, profileImage="")  # TODO: Hash password
     # result = await SocialDatabase.add_author(newUser) # Use this when implemented
     ### TEMPORARY  MOVE TO DB FILE ###
     author = jsonable_encoder(newUser)
-    author["posts"] = {}
     author["_id"] = author["id"]
     author.pop('id', None)
     if app.database["authors"].find_one({"_id": author["_id"]}):
         # return RedirectResponse(url='/login') # IF found redirect back to login
         return {"message": "User already exists"}
+
     app.database["authors"].insert_one(author)
     # We create a new author manager when creating a new author, assume if updating author, author manager already exists
-    authm = jsonable_encoder(AuthorManager(owner=author["_id"]))
+    authm = jsonable_encoder(AuthorManager(id=author["_id"]))
+    authm["posts"] = {}
     authm["_id"] = authm["id"]
     authm.pop('id', None)
     app.database["authorManagers"].insert_one(authm)
@@ -159,6 +160,8 @@ async def get_current_user(request: Request, session: str = Cookie(None)):
     # must await for this!!
     sessionUserId = await get_userId_from_token(session)
     found_user = app.database["authors"].find_one({"_id": sessionUserId})
+    found_posts = app.database["authorManagers"].find_one({"_id": sessionUserId})["posts"]
+    found_user["posts"] = found_posts
     return templates.TemplateResponse("author.html", {"request": request, "post": found_user})
 
 
@@ -171,12 +174,12 @@ async def get_home(request: Request, session: str = Cookie(None)):
     sessionUserId = await get_userId_from_token(session)
     found_user = app.database["authors"].find_one({"_id": sessionUserId})
     ### TEMPORARY MOVE TO DATABASE FILE ###
-    foundAuthMan = app.database["authorManagers"].find_one({"owner": sessionUserId})
+    foundAuthMan = app.database["authorManagers"].find_one({"_id": sessionUserId})
     allCurrentUserFollowing = foundAuthMan["following"]
     all_feed_posts = []
     for following in allCurrentUserFollowing:
         # Get post of each following
-        found_following = app.database["authors"].find_one({"_id": following})
+        found_following = app.database["authorManagers"].find_one({"_id": following})
         try:
             for post in found_following["posts"]:
                 all_feed_posts.append(found_following["posts"][post])

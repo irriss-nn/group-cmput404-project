@@ -2,21 +2,22 @@ import secrets
 import uuid
 
 from dataclasses import dataclass, field
-from pydantic import BaseModel, root_validator
-from passlib.hash import bcrypt
+from pydantic import root_validator
+#from passlib.hash import bcrypt
+
+from models.base import Base
 
 @dataclass
-class Author:
+class Author(Base):
     displayName: str 
     github: str 
-    type = "author"  # TODO: Remove
-    id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    # TODO: Remove URLs
+    profileImage: str
+    id: str = str(uuid.uuid4())
+    # TODO: Remove hardcoded URLs
     url: str = "http://127.0.0.1:8000/" + str(uuid.uuid4())
     host: str = "http://127.0.0.1:8000/"
     authLevel: str = "user"  # TODO: More efficient to store bool or int
     hashedPassword: str = secrets.token_urlsafe(8)
-    posts:dict|None = None
     profileImage: str = "https://www.pngitem.com/pimgs/m/22-223968_default-profile-picture-circle-hd-png-download.png"
 
     @root_validator
@@ -30,19 +31,6 @@ class Author:
         
         return values
 
-    @staticmethod
-    def init_with_dict(data: dict):
-        return Author(
-                    id=data["_id"],
-                    url=data["url"],
-                    host=data["host"],
-                    displayName=data["displayName"],
-                    github=data["github"],
-                    profileImage=data["profileImage"],
-                    authLevel=data["authLevel"],
-                    hashedPassword=data["hashedPassword"],
-                    posts=data["posts"])
-
     class Config:
         allow_population_by_field_name = True
         schema_extra = {
@@ -53,7 +41,22 @@ class Author:
                 "displayName":"Lara Croft",
                 "github": "http://github.com/laracroft",
                 "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
-                "hashedPassword": "as#!%lls",
-                "posts":{}
+                "hashedPassword": "as#!%lls"
+            }
+        }
+
+@dataclass
+class AuthorManager(Base):
+    id: str
+    followers: list = field(default_factory=list)
+    following: list = field(default_factory=list)
+    posts: dict = field(default_factory=dict)
+    inbox: list = field(default_factory=list)
+    requests: list = field(default_factory=list)
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "id": "066de609-b04a-4b30-b97c-32537c7f1f6h"
             }
         }

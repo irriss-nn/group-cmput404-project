@@ -1,11 +1,15 @@
-from ast import Try, arg
-from http import client
-import secrets
-from faker import Faker
-import requests
-import sys
 import random
+import requests
+import secrets
+import sys
+
+from faker import Faker
 from pymongo import MongoClient
+import sys
+sys.path.append('../../')
+from database import SocialDatabase
+from models.author import Author
+
 fake = Faker()
 
 # First argument is the number of authors to create, second argument is method to populate the database(1 for API, 0 for direct connection)
@@ -34,34 +38,27 @@ def main(args=None):
     for i in range(numAuthorsToCreate):
         fakeuuid = fake.uuid4()
         fakename = fake.name()
-        if(howToPopulate == 1):
+        if howToPopulate == 1:
             populate_through_api()
         else:
             author = {
                 "_id": fakeuuid,
-                "url": "http://127.0.0.1:8000/authors/"+fakeuuid,
+                "url": "http://127.0.0.1:8000/authors/" + fakeuuid,
                 "host": "http://127.0.0.1:8000/",
                 "displayName": fakename,
                 "github": "http://github.com/"+ fakename.replace(" ", "_"),
                 "profileImage": fake.image_url(),
                 "type": "author",
                 "authLevel": "user",
-                "hashedPassword": secrets.token_urlsafe(8),
-                "posts": {}
+                "hashedPassword": secrets.token_urlsafe(8)
             }
-            author_manager = {
-                "_id": fake.uuid4(),
-                "owner": fakeuuid,
-                "followers": [],
-                "following": [],
-                "posts": [],
-                "inbox": [],
-                "requests": []
-            }
-            ins_author = database["authors"].insert_one(author)
-            ins_author_manager = database["authorManagers"].insert_one(author_manager)
+
+            SocialDatabase().create_author(Author.init_from_mongo(author))
+            print(author)
+            author_manager = SocialDatabase().get_author_manager(author["id"])
             inserted_authors.append(author)
             inserted_author_managers.append(author_manager)
+
     print("Inserted {} authors successfully".format(len(inserted_authors)))
 
     # Create fake posts
@@ -77,19 +74,19 @@ def main(args=None):
             "description": fake.sentence(),
             "contentType":"text/plain",
             "content": fake.paragraph(),
-            "author": {"id": chosenAuthor["_id"]},
+            "author": {"id": chosenAuthor["id"]},
             "categories": fake.random_choices(elements=('web', 'tutorial', 'gaming', 'comedy',"documentary", "life", "school")),
             "count": 0,
-            "comments":"http://127.0.0.1:5454/authors/{}/{}/comments".format(chosenAuthor["_id"], fakeuuid),
-            "commentsSrc": {},
+            "comments":"http://127.0.0.1:5454/authors/{}/{}/comments".format(chosenAuthor["id"], fakeuuid),
+            "commentSrc": {},
             "published": (fake.date_time()).isoformat(),
             "visibility":"PUBLIC",
             "unlisted":"false"
         }
-        adding_to_author = database["authors"].update_one({"_id": chosenAuthor["_id"]}, { "$set": { "posts.{}".format(fakeuuid): post}})
+        database["authorManagers"].update_one({"_id": chosenAuthor["id"]}, { "$set": { "posts.{}".format(fakeuuid): post}})
         # adding_to_author = database["authors"].update_one({"_id": chosenAuthor["_id"]}, {"$push": {"posts": post}})
-        ins_post = database["post"].insert_one(post)
         inserted_posts.append(post)
+
     # Make fake comments
     for i in range(numAuthorsToCreate):
         chosenPost = random.choice(inserted_posts)
@@ -98,23 +95,27 @@ def main(args=None):
         comment = {
             "type": "comment",
             "_id":  fakeuuid,
-            "author": chosenAuthor["_id"], # Author ID of the post
+            "author": chosenAuthor["id"], # Author ID of the post
             "post": chosenPost["_id"],#ObjectId of the post
             "comment":  fake.sentence(),
             "contentType": "text/markdown",
             "published": str((fake.date_time()).isoformat())
         }
-        ins_comment = database["comments"].insert_one(comment)
+        database["comments"].insert_one(comment)
         inserted_comments.append(comment)
+
     # Make fake followers
     inserted = 0
     for i in range(numAuthorsToCreate*3):
         chosenAuthorManager = random.choice(inserted_author_managers)
         chosenFollowerManager = random.choice(inserted_author_managers)
-        if(chosenAuthorManager["owner"] != chosenFollowerManager["owner"]):
-            database["authorManagers"].update_one({"_id": chosenAuthorManager["_id"]}, {"$push": {"followers": chosenFollowerManager["owner"]}})
-            database["authorManagers"].update_one({"_id": chosenFollowerManager["_id"]}, {"$push": {"following": chosenAuthorManager["owner"]}})
-            inserted+=1
+        if chosenAuthorManager.id != chosenFollowerManager.id:
+            database["authorManagers"].update_one({"_id": chosenAuthorManager.id},
+                                                  {"$push": {"followers": chosenFollowerManager.id}})
+            database["authorManagers"].update_one({"_id": chosenFollowerManager.id},
+                                                  {"$push": {"following": chosenAuthorManager.id}})
+            inserted += 1
+
     print("Inserted {} followers successfully".format(inserted))
     print("Inserted {} posts successfully".format(len(inserted_posts)))
     print("Inserted {} comments successfully".format(len(inserted_comments)))
@@ -123,7 +124,7 @@ def main(args=None):
 def populate_through_api():
     fakeuuid = fake.uuid4()
     fakename = fake.name()
-    print(fakeuuid , " asd")
+    print(fakeuuid, " asd")
     author = {
         "id": fakeuuid,
         "displayName": fakename,
@@ -133,7 +134,7 @@ def populate_through_api():
     # author_id = database["authors"].insert_one(author).inserted_id
     # print(f"Created author with id {author_id}")
     requests.post("http://localhost:8000/service/authors/", json = author)
-    
+
 
 def connect_to_db():
     mongodb_client = MongoClient("mongodb://localhost:27017")
