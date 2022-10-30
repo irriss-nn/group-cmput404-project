@@ -2,11 +2,12 @@ from dataclasses import asdict
 from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
+from fastapi.encoders import jsonable_encoder
 #from pydoc import doc
 
 from database import SocialDatabase
 from models.author import Author
-
+from models.inbox import InboxItem
 static_dir = f"{Path.cwd()}/static"
 templates = Jinja2Templates(directory=f"{static_dir}/templates")
 router = APIRouter(
@@ -67,6 +68,26 @@ async def add_follower(author_id: str, foreign_author_id: str, request: Request)
     # We need to handle authentication here !!! TO DO !!!
     request.app.database["authorManagers"].update_one({"_id": author_id}, {"$push": {"followers": foreign_author_id}})
     return {"message": "Successfully added follower", "author_id": author_id, "foreign_author_id": foreign_author_id}
+
+@router.put("/{author_id}/followers/{foreign_author_id}/request")
+async def add_follower(author_id: str, foreign_author_id: str, request: Request):
+    '''Request a follow to the foreign author'''
+    try: # To do: check if already there is a request from that author
+        # request.app.database["authorManagers"].update_one({"_id": foreign_author_id}, {"$push": {"requests": author_id}})
+        # Create inbox request
+        inbox_item = InboxItem(action="Request",actionDescription="You have a new follow request", actionReference=author_id, actionNeeded=True, actionValues={"Accept": f"/author/accept/{author_id}", "Reject": f"/author/reject/{author_id}"})
+        inbox_item = jsonable_encoder(inbox_item)
+        request.app.database["authorManagers"].update_one({"_id": foreign_author_id}, {"$push": {"inbox": inbox_item,"requests": author_id}})
+        return True
+    except:
+        return False
+    
+@router.delete("/{author_id}/inbox/{inbox_request_id}")
+async def delete_inbox(inbox_request_id: str,author_id: str, request: Request):
+    '''Delete a inbox item from authors inbox list'''
+    request.app.database["authorManagers"].update_one({"_id": author_id}, {"$pull": {"inbox": {"id": inbox_request_id}}})
+    return {"message": "Successfully deleted inbox request", "inbox_request_id": inbox_request_id}
+
 
 @router.get("/{author_id}/followers/{foreign_author_id}")
 # Check if foreign author id is a follower of author id, if it is return message if not return error
