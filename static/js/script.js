@@ -2,5 +2,6 @@ const search = document.querySelector("#search-form");
 
 search.addEventListener("submit", (e) => {
   e.preventDefault();
-  console.log(e.target[0].value); // replace with get request for author page url
+  let name = (e.target[0].value).replace(/ /g,"_");
+  window.location.replace(`http://localhost:8000/author/${name}`);
 });

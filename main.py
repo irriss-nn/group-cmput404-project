@@ -197,6 +197,16 @@ async def get_home(request: Request, session: str = Cookie(None)):
     pprint(all_feed_posts)
     return templates.TemplateResponse("landing.html", {"request": request, "landing": found_user, "feed": all_feed_posts})
 
+
+@app.get("/author/{author_name}")
+async def get_author(request: Request, author_name: str, session: str = Cookie(None)):
+    if (session == None):
+        return RedirectResponse(url="/login")
+    author_name = author_name.replace("_", " ")
+    found_user = app.database["authors"].find_one({"displayName": author_name})
+    pprint(found_user)
+    return templates.TemplateResponse("author.html", {"request": request, "post": found_user})
+
 # Example of how we would get current user from cookie to verify action being done
 
 
