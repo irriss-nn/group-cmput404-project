@@ -1,7 +1,7 @@
+import random
 import requests
 import secrets
 import sys
-import random
 
 from faker import Faker
 from pymongo import MongoClient
@@ -16,6 +16,7 @@ fake = Faker()
 # Use direct connection for now
 def main(args=None):
     inserted_authors = []
+    inserted_author_managers = []
     inserted_posts = []
     inserted_comments = []
     numAuthorsToCreate = 10
@@ -41,18 +42,21 @@ def main(args=None):
         else:
             author = {
                 "_id": fakeuuid,
-                "url": "http://127.0.0.1:8000/authors/"+fakeuuid,
+                "url": "http://127.0.0.1:8000/authors/" + fakeuuid,
                 "host": "http://127.0.0.1:8000/",
                 "displayName": fakename,
                 "github": "http://github.com/"+ fakename.replace(" ", "_"),
                 "profileImage": fake.image_url(),
                 "type": "author",
                 "authLevel": "user",
-                "hashedPassword": secrets.token_urlsafe(8),
-                "posts": {}
+                "hashedPassword": secrets.token_urlsafe(8)
             }
+
             SocialDatabase().create_author(Author.init_with_dict(author))
+            author_manager = SocialDatabase().get_author_manager(author["_id"])
             inserted_authors.append(author)
+            inserted_author_managers.append(author_manager)
+
     print("Inserted {} authors successfully".format(len(inserted_authors)))
 
     # Create fake posts
@@ -98,6 +102,19 @@ def main(args=None):
         database["comments"].insert_one(comment)
         inserted_comments.append(comment)
 
+    # Make fake followers
+    inserted = 0
+    for i in range(numAuthorsToCreate*3):
+        chosenAuthorManager = random.choice(inserted_author_managers)
+        chosenFollowerManager = random.choice(inserted_author_managers)
+        if chosenAuthorManager.id != chosenFollowerManager.id:
+            database["authorManagers"].update_one({"_id": chosenAuthorManager.id},
+                                                  {"$push": {"followers": chosenFollowerManager.id}})
+            database["authorManagers"].update_one({"_id": chosenFollowerManager.id},
+                                                  {"$push": {"following": chosenAuthorManager.id}})
+            inserted += 1
+
+    print("Inserted {} followers successfully".format(inserted))
     print("Inserted {} posts successfully".format(len(inserted_posts)))
     print("Inserted {} comments successfully".format(len(inserted_comments)))
     destroy_connect_to_db(mongodb_client)

@@ -25,9 +25,12 @@ def encode_post(post: Post):
 async def read_post(request: Request, author_id: str, post_id: str):
     '''Method to view post form template'''
     try:
-        author = request.app.database["authorManagers"].find_one({"_id": author_id})
-        document = author["posts"][post_id]
-        document["author"] = author_id
+        author = request.app.database["authors"].find_one({"_id":author_id})
+        author_manager = request.app.database["authorManagers"].find_one({"_id": author_id})
+
+        authorImg = author["profileImage"]
+        document = author_manager["posts"][post_id]
+        document["author"]["profileImage"] = authorImg
     except:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
 

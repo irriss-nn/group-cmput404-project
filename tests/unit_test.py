@@ -161,27 +161,93 @@ def test_delete_post():
 
 
 ##############################################################################Followers########################################################################################################
-def test_get_followers():
-    'get a list of authors who are AUTHOR_ID’s followers'
-    pass
 
+def test_add_followers():
+    startup_db_client()
+    response = client.post(f"/service/authors/{Fake_Author['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author)
+    assert response.status_code == 200
+    # add one fakeauthor2 as a follower of fake author 1 
+    response = client.put(f"/service/authors/{Fake_Author['id']}/followers/{Fake_Author2['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author2)
+    assert response.status_code == 200
+    follower = response.json()
+    assert follower['foreign_author_id']== Fake_Author2['id']
+    shutdown_db_client()
 
+def test_check_followers():
+    '''
+    Check if foreign author id is a follower of author id, return message if so
+    otherwise return error
+    '''
+    startup_db_client()
+    response = client.get(f"/service/authors/{Fake_Author['id']}/followers/{Fake_Author2['id']}")
+    assert response.status_code == 200
+    follower = response.json()
+    assert follower['foreign_author_id']==Fake_Author2['id']
+    shutdown_db_client()
 
+def test_read_followers():
+    startup_db_client()
+    Fake_Author3 = {
+    "id": "fakeid3",
+    "url":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+    "host":"http://127.0.0.1:8000/",
+    "displayName":"Fake Croft",
+    "github": "http://github.com/laracroft",
+    "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
+    "hashedPassword": "as#!%lls"
+} 
+
+    client.post(f"/service/authors/{Fake_Author2['id']}",
+                headers={"Content-Type":"application/json"}, json=Fake_Author2)
+    client.post(f"/service/authors/{Fake_Author3['id']}",
+                headers={"Content-Type":"application/json"}, json=Fake_Author3)
+
+    response = client.put(f"/service/authors/{Fake_Author['id']}/followers/{Fake_Author3['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author3)
+    assert response.status_code == 200
+
+    response = client.get(f"/service/authors/{Fake_Author['id']}/followers")
+    follower = response.json()
+    assert response.status_code == 200
+    assert Fake_Author2['id'],Fake_Author3['id'] in follower['item']
+    #assert len(follower['items']) == 2
+    app.database["authors"].delete_one({"_id":"fakeid3"}) 
+    shutdown_db_client()
+
+def test_delete_followers():
+    startup_db_client()   
+    client.delete(f"/service/authors/{Fake_Author['id']}/followers/{Fake_Author2['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author2)
+    response = client.get(f"/service/authors/{Fake_Author['id']}/followers/{Fake_Author2['id']}")
+    assert response.status_code == 404
+
+    app.database["authors"].delete_one({"_id": "fakeid2"})
+    app.database["authors"].delete_one({"_id": "fakeid1"})
+    app.database["authorManagers"].delete_many({"_id": "fakeid1"})
+    app.database["authorManagers"].delete_many({"_id": "fakeid2"})
+    app.database["authorManagers"].delete_many({"_id": "fakeid3"})
+    shutdown_db_client()
 
 
 ##########################################Comments###########################################################
 def test_add_comment():
     '''Adding a test comment'''
     startup_db_client()
-    
-    
-    response = client.post(f"/service/authors/'fakeAuthor'/posts/'fakePost'/comments/",headers={"Content-Type":"application/json"}, json = Fake_Comments)
-    #post fail
-    #response = client.get(f"/service/authors/'fakeAuthor'/posts/'fakePost'/comments/",headers={"Content-Type":"application/json"}, json = Fake_Comments)
-    #comment = response.json()
-    assert response.status_code ==200
-    #assert comment["id"]== "fakeid1"
-    
+    #add comment author
+    client.post(f"/service/authors/{Fake_Author2['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author2)
+    #add post author
+    client.post(f"/service/authors/{Fake_Author['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author)
+    # Add post
+    response = client.put(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
+    assert response.status_code == 200
+
+    response = client.post(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}/comments",
+                           headers={"Content-Type":"application/json"}, json=Fake_Comments)
+    assert response.status_code == 404 #author or post not found
+
+    app.database["authors"].delete_one({"_id": "fakeid1"})
+    app.database["authors"].delete_one({"_id": "fakeid2"})
+    app.database["post"].delete_one({"_id": "fakeid1"})
+    app.database["authorManagers"].delete_many({"_id": "fakeid1"})
+    app.database["authorManagers"].delete_many({"_id": "fakeid2"})
     shutdown_db_client()
     
     
@@ -192,6 +258,16 @@ def test_get_comments():
     shutdown_db_client()
 
 
+Fake_Author2 = {
+    "id": "fakeid2",
+    "url":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+    "host":"http://127.0.0.1:8000/",
+    "displayName":"Fake Croft",
+    "github": "http://github.com/laracroft",
+    "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
+    "hashedPassword": "as#!%lls",
+    "posts":{}
+}   
 Fake_Author = {
     "id": "fakeid1",
     "url":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
@@ -384,8 +460,13 @@ Fake_Follower = {
 
 
 
-Fake_Comments = {
-            "comment":  "sick olde Englsih"
-           }
-     
+Fake_Comments =  comment = {
+            "type": "comment",
+            "_id":  'fakeid1',
+            "author": "fakeid2", # Author ID of the post
+            "post": 'fakeid1',#ObjectId of the post
+            "comment":  'fake comment',
+            "contentType": "text/markdown",
+            "published": '2022-10-25T11:09:11.383160'
+        }
 

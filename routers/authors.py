@@ -58,14 +58,14 @@ async def read_item(author_id: str):
 @router.delete("/{author_id}/followers/{foreign_author_id}")
 async def delete_follower(author_id: str, foreign_author_id: str, request: Request):
     '''Delete a follower from authors follower list'''
-    request.app.database["authorManagers"].update_one({"owner": author_id}, {"$pull": {"followers": foreign_author_id}})
+    request.app.database["authorManagers"].update_one({"_id": author_id}, {"$pull": {"followers": foreign_author_id}})
     return {"message": "Successfully deleted follower", "author_id": author_id, "foreign_author_id": foreign_author_id}
 
 @router.put("/{author_id}/followers/{foreign_author_id}")
 async def add_follower(author_id: str, foreign_author_id: str, request: Request):
     '''Add a user to the list of followers of the author'''
     # We need to handle authentication here !!! TO DO !!!
-    request.app.database["authorManagers"].update_one({"owner": author_id}, {"$push": {"followers": foreign_author_id}})
+    request.app.database["authorManagers"].update_one({"_id": author_id}, {"$push": {"followers": foreign_author_id}})
     return {"message": "Successfully added follower", "author_id": author_id, "foreign_author_id": foreign_author_id}
 
 @router.get("/{author_id}/followers/{foreign_author_id}")
@@ -75,7 +75,7 @@ async def check_follower(author_id: str, foreign_author_id: str, request: Reques
     Check if foreign author id is a follower of author id, return message if so
     otherwise return error
     '''
-    if request.app.database["authorManagers"].find_one({"owner": author_id, "followers": foreign_author_id}):
+    if request.app.database["authorManagers"].find_one({"_id": author_id, "followers": foreign_author_id}):
         return {"message": "Foreign author is a follower of author", "author_id": author_id, "foreign_author_id": foreign_author_id}
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Foreign author is not a follower of author")
@@ -84,12 +84,22 @@ async def check_follower(author_id: str, foreign_author_id: str, request: Reques
 async def read_followers(author_id: str, request: Request):
     '''Get a list of all followers of the author'''
     return_list = []
-    follower_list =  request.app.database["authorManagers"].find_one({"owner": author_id})
+    follower_list =  request.app.database["authorManagers"].find_one({"_id": author_id})
     if follower_list is None:
         return { "type": "followers", "items": return_list }
     for objId in follower_list["followers"]:
         return_list.append(request.app.database["authors"].find_one({"_id": objId}))
     return { "type": "followers", "items": return_list }
+
+@router.get("/{author_id}/{foreign_author_id}/status")
+async def check_follow_status(author_id: str, foreign_author_id: str, request: Request):
+    '''As an author, When I befriend someone I follow them, only when the other author befriends me do I count as a real friend'''
+    if request.app.database["authorManagers"].find_one({"_id": author_id, "following": {"$in": [foreign_author_id]}}) and request.app.database["authorManagers"].find_one({"_id": foreign_author_id, "following": {"$in": [author_id]}}): 
+        return {"message": "We are true friends", "author_id": author_id, "foreign_author_id": foreign_author_id}
+    elif request.app.database["authorManagers"].find_one({"_id": author_id, "following": {"$in": [foreign_author_id]}}): 
+        return {"message": "I am just a friend", "author_id": author_id, "foreign_author_id": foreign_author_id}
+    else:
+        return {"message": "We are not friends", "author_id": author_id, "foreign_author_id": foreign_author_id}
 
 #### USER FACING VIEWS ####
 @router.get("/{author_id}/view")

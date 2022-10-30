@@ -16,6 +16,7 @@ class Author:
     host: str = "http://127.0.0.1:8000/"
     authLevel: str = "user"  # TODO: More efficient to store bool or int
     hashedPassword: str = secrets.token_urlsafe(8)
+    profileImage: str = "https://www.pngitem.com/pimgs/m/22-223968_default-profile-picture-circle-hd-png-download.png"
 
     @root_validator
     def compute_url(cls, values) -> dict:
@@ -50,8 +51,7 @@ class Author:
                 "displayName":"Lara Croft",
                 "github": "http://github.com/laracroft",
                 "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
-                "hashedPassword": "as#!%lls",
-                "posts":{}
+                "hashedPassword": "as#!%lls"
             }
         }
 
@@ -77,6 +77,6 @@ class AuthorManager:
     class Config:
         schema_extra = {
             "example": {
-                "owner": "066de609-b04a-4b30-b97c-32537c7f1f6h"
+                "id": "066de609-b04a-4b30-b97c-32537c7f1f6h"
             }
         }
