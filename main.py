@@ -215,8 +215,9 @@ async def get_author(request: Request, author_name: str, session: str = Cookie(N
         return RedirectResponse(url="/login")
     author_name = author_name.replace("_", " ")
     found_user = app.database["authors"].find_one({"displayName": author_name})
-    pprint(found_user)
-    return templates.TemplateResponse("author.html", {"request": request, "post": found_user})
+    if found_user:
+        return templates.TemplateResponse("author.html", {"request": request, "post": found_user})
+    return RedirectResponse(url='/home')
 
 # Example of how we would get current user from cookie to verify action being done
 
@@ -276,6 +277,11 @@ async def get_post(request: Request):
 async def get_post(request: Request):
     return templates.TemplateResponse("comments.html", {"request": request})
 
+# @app.get("/search/{author_displayName}")
+# async def search_user(request: Request, author_displayName: str):
+#     author_foud = request.app.database["authors"].find({"displayName":f"/{author_displayName}/"})
+#     return templates.TemplateResponse("user-feed.html", {"request": request})
+    
  ## END TEST PAGES ##
 if __name__ == "__main__":
     uvicorn.run("main:app", host="localhost", port=8000, reload=True)
