@@ -12,8 +12,6 @@ body {
   --main-font: "Roboto", sans-serif;
   font-family: var(--main-font);
   display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 #author-outer-container {

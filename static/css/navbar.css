@@ -1,0 +1,25 @@
+.navbar {
+    min-height:100%;
+    background-color: black;
+    width: 5rem;
+    display: flex;
+    position: fixed;
+    flex-direction: column;
+}
+
+.navbar > a{
+    color: antiquewhite;
+    font-size: 1.3rem;
+    padding: 5px;
+    text-decoration: none;
+    height: fit-content;
+}
+
+.navbar > a:hover {
+    text-decoration: underline;
+  }
+
+.main-content{
+    display: flex;
+    width: 100%;
+}

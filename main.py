@@ -143,7 +143,7 @@ async def read_item(request: Request, response: Response, username: str = Form()
 # For when we want to logout user and delete cookie
 
 
-@app.post("/logout")
+@app.get("/logout")
 async def logout(request: Request, response: Response):
     response = RedirectResponse(url="/login")
     response.status_code = 302
@@ -161,7 +161,10 @@ async def get_current_user(request: Request, session: str = Cookie(None)):
     if (session == None):
         return RedirectResponse(url="/login")
     # must await for this!!
-    sessionUserId = await get_userId_from_token(session)
+    try:
+        sessionUserId = await get_userId_from_token(session)
+    except HTTPException:
+        return RedirectResponse(url='/login', status_code=307)
     found_user = app.database["authors"].find_one({"_id": sessionUserId})
     found_posts = app.database["authorManagers"].find_one({"_id": sessionUserId})[
         "posts"]
@@ -176,7 +179,11 @@ async def get_home(request: Request, session: str = Cookie(None)):
     if (session == None):
         return RedirectResponse(url="/login")
     # must await for this!!
-    sessionUserId = await get_userId_from_token(session)
+    try:
+        sessionUserId = await get_userId_from_token(session)
+    except HTTPException:
+        return RedirectResponse(url='/login', status_code=307)
+
     found_user = app.database["authors"].find_one({"_id": sessionUserId})
     ### TEMPORARY MOVE TO DATABASE FILE ###
     foundAuthMan = app.database["authorManagers"].find_one(
@@ -187,8 +194,12 @@ async def get_home(request: Request, session: str = Cookie(None)):
         # Get post of each following
         found_following = app.database["authorManagers"].find_one(
             {"_id": following})
+
+        followed_author = app.database["authors"].find_one(
+            {"_id": following})
         try:
             for post in found_following["posts"]:
+                found_following["posts"][post]["displayName"] = followed_author["displayName"]
                 all_feed_posts.append(found_following["posts"][post])
         except:
             pass

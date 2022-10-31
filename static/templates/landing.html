@@ -5,58 +5,72 @@
       href="{{ url_for('static', path='/css/landing.css') }}"
       rel="stylesheet"
     />
+    <link
+      href="{{ url_for('static', path='/css/navbar.css') }}"
+      rel="stylesheet"
+    />
     {% block javascript %}
     <script src="{{ url_for('static', path='/js/script.js') }}" defer></script>
     {% endblock %}
   </head>
   <body>
+    <div class="navbar">
+      <a href="/home">Home</a><br>
+      <a href="/current">Current</a><br>
+      <a href="/logout">Logout</a><br>
+    </div>
     <div id="landing-container">
       <div id="landing-header">
         <div id="landing-logo">Social Network</div>
         <a href="/current" id="landing-user">
           <img
-            src="{{landing.profileImage}}"
-            alt="user pfp"
-            id="landing-user-img"
+          src="{{landing.profileImage}}"
+          alt="user pfp"
+          id="landing-user-img"
           />
           <span id="landing-user-name">{{landing.displayName}}</span>
         </a>
       </div>
-      <div id="landing-search-container">
-        <h2 style="margin-top: 0">Find User</h2>
-        <form id="search-form">
-          <input type="text" id="landing-search-bar" placeholder="Full Display Name"/>
-          <input type="submit" value="Search" id="landing-search-btn" />
-        </form>
+      
+      <div class="main-content">
+          <div class="posts">
+            <div id="landing-search-container">
+              <h2 style="margin-top: 0">Find User</h2>
+              <form id="search-form">
+                <input type="text" id="landing-search-bar" placeholder="Full Display Name"/>
+                <input type="submit" value="Search" id="landing-search-btn" />
+              </form>
+            </div>
+            {% for l in feed %}
+            <div id="allpost-single-container">
+              <div id="allpost-top">
+                <a
+                href="/author/{{l.displayName}}"
+                id="allpost-author"
+                >{{l.displayName}}</a
+                >
+                <div id="allpost-date">{{l.published.split("T")[0]}}</div>
+              </div>
+              <div id="allpost-info">
+                <div id="allpost-title">{{l.title}}</div>
+                <div id="allpost-description">{{l.description}}</div>
+              </div>
+              <div id="allpost-btn-container">
+                <a
+                  class="allpost-btn"
+                  href="/service/authors/{{l.author.id}}/posts/{{l._id}}/comments"
+                  >View Comments</a
+                >
+                <a
+                  class="allpost-btn"
+                  href="/service/authors/{{l.author.id}}/posts/{{l._id}}/view"
+                  >View Post</a
+                >
+              </div>
+            </div>
+            {% endfor %}
+        </div>
       </div>
-      {% for l in feed %}
-      <div id="allpost-single-container">
-        <div id="allpost-top">
-          <a
-            href="/service/authors/{{l.author.id}}/posts/{{l._id}}/view"
-            id="allpost-author"
-            >{{l.author["id"]}}</a
-          >
-          <div id="allpost-date">{{l.published.split("T")[0]}}</div>
-        </div>
-        <div id="allpost-info">
-          <div id="allpost-title">{{l.title}}</div>
-          <div id="allpost-description">{{l.description}}</div>
-        </div>
-        <div id="allpost-btn-container">
-          <a
-            class="allpost-btn"
-            href="/service/authors/{{l.author.id}}/posts/{{l._id}}/comments"
-            >View Comments</a
-          >
-          <a
-            class="allpost-btn"
-            href="/service/authors/{{l.author.id}}/posts/{{l._id}}/view"
-            >View Post</a
-          >
-        </div>
-      </div>
-      {% endfor %}
     </div>
   </body>
 </html>
