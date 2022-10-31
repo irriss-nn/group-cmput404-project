@@ -18,6 +18,12 @@ def test_read_main():
     response = client.get("/")
     assert response.status_code == 200
 
+def test_template_responses():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.template.name == 'login.html'
+    assert "request" in response.context
+
 ################################################################### Author tests ##################################################################
 def test_add_author():
     '''Add author via post request'''
