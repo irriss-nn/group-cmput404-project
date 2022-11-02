@@ -11,7 +11,8 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pathlib import Path
 from pprint import pprint
-
+from routers.authors import encode_author
+from dataclasses import asdict
 # Local imports
 from database import SocialDatabase
 from routers import authors, posts, comments_router
@@ -101,24 +102,7 @@ async def register_author_todb(request: Request, response: Response, username: s
         return RedirectResponse(url='/register')
     newUser = Author(displayName=usnm, github=git,
                      hashedPassword=pswd)  # TODO: Hash password
-    # result = await SocialDatabase.add_author(newUser) # Use this when implemented
-    ### TEMPORARY  MOVE TO DB FILE ###
-    author = jsonable_encoder(newUser)
-    author["_id"] = author["id"]
-    author.pop('id', None)
-    if app.database["authors"].find_one({"_id": author["_id"]}):
-        # return RedirectResponse(url='/login') # IF found redirect back to login
-        return {"message": "User already exists"}
-
-    app.database["authors"].insert_one(author)
-    # We create a new author manager when creating a new author, assume if updating author, author manager already exists
-    authm = jsonable_encoder(AuthorManager(id=author["_id"]))
-    authm["posts"] = {}
-    authm["_id"] = authm["id"]
-    authm.pop('id', None)
-    app.database["authorManagers"].insert_one(authm)
-    ### TEMPORARY ###
-    # Automatically logs user in, maybe we want to change so they log in manually
+    SocialDatabase().create_author(newUser)
     return RedirectResponse('/login', status_code=status.HTTP_302_FOUND)
 
 
@@ -165,11 +149,12 @@ async def get_current_user(request: Request, session: str = Cookie(None)):
         sessionUserId = await get_userId_from_token(session)
     except HTTPException:
         return RedirectResponse(url='/login', status_code=307)
-    found_user = app.database["authors"].find_one({"_id": sessionUserId})
-    found_posts = app.database["authorManagers"].find_one({"_id": sessionUserId})[
-        "posts"]
-    found_user["posts"] = found_posts
-    return templates.TemplateResponse("author.html", {"request": request, "post": found_user})
+
+    found_user = SocialDatabase().get_profile(sessionUserId)
+    if found_user:
+        return templates.TemplateResponse("author.html", {"request": request, "post": found_user})
+    else:
+        return RedirectResponse(url="/login")
 
  # Page user lands on
 
@@ -183,29 +168,8 @@ async def get_home(request: Request, session: str = Cookie(None)):
         sessionUserId = await get_userId_from_token(session)
     except HTTPException:
         return RedirectResponse(url='/login', status_code=307)
-
+    all_feed_posts = SocialDatabase().get_following_feed(sessionUserId)
     found_user = app.database["authors"].find_one({"_id": sessionUserId})
-    ### TEMPORARY MOVE TO DATABASE FILE ###
-    foundAuthMan = app.database["authorManagers"].find_one(
-        {"_id": sessionUserId})
-    allCurrentUserFollowing = foundAuthMan["following"]
-    all_feed_posts = []
-    for following in allCurrentUserFollowing:
-        # Get post of each following
-        found_following = app.database["authorManagers"].find_one(
-            {"_id": following})
-
-        followed_author = app.database["authors"].find_one(
-            {"_id": following})
-        try:
-            for post in found_following["posts"]:
-                found_following["posts"][post]["displayName"] = followed_author["displayName"]
-                all_feed_posts.append(found_following["posts"][post])
-        except:
-            pass
-    ### TEMPORARY ###
-
-    pprint(all_feed_posts)
     return templates.TemplateResponse("landing.html", {"request": request, "landing": found_user, "feed": all_feed_posts})
 
 

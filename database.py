@@ -64,6 +64,13 @@ class SocialDatabase:
             return None
 
         return Author.init_from_mongo(author)
+    
+    def get_author_byname(self, author_name: str) -> Author|None:
+        author = self.database.authors.find_one({"displayName": author_name})
+        if author is None:
+            return None
+
+        return Author.init_from_mongo(author)
 
     def get_authors(self, offset: int = 0, limit: int = 0) -> list[Author]:
         return [Author.init_from_mongo(author) for author in
@@ -117,3 +124,31 @@ class SocialDatabase:
         result = self.database.authorManagers.update_one({"_id": author_id},
                                                          {"$unset": {f"posts.{post_id}": ""}})
         return result.acknowledged
+    def get_profile(self, author_id: str) -> dict|None:
+        found_user = self.database["authors"].find_one({"_id": author_id})
+        found_posts = self.database["authorManagers"].find_one({"_id": author_id})[
+            "posts"]
+        found_user["posts"] = found_posts
+        if not found_user:
+            return None
+        return found_user
+    
+    def get_following_feed(self, author_id: str, limit: int = 0) -> list[Post]|None:
+        manager = self.get_author_manager(author_id)
+        if not manager:
+            return None
+        allCurrentFollowing = manager.following
+        
+        postsToReturn = []
+        for following in allCurrentFollowing:
+            # Get post of each following
+            found_following = self.get_author_manager(following)
+            followed_author = self.get_author(following)
+            try:
+                for post in found_following.posts:
+                    found_following.posts[post]["displayName"] = followed_author.displayName
+                    postsToReturn.append(found_following.posts[post])
+            except:
+                pass
+        postsToReturn = sorted(postsToReturn, key=lambda d: d['published'],reverse=True) # Sort posts by recent
+        return postsToReturn
