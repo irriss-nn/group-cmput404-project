@@ -13,10 +13,10 @@ router = APIRouter(
     tags=["posts"],
     responses={404: {"description": "Not found"}},
 )
-@router.get("{author_id}/posts/{post_id}/comments/view")
+@router.get("/{author_id}/posts/{post_id}/comments/view")
 async def show_comment(author_id:str, post_id:str, request: Request, page: int|None = None, size: int|None = None):
     comments = await read_comments(request, author_id, post_id, page, size)
-    return templates.TemplateResponse("comments.html", {"comments": comments})
+    return templates.TemplateResponse("comments.html", {"request":request, "comments": comments})
 
 @router.post("/{author_id}/posts/{post_id}/comments")
 async def create_comment(author_id: str,post_id:str, request: Request, comment: Comment = Body(...)):
