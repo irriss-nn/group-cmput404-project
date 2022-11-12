@@ -1,12 +1,22 @@
 from fastapi import APIRouter, HTTPException, Request, status,Body
 from models.comments import Comment
 from fastapi.encoders import jsonable_encoder
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
+from database import SocialDatabase
+
+static_dir = f"{Path.cwd()}/static"
+templates = Jinja2Templates(directory=f"{static_dir}/templates")
 
 router = APIRouter(
     prefix="/service/authors",
     tags=["posts"],
     responses={404: {"description": "Not found"}},
 )
+@router.get("{author_id}/posts/{post_id}/comments/view")
+async def show_comment(author_id:str, post_id:str, request: Request, page: int|None = None, size: int|None = None):
+    comments = await read_comments(request, author_id, post_id, page, size)
+    return templates.TemplateResponse("comments.html", {"comments": comments})
 
 @router.post("/{author_id}/posts/{post_id}/comments")
 async def create_comment(author_id: str,post_id:str, request: Request, comment: Comment = Body(...)):
