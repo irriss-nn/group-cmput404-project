@@ -17,6 +17,7 @@ from dataclasses import asdict
 from database import SocialDatabase
 from routers import authors, posts, comments_router
 from models.author import Author, AuthorManager
+from models.inbox import InboxItem
 # All login and registering related fields
 SECRET_KEY = 'f015cb10b5caa9dd69ebeb340d580f0ad37f1dfcac30aef8b713526cc9191fa3'
 ALGORITHM = "HS256"
@@ -183,6 +184,33 @@ async def get_author(request: Request, author_name: str, session: str = Cookie(N
         return templates.TemplateResponse("author.html", {"request": request, "post": found_user})
     return RedirectResponse(url='/home')
 
+# USe this to send follow requests, we need to implemnent a button for this
+
+
+@app.post("/followers/{foreign_author_id}/request")
+async def add_follower(foreign_author_id: str, request: Request, session: str = Cookie(None)):
+    '''Request a follow to the foreign author'''
+    if (session == None):
+        return RedirectResponse(url="/login")
+    try:
+        # Create inbox request
+        author_id = await get_userId_from_token(session)
+        inbox_item = InboxItem(action="Request", actionDescription="You have a new follow request", actionReference=author_id, actionNeeded=True, actionValues={
+                               "Accept": f"/service/authors/{foreign_author_id}/accept/{author_id}", "Reject": f"/service/authors/{foreign_author_id}/reject/{author_id}"})
+        inbox_item = jsonable_encoder(inbox_item)
+        authorReceivingRequest = SocialDatabase().get_author_manager(foreign_author_id)
+        # If alreayd sent the request
+        if (author_id in authorReceivingRequest.requests or author_id in authorReceivingRequest.followers):
+            # return {"message": "You have already sent a request to this author"}
+            return RedirectResponse(url='/home')  # Invalid request
+        request.app.database["authorManagers"].update_one({"_id": foreign_author_id}, {
+                                                          "$push": {"inbox": inbox_item, "requests": author_id}})
+        # Redirect user back home after sending request
+        return RedirectResponse(url='/home')
+    except:
+        return False
+
+
 # Example of how we would get current user from cookie to verify action being done
 
 
@@ -245,7 +273,7 @@ async def get_post(request: Request):
 # async def search_user(request: Request, author_displayName: str):
 #     author_foud = request.app.database["authors"].find({"displayName":f"/{author_displayName}/"})
 #     return templates.TemplateResponse("user-feed.html", {"request": request})
-    
+
  ## END TEST PAGES ##
 if __name__ == "__main__":
     uvicorn.run("main:app", host="localhost", port=8000, reload=True)
