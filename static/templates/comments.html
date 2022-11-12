@@ -9,6 +9,9 @@
       href="{{ url_for('static', path='/css/navbar.css') }}"
       rel="stylesheet"
     />
+    {% block javascript %}
+    <script src="{{ url_for('static', path='/js/display_comments.js') }}" defer></script>
+    {% endblock %}
   </head>
 
   <script>
@@ -40,8 +43,8 @@
         </div>
       {% endfor %}
       <div id="comment-button">
-        <button class="comment-btns">Previous</button>
-        <button class="comment-btns">Next</button>
+        <button id="lalaBtn" class="comment-btns" onclick="history.back()">Previous</button>
+        <button id= "myBtn" class="comment-btns">Next</button>
       </div>
     </div>
   </body>
