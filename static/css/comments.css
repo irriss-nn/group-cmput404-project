@@ -12,6 +12,7 @@ body {
   --main-font: "Roboto", sans-serif;
   font-family: var(--main-font);
   display: flex;
+  
   flex-direction: column;
 }
 
@@ -24,7 +25,10 @@ body {
   padding: 20px;
   border-radius: 15px;
   display: flex;
-  margin: 0 auto;
+  margin-left: 35%;
+  margin-right: auto;
+  position: absolute;
+  top: 10%;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
