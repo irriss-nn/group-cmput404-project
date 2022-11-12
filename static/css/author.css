@@ -137,6 +137,22 @@ body {
   text-decoration: none;
 }
 
+#create-post-btn {
+  background-color:transparent;
+  color:antiquewhite;
+  font-size: 0.8rem;
+  font-family: Arial, Helvetica, sans-serif;
+  border: none;
+  cursor:pointer;
+  overflow: hidden;
+}
+
 .allpost-btn:hover {
   background-color: #007bff;
+}
+
+#create-post-modal {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
 }

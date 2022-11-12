@@ -9,14 +9,34 @@
       href="{{ url_for('static', path='/css/navbar.css') }}"
       rel="stylesheet"
     />
+    {% block javascript %}
+    <script src="{{ url_for('static', path='/js/create_post.js') }}" defer></script>
+    {% endblock %}
   </head>
   
   <body>
+
+    
     <div class="main-content">
+
+      <dialog class="modal" id="create-post-modal">
+        <h2>Add a new post</h2>
+        <h3>Title:</h3>
+        <textarea id="title-create-post-textarea"></textarea>
+        <h3>Description:</h3>
+        <textarea id="description-create-post-textarea"></textarea>
+        <h3>Content:</h3>
+        <textarea id="content-create-post-textarea"></textarea>
+  
+        <button id="close-create-post-btn">Close</button>
+  
+      </dialog>
+
       <div class="navbar">
         <a href="/home">Home</a><br>
         <a href="/current">Current</a><br>
         <a href="/logout">Logout</a><br>
+        <button id="create-post-btn">Create Post</button>
       </div>
 
       <div id="author-outer-container">
