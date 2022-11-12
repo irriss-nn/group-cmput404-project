@@ -16,6 +16,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+
 def encode_author(author: Author):
     del author.authLevel
     del author.hashedPassword
@@ -24,14 +25,16 @@ def encode_author(author: Author):
 
     return enc_author
 
+
 @router.get("/")
-async def read_authors(page: int|None = 0, size: int|None = 0):
+async def read_authors(page: int | None = 0, size: int | None = 0):
     if page is None or size is None:
         authors = SocialDatabase().get_authors()
     else:
         authors = SocialDatabase().get_authors(page*size, size)
 
     return [encode_author(author) for author in authors]
+
 
 @router.post("/{author_id}")
 async def create_author(author_id: str, author: Author):
@@ -45,6 +48,7 @@ async def create_author(author_id: str, author: Author):
 
     return encode_author(author)
 
+
 @router.get("/{author_id}")
 async def read_item(author_id: str):
     '''Get author by id'''
@@ -56,36 +60,30 @@ async def read_item(author_id: str):
     return encode_author(author)
 
 # Follower functionalities
+
+
 @router.delete("/{author_id}/followers/{foreign_author_id}")
 async def delete_follower(author_id: str, foreign_author_id: str, request: Request):
     '''Delete a follower from authors follower list'''
-    request.app.database["authorManagers"].update_one({"_id": author_id}, {"$pull": {"followers": foreign_author_id}})
+    request.app.database["authorManagers"].update_one(
+        {"_id": author_id}, {"$pull": {"followers": foreign_author_id}})
     return {"message": "Successfully deleted follower", "author_id": author_id, "foreign_author_id": foreign_author_id}
+
 
 @router.put("/{author_id}/followers/{foreign_author_id}")
 async def add_follower(author_id: str, foreign_author_id: str, request: Request):
     '''Add a user to the list of followers of the author'''
     # We need to handle authentication here !!! TO DO !!!
-    request.app.database["authorManagers"].update_one({"_id": author_id}, {"$push": {"followers": foreign_author_id}})
+    request.app.database["authorManagers"].update_one(
+        {"_id": author_id}, {"$push": {"followers": foreign_author_id}})
     return {"message": "Successfully added follower", "author_id": author_id, "foreign_author_id": foreign_author_id}
 
-@router.put("/{author_id}/followers/{foreign_author_id}/request")
-async def add_follower(author_id: str, foreign_author_id: str, request: Request):
-    '''Request a follow to the foreign author'''
-    try: # To do: check if already there is a request from that author
-        # request.app.database["authorManagers"].update_one({"_id": foreign_author_id}, {"$push": {"requests": author_id}})
-        # Create inbox request
-        inbox_item = InboxItem(action="Request",actionDescription="You have a new follow request", actionReference=author_id, actionNeeded=True, actionValues={"Accept": f"/author/accept/{author_id}", "Reject": f"/author/reject/{author_id}"})
-        inbox_item = jsonable_encoder(inbox_item)
-        request.app.database["authorManagers"].update_one({"_id": foreign_author_id}, {"$push": {"inbox": inbox_item,"requests": author_id}})
-        return True
-    except:
-        return False
-    
+
 @router.delete("/{author_id}/inbox/{inbox_request_id}")
-async def delete_inbox(inbox_request_id: str,author_id: str, request: Request):
+async def delete_inbox(inbox_request_id: str, author_id: str, request: Request):
     '''Delete a inbox item from authors inbox list'''
-    request.app.database["authorManagers"].update_one({"_id": author_id}, {"$pull": {"inbox": {"id": inbox_request_id}}})
+    request.app.database["authorManagers"].update_one(
+        {"_id": author_id}, {"$pull": {"inbox": {"id": inbox_request_id}}})
     return {"message": "Successfully deleted inbox request", "inbox_request_id": inbox_request_id}
 
 
@@ -99,39 +97,95 @@ async def check_follower(author_id: str, foreign_author_id: str, request: Reques
     if request.app.database["authorManagers"].find_one({"_id": author_id, "followers": foreign_author_id}):
         return {"message": "Foreign author is a follower of author", "author_id": author_id, "foreign_author_id": foreign_author_id}
 
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Foreign author is not a follower of author")
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                        detail="Foreign author is not a follower of author")
+
 
 @router.get("/{author_id}/followers")
 async def read_followers(author_id: str, request: Request):
     '''Get a list of all followers of the author'''
     return_list = []
-    follower_list =  request.app.database["authorManagers"].find_one({"_id": author_id})
+    follower_list = request.app.database["authorManagers"].find_one({
+                                                                    "_id": author_id})
     if follower_list is None:
-        return { "type": "followers", "items": return_list }
+        return {"type": "followers", "items": return_list}
     for objId in follower_list["followers"]:
-        return_list.append(request.app.database["authors"].find_one({"_id": objId}))
-    return { "type": "followers", "items": return_list }
+        return_list.append(
+            request.app.database["authors"].find_one({"_id": objId}))
+    return {"type": "followers", "items": return_list}
+
 
 @router.get("/{author_id}/{foreign_author_id}/status")
 async def check_follow_status(author_id: str, foreign_author_id: str, request: Request):
     '''As an author, When I befriend someone I follow them, only when the other author befriends me do I count as a real friend'''
-    if request.app.database["authorManagers"].find_one({"_id": author_id, "following": {"$in": [foreign_author_id]}}) and request.app.database["authorManagers"].find_one({"_id": foreign_author_id, "following": {"$in": [author_id]}}): 
+    if request.app.database["authorManagers"].find_one({"_id": author_id, "following": {"$in": [foreign_author_id]}}) and request.app.database["authorManagers"].find_one({"_id": foreign_author_id, "following": {"$in": [author_id]}}):
         return {"message": "We are true friends", "author_id": author_id, "foreign_author_id": foreign_author_id}
-    elif request.app.database["authorManagers"].find_one({"_id": author_id, "following": {"$in": [foreign_author_id]}}): 
+    elif request.app.database["authorManagers"].find_one({"_id": author_id, "following": {"$in": [foreign_author_id]}}):
         return {"message": "I am just a friend", "author_id": author_id, "foreign_author_id": foreign_author_id}
     else:
         return {"message": "We are not friends", "author_id": author_id, "foreign_author_id": foreign_author_id}
 
+### INBOX RELATED FUNCTIONALITY ###
+
+
+# Add button to all profiles to send friend request, first author id is the author sending the request, second author id is the author receiving the request
+# This will be implemented in the main file too for now
+@router.put("/{author_id}/followers/{foreign_author_id}/request")
+async def add_follower(author_id: str, foreign_author_id: str, request: Request):
+    '''Request a follow to the foreign author'''
+    try:  # To do: check if already there is a request from that author
+        # Create inbox request
+        inbox_item = InboxItem(action="Request", actionDescription="You have a new follow request", actionReference=author_id, actionNeeded=True, actionValues={
+                               "Accept": f"/service/authors/{foreign_author_id}/accept/{author_id}", "Reject": f"/service/authors/{foreign_author_id}/reject/{author_id}"})
+        inbox_item = jsonable_encoder(inbox_item)
+        authorReceivingRequest = SocialDatabase().get_author_manager(foreign_author_id)
+        if (author_id in authorReceivingRequest.requests):  # If alreayd sent the request
+            return {"message": "You have already sent a request to this author"}
+        request.app.database["authorManagers"].update_one({"_id": foreign_author_id}, {
+                                                          "$push": {"inbox": inbox_item, "requests": author_id}})
+        return True
+    except:
+        return False
+
+
+@router.post("/{author_id}/{action}/{foreign_author}")
+async def accept_or_reject_follower(author_id: str, action: str, foreign_author: str, request: Request):
+    '''Accept or reject a follow request'''
+    if action == "accept":
+        # Add the foreign author to the author's followers and remove the request
+        request.app.database["authorManagers"].update_one({"_id": author_id}, {
+                                                          "$push": {"followers": foreign_author}, "$pull": {"requests": foreign_author}})
+        # Add the author to the foreign author's following
+        request.app.database["authorManagers"].update_one(
+            {"_id": foreign_author}, {"$push": {"following": author_id}})
+        # Remove the inbox item
+        request.app.database["authorManagers"].update_one(
+            {"_id": author_id}, {"$pull": {"inbox": {"actionReference": foreign_author}}})
+        return True
+    elif action == "reject":
+        # Remove the request
+        request.app.database["authorManagers"].update_one(
+            {"_id": author_id}, {"$pull": {"requests": foreign_author}})
+        # Remove the inbox item
+        request.app.database["authorManagers"].update_one(
+            {"_id": author_id}, {"$pull": {"inbox": {"actionReference": foreign_author}}})
+        return True
+    else:
+        return False
 #### USER FACING VIEWS ####
+
+
 @router.get("/{author_id}/view")
-async def read_item( request: Request, author_id: str,):
+async def read_item(request: Request, author_id: str,):
     '''
     Display author profile
     '''
     try:
         document = request.app.database["authors"].find_one({"_id": author_id})
         if (document is None):
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
         return templates.TemplateResponse("author.html", {"request": request, "post": document})
     except:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
