@@ -5,7 +5,7 @@ import datetime
 class Comment(BaseModel):
     type: str = "comment"
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    author: str = "" # Author ID of the post
+    author: str|dict = "" # Author ID of the post or returning author json 
     post: str = ""#ObjectId of the post
     comment: str = ""
     contentType: str = "text/markdown"

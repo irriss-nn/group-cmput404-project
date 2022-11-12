@@ -5,60 +5,29 @@
       href="{{ url_for('static', path='/css/comments.css') }}"
       rel="stylesheet"
     />
+    
   </head>
+
+  <script>
+    // Use console.log to print out comments in console
+    console.log("{{comments}}");
+  </script>
+
   <body>
     <div id="comment-container">
-      <div id="comment-header">Comment page 1</div>
-      <div id="comment-box">
-        <div class="comment-message">
-          <div class="comment-message-text">Test Message</div>
-          <div class="comment-message-author">Author McAuthor</div>
+      {% for page in range(comments.page) %}
+        <div id="comment-header">Comment page {{page+1}}</div>
+        <div id="comment-box">
+          {% for p in range(comments.size) %}
+            {% if page*comments.size+p < comments.comments|length %}
+              <div class="comment-message">
+                <div class="comment-message-text">{{comments.comments[page*comments.size+p]["comment"]}}</div>
+                <div class="comment-message-author">{{comments.comments[page*comments.size+p]["author"].displayName}}</div>
+              </div>
+            {% endif %}
+          {% endfor %}
         </div>
-        <div class="comment-message">
-          <div class="comment-message-text">Test Message</div>
-          <div class="comment-message-author">Author McAuthor</div>
-        </div>
-        <div class="comment-message">
-          <div class="comment-message-text">Test Message</div>
-          <div class="comment-message-author">Author McAuthor</div>
-        </div>
-        <div class="comment-message">
-          <div class="comment-message-text">Test Message</div>
-          <div class="comment-message-author">Author McAuthor</div>
-        </div>
-        <div class="comment-message">
-          <div class="comment-message-text">Test Message</div>
-          <div class="comment-message-author">Author McAuthor</div>
-        </div>
-        <div class="comment-message">
-          <div class="comment-message-text">Test Message</div>
-          <div class="comment-message-author">Author McAuthor</div>
-        </div>
-        <div class="comment-message">
-          <div class="comment-message-text">Test Message</div>
-          <div class="comment-message-author">Author McAuthor</div>
-        </div>
-        <div class="comment-message">
-          <div class="comment-message-text">Test Message</div>
-          <div class="comment-message-author">Author McAuthor</div>
-        </div>
-        <div class="comment-message">
-          <div class="comment-message-text">Test Message</div>
-          <div class="comment-message-author">Author McAuthor</div>
-        </div>
-        <div class="comment-message">
-          <div class="comment-message-text">Test Message</div>
-          <div class="comment-message-author">Author McAuthor</div>
-        </div>
-        <div class="comment-message">
-          <div class="comment-message-text">Test Message</div>
-          <div class="comment-message-author">Author McAuthor</div>
-        </div>
-        <div class="comment-message">
-          <div class="comment-message-text">Test Message</div>
-          <div class="comment-message-author">Author McAuthor</div>
-        </div>
-      </div>
+      {% endfor %}
       <div id="comment-button">
         <button class="comment-btns">Previous</button>
         <button class="comment-btns">Next</button>
