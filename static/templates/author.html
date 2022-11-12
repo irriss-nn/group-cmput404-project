@@ -10,13 +10,13 @@
       rel="stylesheet"
     />
   </head>
-  
+
   <body>
     <div class="main-content">
       <div class="navbar">
-        <a href="/home">Home</a><br>
-        <a href="/current">Current</a><br>
-        <a href="/logout">Logout</a><br>
+        <a href="/home">Home</a><br />
+        <a href="/current">Current</a><br />
+        <a href="/logout">Logout</a><br />
       </div>
 
       <div id="author-outer-container">
@@ -31,13 +31,19 @@
               />
               <a href="{{post.github}}" class="social name">{{post.github}}</a>
             </div>
+            <form action="/followers/{{post._id}}/request" method="get">
+              <input type="submit" name="Follow" value="Follow" />
+            </form>
           </div>
         </div>
+
         {% for p in post.posts %}
         <div id="allpost-single-container">
           <div id="allpost-top">
             <a id="allpost-author">{{post.displayName}}</a>
-            <div id="allpost-date">{{post.posts[p].published.split("T")[0]}}</div>
+            <div id="allpost-date">
+              {{post.posts[p].published.split("T")[0]}}
+            </div>
           </div>
           <div id="allpost-info">
             <div id="allpost-title">{{post.posts[p].title}}</div>

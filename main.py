@@ -187,7 +187,7 @@ async def get_author(request: Request, author_name: str, session: str = Cookie(N
 # USe this to send follow requests, we need to implemnent a button for this
 
 
-@app.post("/followers/{foreign_author_id}/request")
+@app.get("/followers/{foreign_author_id}/request")
 async def add_follower(foreign_author_id: str, request: Request, session: str = Cookie(None)):
     '''Request a follow to the foreign author'''
     if (session == None):
