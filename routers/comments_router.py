@@ -24,10 +24,20 @@ async def show_comment(author_id:str, post_id:str, request: Request, page: int|N
 @router.post("/{author_id}/posts/{post_id}/comments")
 async def create_comment(author_id: str,post_id:str, request: Request, comment: Comment = Body(...)):
     # See if we can find the post and author to validate them first
-
+    post = None
     try:
-        post = request.app.database["post"].find_one({"_id":post_id})
-        author = request.app.database["authors"].find_one({"_id":author_id})
+        # Validate post exists
+        # Find post_id through all authors
+        authors = SocialDatabase().get_authors()
+        for author in authors:
+            # This is author for post
+            manager = SocialDatabase().get_author_manager(author.id)
+            if post_id in manager.posts.keys():
+                post = manager.posts[post_id]
+                break
+    
+        # This is author for comment
+        author = SocialDatabase().get_author(author_id)
         if(author == None or post == None):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Author or post not found")
     except:
