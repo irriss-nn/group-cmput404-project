@@ -78,7 +78,7 @@ def main(args=None):
             "categories": fake.random_choices(elements=('web', 'tutorial', 'gaming', 'comedy',"documentary", "life", "school")),
             "count": 0,
             "comments":"http://127.0.0.1:5454/authors/{}/{}/comments".format(chosenAuthor["id"], fakeuuid),
-            "commentSrc": {},
+            "commentsSrc": {},
             "published": (fake.date_time()).isoformat(),
             "visibility":"PUBLIC",
             "unlisted":"false"
