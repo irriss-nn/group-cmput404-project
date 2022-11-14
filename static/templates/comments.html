@@ -68,6 +68,8 @@
           if((check+i) < length){
             document.getElementById("comment-box").innerHTML += "<br></br>"
             document.getElementById("comment-box").innerHTML +=  com.comments[check+i]['comment'];
+            document.getElementById("comment-box").innerHTML +=  " --"
+            document.getElementById("comment-box").innerHTML +=  com.comments[check+i]['author'].displayName;
         }
       }
       }
