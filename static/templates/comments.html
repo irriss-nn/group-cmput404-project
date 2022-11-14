@@ -9,19 +9,8 @@
       href="{{ url_for('static', path='/css/navbar.css') }}"
       rel="stylesheet"
     />
-    {% block javascript %}
-    <script src="{{ url_for('static', path='/js/display_comments.js') }}" defer></script>
-    {% endblock %}
   </head>
-
-  <script>
-    // Use console.log to print out comments in console
-    //TODO: remove this once you figured out how it looks like
-    console.log("{{comments}}");
-  </script>
-
   <body>
-
     <div class="navbar">
       <a href="/home">Home</a><br>
       <a href="/current">Current</a><br>
@@ -29,23 +18,71 @@
     </div>
 
     <div id="comment-container">
-      {% for page in range(comments.page) %}
-        <div id="comment-header">Comment page {{page+1}}</div>
+        <div id="comment-header"></div>
         <div id="comment-box">
-          {% for p in range(comments.size) %}
-            {% if page*comments.size+p < comments.comments|length %}
               <div class="comment-message">
-                <div class="comment-message-text">{{comments.comments[page*comments.size+p]["comment"]}}</div>
-                <div class="comment-message-author">{{comments.comments[page*comments.size+p]["author"].displayName}}</div>
+                <div id='myDiv' class="comment-message-text"></div>
+                <div class="comment-message-author"></div>
               </div>
-            {% endif %}
-          {% endfor %}
         </div>
-      {% endfor %}
       <div id="comment-button">
-        <button id="lalaBtn" class="comment-btns">Previous</button>
+        <button id="lalaBtn" class="comment-btns" >Previous</button>
         <button id= "myBtn" class="comment-btns">Next</button>
       </div>
     </div>
+    <script>
+      var click = 1;
+      var length = "{{comments.comments|length}}" ;
+      var size = "{{comments.size}}";
+      console.log("biu1="+((click-1)*size));
+      if (length!=0){
+        console.log("biu2="+((click-1)*size));
+        document.getElementById("myBtn").addEventListener("click", myFunction);
+        if((click-1)*size<length){
+          function myFunction(){//update function once next is clicked
+            click += 1;//page tracker
+            let com = {{ comments|tojson }};
+            console.log("click="+click);
+            console.log("length="+length);
+            console.log("biu="+((click-1)*size));
+            console.log("size="+size)
+            display(click);
+          }
+        }
+       
+      }else{
+        document.getElementById("comment-box").innerHTML = "No Comment for this post yet";
+      }
+      function display(page){//begin to display per page
+        console.log("{{comments.comments|length}}");
+        //let comments = {{ comments|tojson }};
+        let com = {{ comments|tojson }};
+        console.log(com.comments);
+        if (length != 0){
+          //frist page 
+        document.getElementById("comment-header").innerHTML = "Comment Page "+page;
+        document.getElementById("comment-box").innerHTML = "";
+        for(i=0;i<=com.size;i++){
+          let check = (page-1)*size;
+          console.log('check'+check)
+          if((check+i) < length){
+            document.getElementById("comment-box").innerHTML += "<br></br>"
+            document.getElementById("comment-box").innerHTML +=  com.comments[check+i]['comment'];
+        }
+      }
+      }
+    }
+      window.onload = display(1);
+      
+        document.getElementById("lalaBtn").addEventListener("click", goBack);
+        function goBack() {
+          //if statement needed here
+          if(click>1){
+            click -= 1;
+            display(click);
+            console.log(click);
+          }
+      }
+    </script>
   </body>
 </html>
