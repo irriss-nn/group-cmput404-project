@@ -1,62 +1,41 @@
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link
-      href="{{ url_for('static', path='/css/post.css') }}"
-      rel="stylesheet"
-    />
-    <link
-      href="{{ url_for('static', path='/css/navbar.css') }}"
-      rel="stylesheet"
-    />
-  </head>
-
-  <body>
-    <div class="main-content">
-      <div class="navbar">
-        <a href="/home">Home</a><br>
-        <a href="/current">Current</a><br>
-        <a href="/logout">Logout</a><br>
+{% extends "base.html" %} {% block head %}
+<link href="{{ url_for('static', path='/css/post.css') }}" rel="stylesheet" />
+{% endblock %} {% block content %}
+<div class="main-content">
+  <div id="post-outer-container">
+    <div id="post-container">
+      <div id="post-top">
+        <div id="post-title">{{post.title}}</div>
+        <div id="post-description">{{post.description}}</div>
       </div>
-
-      <div id="post-outer-container">
-        <div id="post-container">
-          <div id="post-top">
-            <div id="post-title">{{post.title}}</div>
-            <div id="post-description">{{post.description}}</div>
-          </div>
-          {% if post.contentType != 'text/plain' %}
-          <img
-            src="data:image/png;base64, {{post.content}}"
-            alt="post"
-            id="post-image"
-          />
-          {% else %}
-          <div id="post-blog">{{post.content}}</div>
-          {% endif %}
-          <div id="post-info">
-            <div id="post-primary">
-              <a href="{{post.author.id}}" id="post-author">
-                <img
-                  src="{{post.author.profileImage}}"
-                  alt="author-picture"
-                  id="post-author-img"
-                />
-                <span id="post-author-name">{{post.author.displayName}}</span>
-              </a>
-              <div id="post-date">{{post.published.split("T")[0]}}</div>
-            </div>
-            <a
-              href="/service/authors/{{post.author.id.split('/')[-1]}}/posts/{{post._id}}/comments"
-              id="post-comment"
-              >View comments
-            </a>
-          </div>
+      {% if post.contentType != 'text/plain' %}
+      <img
+        src="data:image/png;base64, {{post.content}}"
+        alt="post"
+        id="post-image"
+      />
+      {% else %}
+      <div id="post-blog">{{post.content}}</div>
+      {% endif %}
+      <div id="post-info">
+        <div id="post-primary">
+          <a href="{{post.author.id}}" id="post-author">
+            <img
+              src="{{post.author.profileImage}}"
+              alt="author-picture"
+              id="post-author-img"
+            />
+            <span id="post-author-name">{{post.author.displayName}}</span>
+          </a>
+          <div id="post-date">{{post.published.split("T")[0]}}</div>
         </div>
+        <a
+          href="/service/authors/{{post.author.id.split('/')[-1]}}/posts/{{post._id}}/comments"
+          id="post-comment"
+          >View comments
+        </a>
       </div>
     </div>
-  </body>
-</html>
+  </div>
+</div>
+{% endblock %}

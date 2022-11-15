@@ -258,9 +258,17 @@ async def get_landing(request: Request):
 
 
 @app.get("/post", response_class=HTMLResponse)
-async def get_post(request: Request):
+async def get_post(request: Request, session: str = Cookie(None)):
     foundPosts = request.app.database["post"].find({})
-    return templates.TemplateResponse("post.html", {"request": request, "post": foundPosts[2], "information": {"name": "USER FEED"}})
+
+    try:
+        sessionUserId = await get_userId_from_token(session)
+    except HTTPException:
+        return RedirectResponse(url='/login', status_code=307)
+    found_user = app.database["authors"].find_one({"_id": sessionUserId})
+    print("*****************************",
+          found_user, "*****************************")
+    return templates.TemplateResponse("post.html", {"request": request, "user": found_user, "post": foundPosts[2], "information": {"name": "USER FEED"}})
 
 
 @app.get("/posts", response_class=HTMLResponse)

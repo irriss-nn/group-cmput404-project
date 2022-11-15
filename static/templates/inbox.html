@@ -35,14 +35,15 @@
         Reject
       </button>
     </div>
+    {% else %}
+    <button
+      class="req-button req-dismiss-btn"
+      data-url="{{inbox_items.actionValues.Reject}}"
+    >
+      Dismiss
+    </button>
+    {% endif %}
   </div>
-  {% else %}
-  <button
-    class="req-button req-dismiss-btn"
-    data-url="{{inbox_items.actionValues.Reject}}"
-  >
-    Dismiss
-  </button>
-  {% endif %} {% endfor %}
+  {% endfor %}
 </div>
 {% endblock %}
