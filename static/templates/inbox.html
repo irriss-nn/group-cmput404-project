@@ -1,47 +1,29 @@
-<html>
-  <head>
-    <title>Document</title>
-    <link
-      href="{{ url_for('static', path='/css/inbox.css') }}"
-      rel="stylesheet"
-    />
-    <link
-      href="{{ url_for('static', path='/css/navbar.css') }}"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <div class="navbar">
-      <a href="/home">Home</a><br />
-      <a href="/current">Current</a><br />
-      <a href="/inbox">Inbox</a><br />
-      <a href="/logout">Logout</a><br />
-    </div>
-    <div class="inbox-items">
-      {% for inbox_items in inbox %}
-      <div class="item">
-        <div class="req-type">{{ inbox_items.action }}</div>
-        <div class="req-date">{{ inbox_items.time }}</div>
-        <div class="req-description">{{ inbox_items.actionDescription }}</div>
+{% extends "base.html" %} {% block head %}
+<link href="{{ url_for('static', path='/css/inbox.css') }}" rel="stylesheet" />
+{% endblock %} {% block content %}
+<div class="inbox-items">
+  {% for inbox_items in inbox %}
+  <div class="item">
+    <div class="req-type">{{ inbox_items.action }}</div>
+    <div class="req-date">{{ inbox_items.time }}</div>
+    <div class="req-description">{{ inbox_items.actionDescription }}</div>
 
-        {% if inbox_items.actionNeeded == true %} {# Replace with name of user
-        #}
-        <div class="requester-desc">
-          Request is from user with id of {{inbox_items.actionReference}}
-        </div>
-        <div class="req-accept">
-          <form action="{{inbox_items.actionValues.Accept}}" method="GET">
-            <input type="hidden" name="id" value="{{ inbox_items.id }}" />
-            <input type="submit" value="Accept" />
-          </form>
-
-          <form action="{{inbox_items.actionValues.Reject}}" method="GET">
-            <input type="hidden" name="id" value="{{ inbox_items.id }}" />
-            <input type="submit" value="Reject" />
-          </form>
-        </div>
-      </div>
-      {% endif %} {% endfor %}
+    {% if inbox_items.actionNeeded == true %} {# Replace with name of user #}
+    <div class="requester-desc">
+      Request is from user with id of {{inbox_items.actionReference}}
     </div>
-  </body>
-</html>
+    <div class="req-accept">
+      <form action="{{inbox_items.actionValues.Accept}}" method="GET">
+        <input type="hidden" name="id" value="{{ inbox_items.id }}" />
+        <input type="submit" value="Accept" />
+      </form>
+
+      <form action="{{inbox_items.actionValues.Reject}}" method="GET">
+        <input type="hidden" name="id" value="{{ inbox_items.id }}" />
+        <input type="submit" value="Reject" />
+      </form>
+    </div>
+  </div>
+  {% endif %} {% endfor %}
+</div>
+{% endblock %}

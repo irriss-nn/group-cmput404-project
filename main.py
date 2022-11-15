@@ -152,8 +152,9 @@ async def get_current_user(request: Request, session: str = Cookie(None)):
         return RedirectResponse(url='/login', status_code=307)
 
     found_user = SocialDatabase().get_profile(sessionUserId)
+    user_info = app.database["authors"].find_one({"_id": sessionUserId})
     if found_user:
-        return templates.TemplateResponse("my-profile.html", {"request": request, "post": found_user})
+        return templates.TemplateResponse("my-profile.html", {"request": request, "user": user_info, "post": found_user})
     else:
         return RedirectResponse(url="/login")
 
@@ -171,7 +172,7 @@ async def get_home(request: Request, session: str = Cookie(None)):
         return RedirectResponse(url='/login', status_code=307)
     all_feed_posts = SocialDatabase().get_following_feed(sessionUserId)
     found_user = app.database["authors"].find_one({"_id": sessionUserId})
-    return templates.TemplateResponse("landing.html", {"request": request, "landing": found_user, "feed": all_feed_posts})
+    return templates.TemplateResponse("landing.html", {"request": request, "user": found_user, "feed": all_feed_posts})
 
 
 @app.get("/inbox")
@@ -184,8 +185,9 @@ async def get_inbox(request: Request, session: str = Cookie(None)):
     except HTTPException:
         return RedirectResponse(url='/login', status_code=307)
     all_inbox_posts = SocialDatabase().get_inbox(sessionUserId)
+    found_user = app.database["authors"].find_one({"_id": sessionUserId})
     pprint(all_inbox_posts)
-    return templates.TemplateResponse("inbox.html", {"request": request, "inbox": all_inbox_posts})
+    return templates.TemplateResponse("inbox.html", {"request": request, "user": found_user, "inbox": all_inbox_posts})
 
 
 @app.get("/author/{author_name}")

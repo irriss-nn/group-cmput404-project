@@ -18,12 +18,8 @@
           <a href="/logout">Logout</a><br />
         </div>
         <a href="/current" id="nav-user">
-          <img
-            src="{{landing.profileImage}}"
-            alt="user pfp"
-            id="nav-user-img"
-          />
-          <span id="nav-user-name">{{landing.displayName}}</span>
+          <img src="{{user.profileImage}}" alt="user pfp" id="nav-user-img" />
+          <span id="nav-user-name">{{user.displayName}}</span>
         </a>
       </div>
       {% block content %}{% endblock %}
