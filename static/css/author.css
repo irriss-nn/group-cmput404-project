@@ -143,7 +143,8 @@ body {
   text-decoration: none;
 }
 
-#create-post-btn {
+#create-post-btn,
+#follow-user-btn {
   max-height: 35px;
   cursor: pointer;
 }

@@ -194,14 +194,19 @@ async def get_inbox(request: Request, session: str = Cookie(None)):
 async def get_author(request: Request, author_name: str, session: str = Cookie(None)):
     if (session == None):
         return RedirectResponse(url="/login")
+    try:
+        sessionUserId = await get_userId_from_token(session)
+    except HTTPException:
+        return RedirectResponse(url='/login', status_code=307)
     author_name = author_name.replace("_", " ")
     found_user = app.database["authors"].find_one({"displayName": author_name})
+    me_user = app.database["authors"].find_one({"_id": sessionUserId})
     if found_user:
-        return templates.TemplateResponse("author.html", {"request": request, "post": found_user})
+        return templates.TemplateResponse("author.html", {"request": request, "user": me_user, "post": found_user})
     return RedirectResponse(url='/home')
 
 
-@app.get("/followers/{foreign_author_id}/request")
+@app.post("/followers/{foreign_author_id}/request")
 async def add_follower(foreign_author_id: str, request: Request, session: str = Cookie(None)):
     '''Request a follow to the foreign author'''
     if (session == None):
@@ -216,11 +221,13 @@ async def add_follower(foreign_author_id: str, request: Request, session: str = 
         # If alreayd sent the request
         if (author_id in authorReceivingRequest.requests or author_id in authorReceivingRequest.followers):
             # return {"message": "You have already sent a request to this author"}
-            return RedirectResponse(url='/home')  # Invalid request
+            # return RedirectResponse(url='/home')  # Invalid request
+            return False
         request.app.database["authorManagers"].update_one({"_id": foreign_author_id}, {
                                                           "$push": {"inbox": inbox_item, "requests": author_id}})
         # Redirect user back home after sending request
-        return RedirectResponse(url='/home')
+        # return RedirectResponse(url='/home')
+        return True
     except:
         return False
 
