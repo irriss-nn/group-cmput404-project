@@ -11,6 +11,7 @@ const apiCall = (url) => {
     })
     .then((data) => {
       console.log(data);
+      window.location.reload();
     })
     .catch((err) => {
       console.log(err);
@@ -23,12 +24,12 @@ for (let i = 0; i < acceptBtns.length; i++) {
   });
 
   rejectBtns[i].addEventListener("click", () => {
-    apiCall(acceptBtns[i].getAttribute("data-url"));
+    apiCall(rejectBtns[i].getAttribute("data-url"));
   });
 }
 
 for (let i = 0; i < dismissBtns.length; i++) {
   dismissBtns[i].addEventListener("click", () => {
-    apiCall(acceptBtns[i].getAttribute("data-url"));
+    apiCall(dismissBtns[i].getAttribute("data-url"));
   });
 }

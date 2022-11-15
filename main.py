@@ -186,7 +186,6 @@ async def get_inbox(request: Request, session: str = Cookie(None)):
         return RedirectResponse(url='/login', status_code=307)
     all_inbox_posts = SocialDatabase().get_inbox(sessionUserId)
     found_user = app.database["authors"].find_one({"_id": sessionUserId})
-    pprint(all_inbox_posts)
     return templates.TemplateResponse("inbox.html", {"request": request, "user": found_user, "inbox": all_inbox_posts})
 
 
@@ -227,6 +226,19 @@ async def add_follower(foreign_author_id: str, request: Request, session: str = 
                                                           "$push": {"inbox": inbox_item, "requests": author_id}})
         # Redirect user back home after sending request
         # return RedirectResponse(url='/home')
+        return True
+    except:
+        return False
+
+
+@app.post("/dismiss/{inbox_item_id}")
+async def dismiss_inbox_item(inbox_item_id: str, request: Request, session: str = Cookie(None)):
+    if (session == None):
+        return RedirectResponse(url="/login")
+    try:
+        author_id = await get_userId_from_token(session)
+        request.app.database["authorManagers"].update_one({"_id": author_id}, {
+                                                          "$pull": {"inbox": {"id": inbox_item_id}}})
         return True
     except:
         return False
