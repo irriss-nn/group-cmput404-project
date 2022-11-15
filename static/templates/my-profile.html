@@ -1,85 +1,62 @@
-<html>
-  <head>
-    <title>Document</title>
-    <link
-      href="{{ url_for('static', path='/css/author.css') }}"
-      rel="stylesheet"
-    />
-    <link
-      href="{{ url_for('static', path='/css/navbar.css') }}"
-      rel="stylesheet"
-    />
-    {% block javascript %}
-    <script
-      src="{{ url_for('static', path='/js/create_post.js') }}"
-      defer
-    ></script>
-    {% endblock %}
-  </head>
+{% extends "base.html" %} {% block head %}
+<link href="{{ url_for('static', path='/css/author.css') }}" rel="stylesheet" />
+{% block javascript %}
+<script src="{{ url_for('static', path='/js/create_post.js') }}" defer></script>
+{% endblock %} {% endblock %} {% block content %}
+<dialog class="modal" id="create-post-modal">
+  <h2>Add a new post</h2>
+  <h3>Title:</h3>
+  <textarea id="title-create-post-textarea"></textarea>
+  <h3>Description:</h3>
+  <textarea id="description-create-post-textarea"></textarea>
+  <h3>Content:</h3>
+  <textarea id="content-create-post-textarea"></textarea>
 
-  <body>
-    <dialog class="modal" id="create-post-modal">
-      <h2>Add a new post</h2>
-      <h3>Title:</h3>
-      <textarea id="title-create-post-textarea"></textarea>
-      <h3>Description:</h3>
-      <textarea id="description-create-post-textarea"></textarea>
-      <h3>Content:</h3>
-      <textarea id="content-create-post-textarea"></textarea>
+  <button id="close-create-post-btn">Close</button>
+</dialog>
 
-      <button id="close-create-post-btn">Close</button>
-    </dialog>
-
-    <div class="main-content">
-      <div class="navbar">
-        <a href="/home">Home</a><br />
-        <a href="/current">Current</a><br />
-        <a href="/logout">Logout</a><br />
-        <a href="/inbox">Inbox</a><br />
-        <button id="create-post-btn">Create Post</button>
-      </div>
-
-      <div id="author-outer-container">
-        <div id="author-container">
-          <img src="{{post.profileImage}}" id="author-img" alt="user picture" />
-          <div id="author-info">
-            <div id="author-name">Name: <b>{{post.displayName}}</b></div>
-            <div class="social-container">
-              <img
-                src="{{ url_for('static', path='assets/github-logo.png') }}"
-                class="social-img"
-              />
-              <a href="{{post.github}}" class="social name">{{post.github}}</a>
-            </div>
+<div class="main-content">
+  <div id="author-outer-container">
+    <div id="author-container">
+      <img src="{{post.profileImage}}" id="author-img" alt="user picture" />
+      <div id="author-info">
+        <div id="author-info-top">
+          <div id="author-name">Name: <b>{{post.displayName}}</b></div>
+          <div class="social-container">
+            <img
+              src="{{ url_for('static', path='assets/github-logo.png') }}"
+              class="social-img"
+            />
+            <a href="{{post.github}}" class="social name">{{post.github}}</a>
           </div>
         </div>
-        {% for p in post.posts %}
-        <div id="allpost-single-container">
-          <div id="allpost-top">
-            <a id="allpost-author">{{post.displayName}}</a>
-            <div id="allpost-date">
-              {{post.posts[p].published.split("T")[0]}}
-            </div>
-          </div>
-          <div id="allpost-info">
-            <div id="allpost-title">{{post.posts[p].title}}</div>
-            <div id="allpost-description">{{post.posts[p].description}}</div>
-          </div>
-          <div id="allpost-btn-container">
-            <a
-              class="allpost-btn"
-              href="/service/authors/{{post.posts[p].author.id}}/posts/{{post.posts[p]._id}}/comments/view"
-              >View Comments</a
-            >
-            <a
-              class="allpost-btn"
-              href="/service/authors/{{post.posts[p].author.id}}/posts/{{post.posts[p]._id}}/view"
-              >View Post</a
-            >
-          </div>
-        </div>
-        {% endfor %}
+        <button id="create-post-btn" class="allpost-btn">Create Post</button>
       </div>
     </div>
-  </body>
-</html>
+    {% for p in post.posts %}
+    <div id="allpost-single-container">
+      <div id="allpost-top">
+        <a id="allpost-author">{{post.displayName}}</a>
+        <div id="allpost-date">{{post.posts[p].published.split("T")[0]}}</div>
+      </div>
+      <div id="allpost-info">
+        <div id="allpost-title">{{post.posts[p].title}}</div>
+        <div id="allpost-description">{{post.posts[p].description}}</div>
+      </div>
+      <div id="allpost-btn-container">
+        <a
+          class="allpost-btn"
+          href="/service/authors/{{post.posts[p].author.id}}/posts/{{post.posts[p]._id}}/comments/view"
+          >View Comments</a
+        >
+        <a
+          class="allpost-btn"
+          href="/service/authors/{{post.posts[p].author.id}}/posts/{{post.posts[p]._id}}/view"
+          >View Post</a
+        >
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

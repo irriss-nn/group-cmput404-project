@@ -43,6 +43,12 @@ body {
 #author-info {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+}
+
+#author-info-top {
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 }
 
@@ -138,13 +144,8 @@ body {
 }
 
 #create-post-btn {
-  background-color:transparent;
-  color:antiquewhite;
-  font-size: 0.8rem;
-  font-family: Arial, Helvetica, sans-serif;
-  border: none;
-  cursor:pointer;
-  overflow: hidden;
+  max-height: 35px;
+  cursor: pointer;
 }
 
 .allpost-btn:hover {
@@ -157,7 +158,8 @@ body {
   min-height: fit-content;
 }
 
-#title-create-post-textarea, #description-create-post-textarea {
+#title-create-post-textarea,
+#description-create-post-textarea {
   min-width: 100%;
   min-height: fit-content;
 }
