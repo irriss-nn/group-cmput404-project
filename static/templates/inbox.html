@@ -1,29 +1,48 @@
 {% extends "base.html" %} {% block head %}
 <link href="{{ url_for('static', path='/css/inbox.css') }}" rel="stylesheet" />
-{% endblock %} {% block content %}
+{% block javascript %}
+<script
+  src="{{ url_for('static', path='/js/inboxScripts.js') }}"
+  defer
+></script>
+{% endblock %} {% endblock %} {% block content %}
 <div class="inbox-items">
   {% for inbox_items in inbox %}
   <div class="item">
-    <div class="req-type">{{ inbox_items.action }}</div>
-    <div class="req-date">{{ inbox_items.time }}</div>
-    <div class="req-description">{{ inbox_items.actionDescription }}</div>
+    <div class="req-header">
+      <div class="req-type">{{ inbox_items.action }}</div>
+      <div class="req-date">{{ inbox_items.time.split("T")[0] }}</div>
+    </div>
+    <div class="req-description">
+      <i>{{ inbox_items.actionDescription }}</i>
+    </div>
 
     {% if inbox_items.actionNeeded == true %} {# Replace with name of user #}
     <div class="requester-desc">
-      Request is from user with id of {{inbox_items.actionReference}}
+      Request is from user with id of <b>{{inbox_items.actionReference}}</b>
     </div>
-    <div class="req-accept">
-      <form action="{{inbox_items.actionValues.Accept}}" method="GET">
-        <input type="hidden" name="id" value="{{ inbox_items.id }}" />
-        <input type="submit" value="Accept" />
-      </form>
-
-      <form action="{{inbox_items.actionValues.Reject}}" method="GET">
-        <input type="hidden" name="id" value="{{ inbox_items.id }}" />
-        <input type="submit" value="Reject" />
-      </form>
+    <div class="req-btn-container">
+      <button
+        class="req-button req-accept-btn"
+        data-url="{{inbox_items.actionValues.Accept}}"
+      >
+        Accept
+      </button>
+      <button
+        class="req-button req-reject-btn"
+        data-url="{{inbox_items.actionValues.Reject}}"
+      >
+        Reject
+      </button>
     </div>
   </div>
+  {% else %}
+  <button
+    class="req-button req-dismiss-btn"
+    data-url="{{inbox_items.actionValues.Reject}}"
+  >
+    Dismiss
+  </button>
   {% endif %} {% endfor %}
 </div>
 {% endblock %}
