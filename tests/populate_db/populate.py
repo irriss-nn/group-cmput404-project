@@ -1,20 +1,22 @@
+# To run on windows python -m tests.populate_db.populate
+from models.author import Author
+from models.inbox import InboxItem
+from database import SocialDatabase
 import random
 import requests
 import secrets
 import sys
-
+from fastapi.encoders import jsonable_encoder
 from faker import Faker
 from pymongo import MongoClient
 import sys
-sys.path.append('../../')
-from database import SocialDatabase
-from models.author import Author
-
+# sys.path.append('../../')
 fake = Faker()
-
 # First argument is the number of authors to create, second argument is method to populate the database(1 for API, 0 for direct connection)
 # Can leave both blank for default of 10, 0
 # Use direct connection for now
+
+
 def main(args=None):
     inserted_authors = []
     inserted_author_managers = []
@@ -28,7 +30,7 @@ def main(args=None):
             numAuthorsToCreate = int(args[0])
             try:
                 howToPopulate = int(args[1])
-                if(howToPopulate == 1):
+                if (howToPopulate == 1):
                     print("Populating through API")
             except:
                 howToPopulate = 0
@@ -46,7 +48,7 @@ def main(args=None):
                 "url": "http://127.0.0.1:8000/authors/" + fakeuuid,
                 "host": "http://127.0.0.1:8000/",
                 "displayName": fakename,
-                "github": "http://github.com/"+ fakename.replace(" ", "_"),
+                "github": "http://github.com/" + fakename.replace(" ", "_"),
                 "profileImage": fake.image_url(),
                 "type": "author",
                 "authLevel": "user",
@@ -54,7 +56,7 @@ def main(args=None):
             }
 
             SocialDatabase().create_author(Author.init_from_mongo(author))
-            print(author)
+            # print(author)
             author_manager = SocialDatabase().get_author_manager(author["id"])
             inserted_authors.append(author)
             inserted_author_managers.append(author_manager)
@@ -72,35 +74,47 @@ def main(args=None):
             "source": fake.url(),
             "origin": fake.url(),
             "description": fake.sentence(),
-            "contentType":"text/plain",
+            "contentType": "text/plain",
             "content": fake.paragraph(),
             "author": {"id": chosenAuthor["id"]},
-            "categories": fake.random_choices(elements=('web', 'tutorial', 'gaming', 'comedy',"documentary", "life", "school")),
+            "categories": fake.random_choices(elements=('web', 'tutorial', 'gaming', 'comedy', "documentary", "life", "school")),
             "count": 0,
-            "comments":"http://127.0.0.1:5454/authors/{}/{}/comments".format(chosenAuthor["id"], fakeuuid),
+            "comments": "http://127.0.0.1:5454/authors/{}/{}/comments".format(chosenAuthor["id"], fakeuuid),
             "commentsSrc": {},
             "published": (fake.date_time()).isoformat(),
-            "visibility":"PUBLIC",
-            "unlisted":"false"
+            "visibility": "PUBLIC",
+            "unlisted": "false"
         }
-        database["authorManagers"].update_one({"_id": chosenAuthor["id"]}, { "$set": { "posts.{}".format(fakeuuid): post}})
+        database["authorManagers"].update_one({"_id": chosenAuthor["id"]}, {
+                                              "$set": {"posts.{}".format(fakeuuid): post}})
         # adding_to_author = database["authors"].update_one({"_id": chosenAuthor["_id"]}, {"$push": {"posts": post}})
         inserted_posts.append(post)
 
     # Make fake comments
     for i in range(numAuthorsToCreate):
         chosenPost = random.choice(inserted_posts)
+        chosentPostAuthor = chosenPost["author"]["id"]
         chosenAuthor = random.choice(inserted_authors)
         fakeuuid = fake.uuid4()
         comment = {
             "type": "comment",
             "_id":  fakeuuid,
-            "author": chosenAuthor["id"], # Author ID of the post
-            "post": chosenPost["_id"],#ObjectId of the post
+            "author": chosenAuthor["id"],  # Author ID of the post
+            "post": chosenPost["_id"],  # ObjectId of the post
             "comment":  fake.sentence(),
             "contentType": "text/markdown",
             "published": str((fake.date_time()).isoformat())
         }
+        inbox_item = InboxItem(
+            action="Comment Notification",
+            actionDescription="{} commented: {}".format(
+                chosenAuthor["displayName"], comment["comment"]),
+            actionReference=comment["_id"],
+        )
+        inbox_item = jsonable_encoder(inbox_item)
+        # add inbox item to array of inbox of chosenpostauthor
+        database["authorManagers"].update_one({"_id": chosentPostAuthor}, {
+                                              "$push": {"inbox": inbox_item}})
         database["comments"].insert_one(comment)
         inserted_comments.append(comment)
 
@@ -121,6 +135,7 @@ def main(args=None):
     print("Inserted {} comments successfully".format(len(inserted_comments)))
     destroy_connect_to_db(mongodb_client)
 
+
 def populate_through_api():
     fakeuuid = fake.uuid4()
     fakename = fake.name()
@@ -128,12 +143,12 @@ def populate_through_api():
     author = {
         "id": fakeuuid,
         "displayName": fakename,
-        "github": "http://github.com/"+ fakename.replace(" ", "_"),
+        "github": "http://github.com/" + fakename.replace(" ", "_"),
         "profileImage": fake.image_url()
     }
     # author_id = database["authors"].insert_one(author).inserted_id
     # print(f"Created author with id {author_id}")
-    requests.post("http://localhost:8000/service/authors/", json = author)
+    requests.post("http://localhost:8000/service/authors/", json=author)
 
 
 def connect_to_db():
@@ -141,6 +156,7 @@ def connect_to_db():
     database = mongodb_client["socialnetwork"]
     print("Connected to MongoDB")
     return database, mongodb_client
+
 
 def destroy_connect_to_db(mongodb_client):
     mongodb_client.close()
