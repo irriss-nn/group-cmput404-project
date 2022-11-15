@@ -153,7 +153,7 @@ async def get_current_user(request: Request, session: str = Cookie(None)):
 
     found_user = SocialDatabase().get_profile(sessionUserId)
     if found_user:
-        return templates.TemplateResponse("author.html", {"request": request, "post": found_user})
+        return templates.TemplateResponse("my-profile.html", {"request": request, "post": found_user})
     else:
         return RedirectResponse(url="/login")
 
@@ -174,6 +174,20 @@ async def get_home(request: Request, session: str = Cookie(None)):
     return templates.TemplateResponse("landing.html", {"request": request, "landing": found_user, "feed": all_feed_posts})
 
 
+@app.get("/inbox")
+async def get_inbox(request: Request, session: str = Cookie(None)):
+    if (session == None):
+        return RedirectResponse(url="/login")
+    # must await for this!!
+    try:
+        sessionUserId = await get_userId_from_token(session)
+    except HTTPException:
+        return RedirectResponse(url='/login', status_code=307)
+    all_inbox_posts = SocialDatabase().get_inbox(sessionUserId)
+    pprint(all_inbox_posts)
+    return templates.TemplateResponse("inbox.html", {"request": request, "inbox": all_inbox_posts})
+
+
 @app.get("/author/{author_name}")
 async def get_author(request: Request, author_name: str, session: str = Cookie(None)):
     if (session == None):
@@ -183,8 +197,6 @@ async def get_author(request: Request, author_name: str, session: str = Cookie(N
     if found_user:
         return templates.TemplateResponse("author.html", {"request": request, "post": found_user})
     return RedirectResponse(url='/home')
-
-# USe this to send follow requests, we need to implemnent a button for this
 
 
 @app.get("/followers/{foreign_author_id}/request")

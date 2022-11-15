@@ -4,12 +4,14 @@ from pymongo import ASCENDING, MongoClient
 from models.author import Author, AuthorManager
 from models.post import Post
 
+
 def mongo_encode_dataclass(dataclass) -> dict:
     dataclass = asdict(dataclass)
     dataclass["_id"] = dataclass["id"]
     del dataclass["id"]
 
     return dataclass
+
 
 class SocialDatabase:
     __slots__ = ['__mongo_client', 'db_name', 'database']
@@ -30,7 +32,7 @@ class SocialDatabase:
         return self.__mongo_client.close()
 
     def close(self):
-        return self.__del__();
+        return self.__del__()
 
     def create_author(self, author: Author) -> bool:
         # Check not needed if insert_one does not overwrite data
@@ -58,14 +60,14 @@ class SocialDatabase:
 
         return result.acknowledged
 
-    def get_author(self, author_id: str) -> Author|None:
+    def get_author(self, author_id: str) -> Author | None:
         author = self.database.authors.find_one({"_id": author_id})
         if author is None:
             return None
 
         return Author.init_from_mongo(author)
-    
-    def get_author_byname(self, author_name: str) -> Author|None:
+
+    def get_author_byname(self, author_name: str) -> Author | None:
         author = self.database.authors.find_one({"displayName": author_name})
         if author is None:
             return None
@@ -77,21 +79,28 @@ class SocialDatabase:
                 self.database.authors.find(skip=offset, limit=limit,
                                            sort=[("_id", ASCENDING)])]
 
-    def get_author_manager(self, author_id: str) -> AuthorManager|None:
+    def get_author_manager(self, author_id: str) -> AuthorManager | None:
         manager = self.database.authorManagers.find_one({"_id": author_id})
         if not manager:
             return None
 
         return AuthorManager.init_from_mongo(manager)
 
-    def get_post(self, author_id: str, post_id: str) -> Post|None:
+    def get_inbox(self, author_id: str) -> list[Post] | None:
+        manager = self.get_author_manager(author_id)
+        if not manager:
+            return None
+
+        return asdict(manager)["inbox"]
+
+    def get_post(self, author_id: str, post_id: str) -> Post | None:
         manager = self.get_author_manager(author_id)
         if manager and post_id in manager.posts:
             return Post.init_from_mongo(manager.posts[post_id])
 
         return None
 
-    def get_posts(self, author_id: str, limit: int = 0) -> list[Post]|None:
+    def get_posts(self, author_id: str, limit: int = 0) -> list[Post] | None:
         manager = self.get_author_manager(author_id)
         if not manager:
             return None
@@ -124,7 +133,8 @@ class SocialDatabase:
         result = self.database.authorManagers.update_one({"_id": author_id},
                                                          {"$unset": {f"posts.{post_id}": ""}})
         return result.acknowledged
-    def get_profile(self, author_id: str) -> dict|None:
+
+    def get_profile(self, author_id: str) -> dict | None:
         found_user = self.database["authors"].find_one({"_id": author_id})
         found_posts = self.database["authorManagers"].find_one({"_id": author_id})[
             "posts"]
@@ -132,13 +142,13 @@ class SocialDatabase:
         if not found_user:
             return None
         return found_user
-    
-    def get_following_feed(self, author_id: str, limit: int = 0) -> list[Post]|None:
+
+    def get_following_feed(self, author_id: str, limit: int = 0) -> list[Post] | None:
         manager = self.get_author_manager(author_id)
         if not manager:
             return None
         allCurrentFollowing = manager.following
-        
+
         postsToReturn = []
         for following in allCurrentFollowing:
             # Get post of each following
@@ -150,5 +160,7 @@ class SocialDatabase:
                     postsToReturn.append(found_following.posts[post])
             except:
                 pass
-        postsToReturn = sorted(postsToReturn, key=lambda d: d['published'],reverse=True) # Sort posts by recent
+        # Sort posts by recent
+        postsToReturn = sorted(
+            postsToReturn, key=lambda d: d['published'], reverse=True)
         return postsToReturn

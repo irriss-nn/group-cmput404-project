@@ -1,0 +1,23 @@
+body{
+    display: flex;
+    margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background-color: #6f95c0;
+  --main-font: "Roboto", sans-serif;
+  font-family: var(--main-font);
+
+}
+
+.inbox-items{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    margin-left: 90px;
+}
+
+.item{
+    border: 1px solid black;
+    margin: 20px;
+}

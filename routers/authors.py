@@ -1,5 +1,6 @@
 from dataclasses import asdict
 from fastapi import APIRouter, HTTPException, Request, status
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from fastapi.encoders import jsonable_encoder
@@ -130,25 +131,25 @@ async def check_follow_status(author_id: str, foreign_author_id: str, request: R
 
 # Add button to all profiles to send friend request, first author id is the author sending the request, second author id is the author receiving the request
 # This will be implemented in the main file too for now
-@router.put("/{author_id}/followers/{foreign_author_id}/request")
-async def add_follower(author_id: str, foreign_author_id: str, request: Request):
-    '''Request a follow to the foreign author'''
-    try:  # To do: check if already there is a request from that author
-        # Create inbox request
-        inbox_item = InboxItem(action="Request", actionDescription="You have a new follow request", actionReference=author_id, actionNeeded=True, actionValues={
-                               "Accept": f"/service/authors/{foreign_author_id}/accept/{author_id}", "Reject": f"/service/authors/{foreign_author_id}/reject/{author_id}"})
-        inbox_item = jsonable_encoder(inbox_item)
-        authorReceivingRequest = SocialDatabase().get_author_manager(foreign_author_id)
-        if (author_id in authorReceivingRequest.requests):  # If alreayd sent the request
-            return {"message": "You have already sent a request to this author"}
-        request.app.database["authorManagers"].update_one({"_id": foreign_author_id}, {
-                                                          "$push": {"inbox": inbox_item, "requests": author_id}})
-        return True
-    except:
-        return False
+# @router.put("/{author_id}/followers/{foreign_author_id}/request")
+# async def add_follower(author_id: str, foreign_author_id: str, request: Request):
+#     '''Request a follow to the foreign author'''
+#     try:  # To do: check if already there is a request from that author
+#         # Create inbox request
+#         inbox_item = InboxItem(action="Request", actionDescription="You have a new follow request", actionReference=author_id, actionNeeded=True, actionValues={
+#                                "Accept": f"/service/authors/{foreign_author_id}/accept/{author_id}", "Reject": f"/service/authors/{foreign_author_id}/reject/{author_id}"})
+#         inbox_item = jsonable_encoder(inbox_item)
+#         authorReceivingRequest = SocialDatabase().get_author_manager(foreign_author_id)
+#         if (author_id in authorReceivingRequest.requests):  # If alreayd sent the request
+#             return {"message": "You have already sent a request to this author"}
+#         request.app.database["authorManagers"].update_one({"_id": foreign_author_id}, {
+#                                                           "$push": {"inbox": inbox_item, "requests": author_id}})
+#         return True
+#     except:
+#         return False
 
 
-@router.post("/{author_id}/{action}/{foreign_author}")
+@router.get("/{author_id}/{action}/{foreign_author}")
 async def accept_or_reject_follower(author_id: str, action: str, foreign_author: str, request: Request):
     '''Accept or reject a follow request'''
     if action == "accept":
@@ -161,7 +162,8 @@ async def accept_or_reject_follower(author_id: str, action: str, foreign_author:
         # Remove the inbox item
         request.app.database["authorManagers"].update_one(
             {"_id": author_id}, {"$pull": {"inbox": {"actionReference": foreign_author}}})
-        return True
+        # return True
+        return RedirectResponse(url='/home')
     elif action == "reject":
         # Remove the request
         request.app.database["authorManagers"].update_one(
@@ -169,9 +171,11 @@ async def accept_or_reject_follower(author_id: str, action: str, foreign_author:
         # Remove the inbox item
         request.app.database["authorManagers"].update_one(
             {"_id": author_id}, {"$pull": {"inbox": {"actionReference": foreign_author}}})
-        return True
+        # return True
+        return RedirectResponse(url='/home')
     else:
-        return False
+        # return False
+        return RedirectResponse(url='/home')
 #### USER FACING VIEWS ####
 
 
