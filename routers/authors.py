@@ -149,7 +149,7 @@ async def check_follow_status(author_id: str, foreign_author_id: str, request: R
 #         return False
 
 
-@router.get("/{author_id}/{action}/{foreign_author}")
+@router.post("/{author_id}/{action}/{foreign_author}")
 async def accept_or_reject_follower(author_id: str, action: str, foreign_author: str, request: Request):
     '''Accept or reject a follow request'''
     if action == "accept":
