@@ -30,6 +30,7 @@
             <a href="{{post.github}}" class="social name">{{post.github}}</a>
           </div>
         </div>
+        {% if status.following == false %}
         <button
           id="follow-user-btn"
           class="allpost-btn"
@@ -37,6 +38,7 @@
         >
           Follow
         </button>
+        {% endif %}
       </div>
     </div>
     {% for p in post.posts %}

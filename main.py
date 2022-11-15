@@ -202,7 +202,7 @@ async def get_author(request: Request, author_name: str, session: str = Cookie(N
     found_user = app.database["authors"].find_one({"displayName": author_name})
     me_user = app.database["authors"].find_one({"_id": sessionUserId})
     if found_user:
-        return templates.TemplateResponse("author.html", {"request": request, "user": me_user, "post": found_user})
+        return templates.TemplateResponse("author.html", {"request": request, "user": me_user, "post": found_user, "status": {"following": False}})
     return RedirectResponse(url='/home')
 
 
