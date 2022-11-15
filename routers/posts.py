@@ -38,7 +38,7 @@ async def read_post(request: Request, author_id: str, post_id: str):
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
 
     if document:
-        return templates.TemplateResponse("post.html", {"request": request, "post": document})
+        return templates.TemplateResponse("post.html", {"request": request, "post": document, "user": author})
 
     raise HTTPException(status_code=404, detail="Post not found")
 
