@@ -15,7 +15,7 @@ from routers.authors import encode_author
 from dataclasses import asdict
 # Local imports
 from database import SocialDatabase
-from routers import authors, posts, comments_router
+from routers import authors, posts, comments_router, likes
 from models.author import Author, AuthorManager
 from models.inbox import InboxItem
 # All login and registering related fields
@@ -65,6 +65,7 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 app.include_router(authors.router)
 app.include_router(posts.router)
 app.include_router(comments_router.router)
+app.include_router(likes.router)
 
 
 @app.on_event("startup")

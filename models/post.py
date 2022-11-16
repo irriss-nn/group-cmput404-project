@@ -1,7 +1,6 @@
 import uuid
 
-from dataclasses import dataclass
-
+from dataclasses import dataclass,field
 from models.base import Base
 
 @dataclass
@@ -20,6 +19,7 @@ class Post(Base):
     published: str
     visibility: str
     unlisted: str
+    likes =list
     id: str | None = str(uuid.uuid4())
 
     class Config:

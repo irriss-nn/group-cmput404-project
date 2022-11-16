@@ -10,6 +10,7 @@ class Comment(BaseModel):
     comment: str = ""
     contentType: str = "text/markdown"
     published: str = datetime.datetime.now().isoformat()
+    likes: list = []
 
     class Config:
         allow_population_by_field_name = True

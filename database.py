@@ -1,10 +1,11 @@
 from dataclasses import asdict
 from pymongo import ASCENDING, MongoClient
-
+from fastapi.encoders import jsonable_encoder
 from models.author import Author, AuthorManager
 from models.post import Post
-
-
+from models.like import Like
+from models.inbox import InboxItem
+from pprint import pprint
 def mongo_encode_dataclass(dataclass) -> dict:
     dataclass = asdict(dataclass)
     dataclass["_id"] = dataclass["id"]
@@ -106,6 +107,20 @@ class SocialDatabase:
             return None
 
         return asdict(manager)["posts"]
+    
+    def get_post_by_id(self, post_id: str) -> Post | None:
+        authorsManagers = self.database["authorManagers"].find()
+        # iterate through all iauthor managers and find the post
+        for authorManager in authorsManagers:
+            if authorManager and post_id in authorManager["posts"].keys():
+                return authorManager["posts"][post_id]
+        return None
+    
+    def get_comment_by_id(self, comment_id: str) -> dict | None:
+        comment = self.database["comments"].find_one({"_id": comment_id})
+        if comment:
+            return comment
+        return None
 
     def create_post(self, author_id: str, post: Post) -> bool:
         manager = self.get_author_manager(author_id)
@@ -124,7 +139,65 @@ class SocialDatabase:
         result = self.database.authorManagers.update_one({"_id": author_id},
                                                          {"$set": {f"posts.{post.id}": mongo_encode_dataclass(post)}})
         return result.acknowledged
+    
+    def like_post(self,  post_id: str, like_author: str) -> bool:
+        author = jsonable_encoder(self.get_author(like_author))
+        if author is None:
+            return False
+        like_obj = Like(author=author, object=post_id)
+        post = self.get_post_by_id(post_id)
+        like_obj = jsonable_encoder(like_obj)
+        if not post:
+            return False
+        # Check if already liked
+        if "likes" in post:
+            for likes in post["likes"]:
+                if likes["author"]["id"] == like_author:
+                    print("Already liked")
+                    return False
+        postid = post["_id"]
+        # update the post with the new like
+        result = self.database.authorManagers.update_one({"_id": post["author"]["id"]},
+                                                         {"$push": {f"posts.{postid}.likes": like_obj}})
+        if result.acknowledged == True:
+            res = self.create_inbox_like_notification(post["author"]["id"],"post", like_obj)
+        return True
+    
+    def like_comment(self, comment_id: str, like_author: str) -> bool:
+        author = jsonable_encoder(self.get_author(like_author))
+        if author is None:
+            return False
+        like_obj = Like(author=author, object=comment_id)
+        comment = self.get_comment_by_id(comment_id)
+        like_obj = jsonable_encoder(like_obj)
+        if not comment:
+            return False
+        # Check if already liked
+        if "likes" in comment:
+            for like in comment["likes"]:
+                if like["author"]["id"] == like_author:
+                    return False
+        # update the comment with the new like
+        result = self.database["comments"].update_one({"_id": comment_id},
+                                                         {"$push": {"likes": like_obj}})
+        # Make inbox notification
+        if result.acknowledged == True:
+            res = self.create_inbox_like_notification(comment["author"],"comment", like_obj)
+            
+        return True
 
+    def create_inbox_like_notification(self, target_author_id:str, typeLike: str, likeObj: Like) -> bool:
+        inbox_item = InboxItem(
+            action=f"Like Notification",
+            actionDescription="{} liked your {}".format(
+                likeObj["author"]["displayName"],typeLike ),
+            actionReference=likeObj["object"],
+        )
+        inbox_item = jsonable_encoder(inbox_item)
+        result = self.database.authorManagers.update_one({"_id": target_author_id},
+                                                         {"$push": {"inbox": inbox_item}})
+        return result.acknowledged
+    
     def delete_post(self, author_id: str, post_id: str) -> bool:
         manager = self.get_author_manager(author_id)
         if not (manager and post_id in manager.posts.keys()):
