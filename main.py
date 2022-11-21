@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pathlib import Path
+from os import getenv
 from pprint import pprint
 from routers.authors import encode_author
 from dataclasses import asdict
@@ -70,7 +71,17 @@ app.include_router(likes.router)
 
 @app.on_event("startup")
 def startup_db_client():
-    app.database = SocialDatabase().database
+    args = {}
+    host = getenv('MONGODB_ADDR')
+    port = getenv('MONGODB_PORT')
+
+    if host:
+        args['host'] = host
+
+    if port and port.isnumeric():
+        args['port'] = port
+
+    app.database = SocialDatabase(**args).database
     print("Connected to MongoDB")
 
 
