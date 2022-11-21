@@ -1,0 +1,15 @@
+version: '3'
+services:
+  cmput404-social:
+    build: .
+    container_name: cmput404-social
+    ports:
+      - 8000:80
+    environment:
+      - MONGODB_ADDR=database
+
+  database:
+    image: mongo
+    container_name: cmput404-social-db
+    volumes:
+      - ./data:/data
