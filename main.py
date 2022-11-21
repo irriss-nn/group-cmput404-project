@@ -37,7 +37,6 @@ def get_user(request: Request, username: str, password: str):
     else:
         return None
 
-
 def create_jwt(encoded_data: dict):
     to_encode = encoded_data.copy()
     expire = datetime.utcnow() + timedelta(minutes=45)
@@ -45,10 +44,8 @@ def create_jwt(encoded_data: dict):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-# Use This function to get userId from jwt token
-
-
 async def get_userId_from_token(token: str):
+    '''Get user id from JWT'''
     try:
         if (token == None):
             raise HTTPException(status_code=401, detail="Unauthorized")
@@ -57,6 +54,8 @@ async def get_userId_from_token(token: str):
         return userId
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+
 app = FastAPI()
 
 static_dir = f"{Path.cwd()}/static"
