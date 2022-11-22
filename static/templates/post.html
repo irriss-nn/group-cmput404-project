@@ -1,5 +1,11 @@
 {% extends "base.html" %} {% block head %}
 <link href="{{ url_for('static', path='/css/post.css') }}" rel="stylesheet" />
+
+<script
+  src="{{ url_for('static', path='/js/post_scripts.js') }}"
+  defer
+></script>
+
 {% endblock %} {% block content %}
 <div class="main-content">
   <div id="post-outer-container">
@@ -29,8 +35,14 @@
           </a>
           <div id="post-date">{{post.published.split("T")[0]}}</div>
         </div>
+        <button
+          id="like-button"
+          data-url="/service/authors/likes/create/post/{{post._id}}"
+        >
+          Like Post
+        </button>
         <a
-          href="/service/authors/{{post.author.id.split('/')[-1]}}/posts/{{post._id}}/comments"
+          href="/service/authors/{{post.author.id.split('/')[-1]}}/posts/{{post._id}}/comments/view"
           id="post-comment"
           >View comments
         </a>
