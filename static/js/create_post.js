@@ -36,6 +36,9 @@ followBtn.addEventListener("click", (e) => {
       return response.json();
     })
     .then((data) => {
+      document.getElementById("follow-user-btn").disabled = true;
+      document.getElementById("follow-user-btn").innerHTML = "Sent Request";
+      document.getElementById("follow-user-btn").style.pointerEvents = "none";
       console.log(data);
     })
     .catch((err) => {

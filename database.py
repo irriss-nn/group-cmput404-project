@@ -6,6 +6,8 @@ from models.post import Post
 from models.like import Like
 from models.inbox import InboxItem
 from pprint import pprint
+
+
 def mongo_encode_dataclass(dataclass) -> dict:
     dataclass = asdict(dataclass)
     dataclass["_id"] = dataclass["id"]
@@ -107,7 +109,7 @@ class SocialDatabase:
             return None
 
         return asdict(manager)["posts"]
-    
+
     def get_post_by_id(self, post_id: str) -> Post | None:
         authorsManagers = self.database["authorManagers"].find()
         # iterate through all iauthor managers and find the post
@@ -115,7 +117,7 @@ class SocialDatabase:
             if authorManager and post_id in authorManager["posts"].keys():
                 return authorManager["posts"][post_id]
         return None
-    
+
     def get_comment_by_id(self, comment_id: str) -> dict | None:
         comment = self.database["comments"].find_one({"_id": comment_id})
         if comment:
@@ -139,7 +141,7 @@ class SocialDatabase:
         result = self.database.authorManagers.update_one({"_id": author_id},
                                                          {"$set": {f"posts.{post.id}": mongo_encode_dataclass(post)}})
         return result.acknowledged
-    
+
     def like_post(self,  post_id: str, like_author: str) -> bool:
         author = jsonable_encoder(self.get_author(like_author))
         if author is None:
@@ -160,9 +162,10 @@ class SocialDatabase:
         result = self.database.authorManagers.update_one({"_id": post["author"]["id"]},
                                                          {"$push": {f"posts.{postid}.likes": like_obj}})
         if result.acknowledged == True:
-            res = self.create_inbox_like_notification(post["author"]["id"],"post", like_obj)
+            res = self.create_inbox_like_notification(
+                post["author"]["id"], "post", like_obj)
         return True
-    
+
     def like_comment(self, comment_id: str, like_author: str) -> bool:
         author = jsonable_encoder(self.get_author(like_author))
         if author is None:
@@ -179,25 +182,26 @@ class SocialDatabase:
                     return False
         # update the comment with the new like
         result = self.database["comments"].update_one({"_id": comment_id},
-                                                         {"$push": {"likes": like_obj}})
+                                                      {"$push": {"likes": like_obj}})
         # Make inbox notification
         if result.acknowledged == True:
-            res = self.create_inbox_like_notification(comment["author"],"comment", like_obj)
-            
+            res = self.create_inbox_like_notification(
+                comment["author"], "comment", like_obj)
+
         return True
 
-    def create_inbox_like_notification(self, target_author_id:str, typeLike: str, likeObj: Like) -> bool:
+    def create_inbox_like_notification(self, target_author_id: str, typeLike: str, likeObj: Like) -> bool:
         inbox_item = InboxItem(
             action=f"Like Notification",
             actionDescription="{} liked your {}".format(
-                likeObj["author"]["displayName"],typeLike ),
+                likeObj["author"]["displayName"], typeLike),
             actionReference=likeObj["object"],
         )
         inbox_item = jsonable_encoder(inbox_item)
         result = self.database.authorManagers.update_one({"_id": target_author_id},
                                                          {"$push": {"inbox": inbox_item}})
         return result.acknowledged
-    
+
     def delete_post(self, author_id: str, post_id: str) -> bool:
         manager = self.get_author_manager(author_id)
         if not (manager and post_id in manager.posts.keys()):
@@ -215,6 +219,12 @@ class SocialDatabase:
         if not found_user:
             return None
         return found_user
+
+    def is_following(self, author_id: str, target_author_id: str) -> bool:
+        manager = self.get_author_manager(author_id)
+        if not manager:
+            return False
+        return target_author_id in manager.following
 
     def get_following_feed(self, author_id: str, limit: int = 0) -> list[Post] | None:
         manager = self.get_author_manager(author_id)

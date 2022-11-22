@@ -201,8 +201,10 @@ async def get_author(request: Request, author_name: str, session: str = Cookie(N
     author_name = author_name.replace("_", " ")
     found_user = app.database["authors"].find_one({"displayName": author_name})
     me_user = app.database["authors"].find_one({"_id": sessionUserId})
+    is_following = SocialDatabase().is_following(
+        sessionUserId, found_user["_id"])
     if found_user:
-        return templates.TemplateResponse("author.html", {"request": request, "user": me_user, "post": found_user, "status": {"following": False}})
+        return templates.TemplateResponse("author.html", {"request": request, "user": me_user, "post": found_user, "status": {"following": is_following}})
     return RedirectResponse(url='/home')
 
 
@@ -293,11 +295,11 @@ async def get_all_posts(request: Request):
     return templates.TemplateResponse("all-posts.html", {"request": request, "posts": all_posts, "information": {"name": "USER FEED"}})
 
 
-@app.get("/authors/{author_id}")
-async def display_author(request: Request, response: Response, author_id: str):
-    author = authors.read_item(author_id, request)
-    response.set_cookie(key="author_id", value=author)
-    return templates.TemplateResponse("user-feed.html", {"request": request})
+# @app.get("/authors/{author_id}")
+# async def display_author(request: Request, response: Response, author_id: str):
+#     author = authors.read_item(author_id, request)
+#     response.set_cookie(key="author_id", value=author)
+#     return templates.TemplateResponse("user-feed.html", {"request": request})
 
 
 @app.get("/author", response_class=HTMLResponse)
