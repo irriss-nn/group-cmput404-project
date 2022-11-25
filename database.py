@@ -283,6 +283,14 @@ class SocialDatabase:
                     user["requests"] = manager["requests"]
         return users
 
+    def get_all_posts(self) -> list[Post]:
+        posts = []
+        # go through all authormanagers and add posts in them to posts list
+        for manager in self.database["authorManagers"].find({}):
+            for post in manager["posts"].values():
+                posts.append(post)
+        return posts
+
     def is_following(self, author_id: str, target_author_id: str) -> bool:
         manager = self.get_author_manager(author_id)
         if not manager:
