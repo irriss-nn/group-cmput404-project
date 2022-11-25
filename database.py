@@ -7,6 +7,7 @@ from models.like import Like
 from models.inbox import InboxItem
 from pprint import pprint
 
+
 def mongo_encode_dataclass(dataclass) -> dict:
     dataclass = asdict(dataclass)
     dataclass["_id"] = dataclass["id"]
@@ -199,6 +200,43 @@ class SocialDatabase:
         result = self.database.authorManagers.update_one({"_id": target_author_id},
                                                          {"$push": {"inbox": inbox_item}})
         return result.acknowledged
+
+    def create_generic_like_notification(self, author_id: str) -> bool:
+        inbox_item = InboxItem(
+            action=f"Like Notification",
+            actionDescription="You have recieved a like",
+            actionReference="Anonymous",
+        )
+        inbox_item = jsonable_encoder(inbox_item)
+        result = self.database.authorManagers.update_one({"_id": author_id},
+                                                         {"$push": {"inbox": inbox_item}})
+        return result.acknowledged
+
+    def get_likes_for_post(self, post_id: str, author_id: str) -> list[Like] | None:
+        post = self.get_post_by_id(post_id)
+
+        if not post:
+            return []
+        if "likes" not in post:
+            return []
+        likes = []
+        for like in post["likes"]:
+            if like["author"]["id"] != author_id:
+                likes.append(like)
+        return likes
+
+    def get_likes_on_comment_on_post(self, post_id: str, comment_id: str, author_id: str) -> list[Like] | None:
+        comment = self.get_comment_by_id(comment_id)
+
+        if not comment:
+            return []
+        if "likes" not in comment:
+            return []
+        likes = []
+        for likes in comment["likes"]:
+            if likes["author"]["id"] != author_id:
+                likes.append(likes)
+        return likes
 
     def delete_post(self, author_id: str, post_id: str) -> bool:
         manager = self.get_author_manager(author_id)

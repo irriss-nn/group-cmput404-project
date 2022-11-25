@@ -126,6 +126,27 @@ async def check_follow_status(author_id: str, foreign_author_id: str, request: R
     else:
         return {"message": "We are not friends", "author_id": author_id, "foreign_author_id": foreign_author_id}
 
+### IMPLEMENT PROJECT SPECS FOR LIKES ###
+
+
+@router.post("/{author_id}/inbox")
+async def add_like_to_inbox(author_id: str, request: Request):
+    '''Add a like to the inbox of the author'''
+    # We need to handle authentication here !!! TO DO !!!
+
+    return SocialDatabase().create_generic_like_notification(author_id)
+
+
+@router.get("/{author_id}/posts/{post_id}/likes")
+async def get_likes_for_post(author_id: str, post_id: str, request: Request):
+    '''Get a list of all likes for a post'''
+    return SocialDatabase().get_likes_for_post(post_id, author_id)
+
+
+@router.get("/{author_id}/posts/{post_id}/comments/{comment_id}/likes")
+async def get_likes_on_comment_on_post(author_id: str, post_id: str, comment_id: str, request: Request):
+    '''Get a list of all likes for a comment on a post'''
+    return SocialDatabase().get_likes_on_comment_on_post(post_id, comment_id, author_id)
 ### INBOX RELATED FUNCTIONALITY ###
 
 
