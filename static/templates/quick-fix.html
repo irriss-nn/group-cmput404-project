@@ -1,0 +1,26 @@
+<div id="allpost-single-container">
+    <div id="allpost-top">
+      <a href="/author/{{l.displayName}}" id="allpost-author"
+        >{{l.displayName}}</a
+      >
+      <div id="allpost-date">{{l.published.split("T")[0]}}</div>
+    </div>
+    <div id="allpost-info">
+      <div id="allpost-title">{{l.title}}</div>
+      <div id="allpost-description">{{l.description}}</div>
+    </div>
+    <div id="allpost-btn-container">
+      <a
+        class="allpost-btn"
+        href="/service/authors/{{l.author.id}}/posts/{{l._id}}/comments/view"
+        >View Comments</a
+      >
+      <a
+        class="allpost-btn"
+        href="/service/authors/{{l.author.id}}/posts/{{l._id}}/view"
+        >View Post</a
+      >
+      <button id="myBtn" class="allpost-btn" onclick="myfunction()">Create Comments</button>
+    
+    </div>
+  </div>

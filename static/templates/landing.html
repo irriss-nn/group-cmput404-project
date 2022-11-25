@@ -47,8 +47,25 @@ likeBtn.addEventListener("click", (e) => {
     });
 });
 
+let foreign_posts;
+//team 05's posts
+fetch("https://fallprojback.herokuapp.com/authors/test_heroku_01/posts").then(
+  (response)=>response.json())
+  .then((data)=>{
+    console.log(data);
+    for (let i = 0; i < data.length; i++){
+      postList=document.getElementById("landing-container").innerHTML+=
+      `<div id='allpost-single-container'>
+        <div id='allpost-top'>
+          <div id='allpost-info'>
+            <div id='allpost-title'>${data[i].title}</div>
+            <div id='allpost-description'>${data[i].description}</div>
+          <div>
+        </div>
+      </div>`;
+    }
+  });
 
-  
 </script>
 <div id="landing-container">
   <div id="landing-search-container">
