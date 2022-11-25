@@ -262,6 +262,27 @@ class SocialDatabase:
             return True
         return False
 
+    def get_total_users(self) -> int:
+        return self.database["authors"].count_documents({})
+
+    def get_all_users(self) -> list[Author]:
+        users = self.database["authors"].find({})
+        return [Author(**user) for user in users]
+
+    def get_all_authors_and_authormanagers_combined(self) -> list:
+        users = list(self.database["authors"].find({}))
+        managers = list(self.database["authorManagers"].find({}))
+        # Go Through all users and add fields of managers to users list
+        for user in users:
+            for manager in managers:
+                if user["_id"] == manager["_id"]:
+                    user["posts"] = manager["posts"]
+                    user["inbox"] = manager["inbox"]
+                    user["followers"] = manager["followers"]
+                    user["following"] = manager["following"]
+                    user["requests"] = manager["requests"]
+        return users
+
     def is_following(self, author_id: str, target_author_id: str) -> bool:
         manager = self.get_author_manager(author_id)
         if not manager:

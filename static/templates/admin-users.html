@@ -1,0 +1,42 @@
+{% extends "admin-base.html" %}
+{% block content %}
+<div class="user-manage">
+  <div class="stats-title">
+    <h1>User Management</h1>
+    <p>Total Users Currently is: {{totalusers}}</p>
+  </div>
+  <div class="user-disp">
+    {% for user in users%}
+    <div class="user">
+      <h3>{{user.displayName}}</h1>
+    </div>
+
+    {% endfor %}
+    {% for user in users%}
+    <div class="user">
+      <h3>{{user.displayName}}</h1>
+    </div>
+
+    {% endfor %}
+    {% for user in users%}
+    <div class="user">
+      <h3>{{user.displayName}}</h1>
+    </div>
+
+    {% endfor %}
+    {% for user in users%}
+    <div class="user">
+      <h3>{{user.displayName}}</h1>
+    </div>
+
+    {% endfor %}
+    {% for user in users%}
+    <div class="user">
+      <h3>{{user.displayName}}</h1>
+    </div>
+
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

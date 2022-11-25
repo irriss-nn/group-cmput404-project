@@ -289,6 +289,27 @@ async def get_admin(request: Request, session: str = Cookie(None)):
 # Example of how we would get current user from cookie to verify action being done
 
 
+@app.get("/admin-users")
+async def get_admin(request: Request, session: str = Cookie(None)):
+    if (session == None):
+        return RedirectResponse(url="/login")
+    try:
+        sessionUserId = await get_userId_from_token(session)
+    except HTTPException:
+        print("Invalid Token")
+        return RedirectResponse(url='/login', status_code=307)
+    if (SocialDatabase().is_login_user_admin(sessionUserId) == False):
+        print("User not admin")
+        return RedirectResponse(url='/login', status_code=307)
+    found_user = app.database["authors"].find_one({"_id": sessionUserId})
+    pprint(SocialDatabase().get_all_authors_and_authormanagers_combined()[0])
+    if found_user:
+        return templates.TemplateResponse("admin-users.html", {"request": request, "user": found_user, "totalusers": SocialDatabase().get_total_users(), "users": SocialDatabase().get_all_authors_and_authormanagers_combined()})
+    else:
+        return RedirectResponse(url="/login")
+# Example of how we would get current user from cookie to verify action being done
+
+
 @app.get("/examplejwt")
 async def verify_jwt(session: str | None = Cookie(default=None)):
     if (session):

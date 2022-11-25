@@ -1,0 +1,23 @@
+.user{
+    background-color: #f5f5f5;
+    border: 1px solid #e3e3e3;
+    border-radius: 3px;
+    padding: 10px;
+    margin:5px;
+    width: 20vw;
+}
+.user-disp{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    
+    /* max-height: 80vh; */
+    max-width: 99vw;
+}
+.user-manage{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* justify-content: center; */
+    width: 99vw;
+}
