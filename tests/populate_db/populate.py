@@ -1,15 +1,17 @@
 # To run on windows python -m tests.populate_db.populate
-from models.author import Author
-from models.inbox import InboxItem
-from database import SocialDatabase
 import random
 import requests
 import secrets
 import sys
+
 from fastapi.encoders import jsonable_encoder
 from faker import Faker
 from pymongo import MongoClient
-import sys
+from os import getenv
+
+from models.author import Author
+from models.inbox import InboxItem
+from database import SocialDatabase
 # sys.path.append('../../')
 fake = Faker()
 # First argument is the number of authors to create, second argument is method to populate the database(1 for API, 0 for direct connection)
@@ -133,7 +135,7 @@ def main(args=None):
     print("Inserted {} followers successfully".format(inserted))
     print("Inserted {} posts successfully".format(len(inserted_posts)))
     print("Inserted {} comments successfully".format(len(inserted_comments)))
-    destroy_connect_to_db(mongodb_client)
+    disconnect_db()
 
 
 def populate_through_api():
@@ -152,15 +154,26 @@ def populate_through_api():
 
 
 def connect_to_db():
-    mongodb_client = MongoClient("mongodb://localhost:27017")
-    database = mongodb_client["socialnetwork"]
+    args = {}
+    host = getenv('MONGODB_ADDR')
+    port = getenv('MONGODB_PORT')
+
+    if host:
+        args['host'] = host
+
+    if port and port.isnumeric():
+        args['port'] = port
+
+    social_db = SocialDatabase(**args)
+    database = social_db.database
+    mongodb_client = database.client
     print("Connected to MongoDB")
     return database, mongodb_client
 
 
-def destroy_connect_to_db(mongodb_client):
-    mongodb_client.close()
-    print("Disconnected to MongoDB")
+def disconnect_db():
+    SocialDatabase().close()
+    print("Disconnected from MongoDB")
 
 
 if __name__ == "__main__":
