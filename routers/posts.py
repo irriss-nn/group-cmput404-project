@@ -44,7 +44,7 @@ async def read_post(request: Request, author_id: str, post_id: str, session: str
         our_profile = author
 
     if document:
-        return templates.TemplateResponse("post.html", {"request": request, "post": document, "user": author, "myuser": our_profile})
+        return templates.TemplateResponse("post.html", {"request": request, "post": document, "user": our_profile, "myuser": our_profile})
 
     raise HTTPException(status_code=404, detail="Post not found")
 

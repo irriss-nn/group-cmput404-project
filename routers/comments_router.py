@@ -26,7 +26,7 @@ async def show_comment(author_id: str, post_id: str, request: Request, page: int
         our_profile = SocialDatabase().get_author(our_profile_id)
     except HTTPException:
         our_profile = found_user
-    return templates.TemplateResponse("comments.html", {"request": request, "comments": comments, "user": found_user, "myuser": our_profile})
+    return templates.TemplateResponse("comments.html", {"request": request, "comments": comments, "user": our_profile, "myuser": our_profile})
 
 
 @router.post("/{author_id}/posts/{post_id}/comments")
