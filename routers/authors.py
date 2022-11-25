@@ -34,7 +34,7 @@ async def read_authors(page: int | None = 0, size: int | None = 0):
     else:
         authors = SocialDatabase().get_authors(page*size, size)
 
-    return [encode_author(author) for author in authors]
+    return {"type": "authors", "items": [encode_author(author) for author in authors]}
 
 
 @router.post("/{author_id}")
