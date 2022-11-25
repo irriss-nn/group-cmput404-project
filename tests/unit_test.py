@@ -248,7 +248,7 @@ def test_add_comment():
 
     response = client.post(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}/comments",
                            headers={"Content-Type":"application/json"}, json=Fake_Comments)
-    assert response.status_code == 404 #author or post not found
+    assert response.status_code == 200 #author or post  found
 
     app.database["authors"].delete_one({"_id": "fakeid1"})
     app.database["authors"].delete_one({"_id": "fakeid2"})
@@ -261,6 +261,7 @@ def test_add_comment():
 def test_get_comments():
     startup_db_client()
     response = client.get(f"/service/authors/'fakeAuthor'/posts/'fakePost'/comments/",headers={"Content-Type":"application/json"}, json = Fake_Comments)
+    assert response.status_code == 200
     comment = response.json()
     shutdown_db_client()
 
