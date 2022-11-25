@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import uvicorn
-
+import uuid
 from datetime import datetime, timedelta
 from fastapi import FastAPI, Cookie, Form, HTTPException, Request, Response, status
 from fastapi.encoders import jsonable_encoder
@@ -114,10 +114,18 @@ async def register_author_todb(request: Request, response: Response, username: s
     git = github
     if (git == None or usnm == None or pswd == None):  # Catch errors
         return RedirectResponse(url='/register')
-    newUser = Author(displayName=usnm, github=git,
+
+    while True:
+        id = str(uuid.uuid4())
+        if not SocialDatabase().get_author(id):
+            break
+
+    newUser = Author(id=id, displayName=usnm, github=git,
                      hashedPassword=pswd)  # TODO: Hash password
-    SocialDatabase().create_author(newUser)
-    return RedirectResponse('/login', status_code=status.HTTP_302_FOUND)
+    print("Creating user" + newUser.id)
+    if SocialDatabase().create_author(newUser):
+        return RedirectResponse('/login', status_code=status.HTTP_302_FOUND)
+    return HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE)
 
 
 @app.post("/login")

@@ -277,6 +277,8 @@ def test_get_comments():
      
 def test_like_post():
     startup_db_client()
+    response = client.post("")
+
 
 Fake_Author2 = {
     "id": "fakeid2",
@@ -423,7 +425,6 @@ Fake_Post_no_id = {
             "unlisted":"false"
         }
 
-
 Fake_Follower = {
     "type": "followers",      
     "items":[
@@ -447,8 +448,6 @@ Fake_Follower = {
         }
     ]
 }
-
-
 
 Fake_Comments = {
             "type": "comment",
