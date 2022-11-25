@@ -2,7 +2,7 @@ from urllib import response
 from fastapi.testclient import TestClient
 from pathlib import Path
 import os
-
+import pytest
 from requests import request
 
 from database import SocialDatabase
@@ -38,7 +38,7 @@ def test_add_author():
     author = response.json()
     assert author["id"] == Fake_Author["id"]
 
-    shutdown_db_client()
+     
 
 def test_get_one_author():
     '''Get added author'''
@@ -63,13 +63,13 @@ def test_get_authors():
     client.post(f"/service/authors/{Fake_Author2['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author2)
     
     response = client.get(f"/service/authors/",headers={"Content-Type":"application/json"})
-    authors = response.json()
+    authors = response.json()["items"]
     for i in range(len(authors)):
         authors[i] = authors[i]["id"]
     assert response.status_code == 200
     assert Fake_Author["id"] in authors
     assert Fake_Author2["id"] in authors
-    shutdown_db_client()
+     
 
 def test_update_author():
     startup_db_client()
@@ -92,7 +92,7 @@ def test_update_author():
     # remove fake authors
     db.delete_author("fakeid1")
     db.delete_author("fakeid2")
-    shutdown_db_client()
+     
 
 
 ################################################################### Posts tests ##################################################################
@@ -110,14 +110,14 @@ def test_add_post():
     assert response.status_code == 200
     assert post["id"] == Fake_Post["id"]
 
-    shutdown_db_client()
+     
 
 def test_add_post_again():
     '''This should receive a 400 for duplicate posts'''
     startup_db_client()
     response = client.put(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",headers={"Content-Type": "application/json"}, json=Fake_Post)
     assert response.status_code == 400
-    shutdown_db_client()
+     
 
 def test_add_no_id_post():
     '''This method adds a post without id, host should generate one for it'''
@@ -143,9 +143,10 @@ def test_get_posts():
 
 def test_update_post():
     '''This method should update one attribute in post that belongs to a user'''
+    # pytest.set_trace()
     response = client.post(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",
                            headers={"Content-Type": "application/json"},
-                           json=Fake_Post_modified)
+                           json=Fake_Post_modified,allow_redirects=False)
     modified_post = client.get(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}").json()
 
     assert response.status_code == 200
@@ -163,7 +164,7 @@ def test_delete_post():
 
     # Delete the author as well
     db.delete_author("fakeid1")
-    shutdown_db_client()
+     
 
 
 ##############################################################################Followers########################################################################################################
@@ -177,7 +178,7 @@ def test_add_followers():
     assert response.status_code == 200
     follower = response.json()
     assert follower['foreign_author_id']== Fake_Author2['id']
-    shutdown_db_client()
+     
 
 def test_check_followers():
     '''
@@ -190,7 +191,7 @@ def test_check_followers():
 
     follower = response.json()
     assert follower['foreign_author_id']==Fake_Author2['id']
-    shutdown_db_client()
+     
 
 def test_read_followers():
     startup_db_client()
@@ -218,7 +219,7 @@ def test_read_followers():
     assert Fake_Author2['id'],Fake_Author3['id'] in follower['item']
     #assert len(follower['items']) == 2
     app.database["authors"].delete_one({"_id":"fakeid3"}) 
-    shutdown_db_client()
+     
 
 def test_delete_followers():
     startup_db_client()   
@@ -231,7 +232,7 @@ def test_delete_followers():
     app.database["authorManagers"].delete_many({"_id": "fakeid1"})
     app.database["authorManagers"].delete_many({"_id": "fakeid2"})
     app.database["authorManagers"].delete_many({"_id": "fakeid3"})
-    shutdown_db_client()
+     
 
 
 ##########################################Comments###########################################################
@@ -255,7 +256,7 @@ def test_add_comment():
     app.database["post"].delete_one({"_id": "fakeid1"})
     app.database["authorManagers"].delete_many({"_id": "fakeid1"})
     app.database["authorManagers"].delete_many({"_id": "fakeid2"})
-    shutdown_db_client()
+     
     
     
 def test_get_comments():
@@ -263,7 +264,7 @@ def test_get_comments():
     response = client.get(f"/service/authors/'fakeAuthor'/posts/'fakePost'/comments/",headers={"Content-Type":"application/json"}, json = Fake_Comments)
     assert response.status_code == 200
     comment = response.json()
-    shutdown_db_client()
+     
 
 
 Fake_Author2 = {

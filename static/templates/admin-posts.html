@@ -1,0 +1,22 @@
+{% extends "admin-base.html" %} {% block content %}
+<div class="posts-manage">
+  <div class="posts-title">
+    <h1>Posts Management</h1>
+    <h4>Total Posts: {{posts|length}}</h4>
+  </div>
+  {% for post in posts%}
+    <div class="user">
+      <h3>ID: {{post._id}}</h1>
+      <h5>Title: {{post.title}}</h5>
+      <h5>Author ID: {{post.author.id}}</h5>
+      <h5>Number of likes: {{post.likes|length}}</h5>
+      
+      <button data-url="/delete/{{post._id}}" class="delete-button">Delete Posts</button>
+      <button data-url="/modify/{{post._id}}" class="modify-button">Modify Post</button>
+
+    </div>
+
+    {% endfor %}
+</div>
+
+{% endblock %}
