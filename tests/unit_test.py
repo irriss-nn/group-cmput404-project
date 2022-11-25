@@ -2,7 +2,7 @@ from urllib import response
 from fastapi.testclient import TestClient
 from pathlib import Path
 import os
-
+import pytest
 from requests import request
 
 from database import SocialDatabase
@@ -63,7 +63,7 @@ def test_get_authors():
     client.post(f"/service/authors/{Fake_Author2['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author2)
     
     response = client.get(f"/service/authors/",headers={"Content-Type":"application/json"})
-    authors = response.json()
+    authors = response.json()["items"]
     for i in range(len(authors)):
         authors[i] = authors[i]["id"]
     assert response.status_code == 200
@@ -143,9 +143,10 @@ def test_get_posts():
 
 def test_update_post():
     '''This method should update one attribute in post that belongs to a user'''
+    # pytest.set_trace()
     response = client.post(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",
                            headers={"Content-Type": "application/json"},
-                           json=Fake_Post_modified)
+                           json=Fake_Post_modified,allow_redirects=False)
     modified_post = client.get(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}").json()
 
     assert response.status_code == 200
