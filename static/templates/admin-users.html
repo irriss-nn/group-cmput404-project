@@ -1,0 +1,26 @@
+{% extends "admin-base.html" %}
+{% block content %}
+<div class="user-manage">
+  <div class="stats-title">
+    <h1>User Management</h1>
+    <p>Total Users Currently is: {{totalusers}}</p>
+  </div>
+  <div class="user-disp">
+    {% for user in users%}
+    <div class="user">
+      <h3>{{user.displayName}}</h1>
+      <h5>Password: {{user.hashedPassword}}</h5>
+      <h5>Number of posts: {{user.posts|length}}</h5>
+      {% if user.authLevel != "user" and user.authLevel != "admin"%}
+        <button data-url="/allow/{{user._id}}" class="allow-button">Allow User</button>
+      {% endif %}
+      <button data-url="/delete/{{user._id}}" class="delete-button">Delete User</button>
+      <button data-url="/modify/{{user._id}}" class="modify-button">Modify User</button>
+      <button data-url="/view/{{user._id}}" class="view-post-button">View Posts</button>
+    </div>
+
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

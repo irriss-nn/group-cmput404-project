@@ -1,11 +1,11 @@
 from dataclasses import asdict
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, HTTPException, Request, status, Cookie
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 
 from database import SocialDatabase
 from models.post import Post
-
+from jose import JWTError, jwt
 router = APIRouter(
     prefix="/service/authors",
     tags=["posts"],
@@ -23,7 +23,7 @@ def encode_post(post: Post):
 
 
 @router.get("/{author_id}/posts/{post_id}/view")
-async def read_post(request: Request, author_id: str, post_id: str):
+async def read_post(request: Request, author_id: str, post_id: str, session: str = Cookie(None)):
     '''Method to view post form template'''
     try:
         author = request.app.database["authors"].find_one({"_id": author_id})
@@ -37,8 +37,14 @@ async def read_post(request: Request, author_id: str, post_id: str):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
 
+    try:
+        our_profile_id = await get_userId_from_token(session)
+        our_profile = SocialDatabase().get_author(our_profile_id)
+    except HTTPException:
+        our_profile = author
+
     if document:
-        return templates.TemplateResponse("post.html", {"request": request, "post": document, "user": author})
+        return templates.TemplateResponse("post.html", {"request": request, "post": document, "user": our_profile, "myuser": our_profile})
 
     raise HTTPException(status_code=404, detail="Post not found")
 
@@ -102,3 +108,19 @@ async def put_post(author_id: str, post_id: str, post: Post):
         return encode_post(post)
 
     raise HTTPException(status_code=400, detail="Could not create post")
+
+
+SECRET_KEY = 'f015cb10b5caa9dd69ebeb340d580f0ad37f1dfcac30aef8b713526cc9191fa3'
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+
+async def get_userId_from_token(token: str):
+    try:
+        if (token == None):
+            raise HTTPException(status_code=401, detail="Unauthorized")
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        userId: str = payload.get("_id")
+        return userId
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")

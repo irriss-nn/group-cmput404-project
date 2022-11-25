@@ -1,0 +1,19 @@
+{% extends "admin-base.html" %} {% block content %}
+<div class="node-manage">
+  <div class="node-title">
+    <h1>Node Management</h1>
+  </div>
+  <p>Current node is {{current}}</p>
+  <button class="add-node">Add Node</button>
+</div>
+
+<script defer>
+  document.querySelector(".add-node").addEventListener("click", function () {
+    let node = prompt("Enter node url");
+    if (node) {
+      window.location.href = "/admin/node/add?node=" + node;
+    }
+  });
+</script>
+
+{% endblock %}

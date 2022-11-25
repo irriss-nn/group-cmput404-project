@@ -256,6 +256,41 @@ class SocialDatabase:
             return None
         return found_user
 
+    def is_login_user_admin(self, author_id: str) -> bool:
+        author = self.get_author(author_id)
+        if (author.authLevel == "admin"):
+            return True
+        return False
+
+    def get_total_users(self) -> int:
+        return self.database["authors"].count_documents({})
+
+    def get_all_users(self) -> list[Author]:
+        users = self.database["authors"].find({})
+        return [Author(**user) for user in users]
+
+    def get_all_authors_and_authormanagers_combined(self) -> list:
+        users = list(self.database["authors"].find({}))
+        managers = list(self.database["authorManagers"].find({}))
+        # Go Through all users and add fields of managers to users list
+        for user in users:
+            for manager in managers:
+                if user["_id"] == manager["_id"]:
+                    user["posts"] = manager["posts"]
+                    user["inbox"] = manager["inbox"]
+                    user["followers"] = manager["followers"]
+                    user["following"] = manager["following"]
+                    user["requests"] = manager["requests"]
+        return users
+
+    def get_all_posts(self) -> list[Post]:
+        posts = []
+        # go through all authormanagers and add posts in them to posts list
+        for manager in self.database["authorManagers"].find({}):
+            for post in manager["posts"].values():
+                posts.append(post)
+        return posts
+
     def is_following(self, author_id: str, target_author_id: str) -> bool:
         manager = self.get_author_manager(author_id)
         if not manager:
