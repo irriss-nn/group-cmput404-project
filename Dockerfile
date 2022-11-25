@@ -4,6 +4,8 @@ FROM python:3.10-alpine
 LABEL name="CMPUT404-Social"
 LABEL description="Hosts the FastAPI backend of CMPUT404-Social"
 
+WORKDIR /app
+
 # Install dependencies
 COPY ./requirements.txt .
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
