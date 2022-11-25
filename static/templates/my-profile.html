@@ -12,8 +12,15 @@
   <h3>Content:</h3>
   <textarea id="content-create-post-textarea"></textarea>
   <div class="flex-cont">
-  <button class="btn" id="close-create-post-btn">Close</button>
-  <button class="btn" id="post-created-post-btn">Post</button>
+  
+  <button id="close-create-post-btn">Close</button>
+  <button
+    id="submit-create-post-btn"
+    class="btn"
+    data-url="service/authors/{{post._id}}/posts/"
+  >
+    Create
+  </button>
 </div>
 
 </dialog>
