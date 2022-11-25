@@ -256,6 +256,12 @@ class SocialDatabase:
             return None
         return found_user
 
+    def is_login_user_admin(self, author_id: str) -> bool:
+        author = self.get_author(author_id)
+        if (author.authLevel == "admin"):
+            return True
+        return False
+
     def is_following(self, author_id: str, target_author_id: str) -> bool:
         manager = self.get_author_manager(author_id)
         if not manager:

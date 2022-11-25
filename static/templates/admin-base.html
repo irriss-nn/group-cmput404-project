@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      href="{{ url_for('static', path='/css/base.css') }}"
+      rel="stylesheet"
+    />
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    <div id="base-container">
+      <div id="nav-header">
+        <div id="nav-logo">Social Network</div>
+        <div class="navbar">
+          <a href="/admin-node">Node Management</a><br />
+          <a href="/admin-users">Manage Users</a><br />
+          <a href="/admin-posts">Manage Posts</a><br />
+          <a href="/home">Social Home</a><br />
+          <a href="/logout"></a><br />
+        </div>
+        <a href="/current" id="nav-user">
+          <img src="{{user.profileImage}}" alt="user pfp" id="nav-user-img" />
+          <span id="nav-user-name">{{user.displayName}}</span>
+        </a>
+      </div>
+      {% block content %}{% endblock %}
+    </div>
+  </body>
+</html>
