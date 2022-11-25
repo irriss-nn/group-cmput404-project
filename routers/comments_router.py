@@ -78,7 +78,10 @@ async def create_comment(author_id: str, post_id: str, request: Request, comment
 
 @router.get("/{author_id}/posts/{post_id}/comments")
 async def read_comments(request: Request, author_id: str, post_id: str, page: int | None = None, size: int | None = None):
-    return_list = []
+    url = request.url._url
+    print(url)
+    if SocialDatabase().get_author(author_id) is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
 
     if (page is None or size is None):
         page = 1
@@ -100,7 +103,8 @@ async def read_comments(request: Request, author_id: str, post_id: str, page: in
                 "host": author.host,
                 "id": author.id
             }
-
+            
+        # TODO: change hardcoded url to actual url
         return {"type": "comments", "page": page, "size": size, "post": "http://127.0.0.1:5454/authors/{}/posts/{}".format(author_id, post_id), "id": "http://127.0.0.1:5454/authors/{}/posts/{}/comments".format(author_id, post_id), "comments": comments}
     else:
         comments = list(request.app.database["comments"].find({"post": post_id}).sort(

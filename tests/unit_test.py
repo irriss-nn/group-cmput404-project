@@ -39,7 +39,6 @@ def test_add_author():
     assert author["id"] == Fake_Author["id"]
 
      
-
 def test_get_one_author():
     '''Get added author'''
     startup_db_client()
@@ -144,7 +143,7 @@ def test_get_posts():
 def test_update_post():
     '''This method should update one attribute in post that belongs to a user'''
     # pytest.set_trace()
-    response = client.post(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",
+    response = client.post(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}/",
                            headers={"Content-Type": "application/json"},
                            json=Fake_Post_modified,allow_redirects=False)
     modified_post = client.get(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}").json()
@@ -245,27 +244,39 @@ def test_add_comment():
     client.post(f"/service/authors/{Fake_Author['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author)
     # Add post
     response = client.put(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",headers={"Content-Type":"application/json"}, json = Fake_Post)
-    assert response.status_code == 200
 
-    response = client.post(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}/comments",
-                           headers={"Content-Type":"application/json"}, json=Fake_Comments)
+    # Add comment on post
+    response = client.post(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}/comments",headers={"Content-Type":"application/json"}, json=Fake_Comments)
+    
     assert response.status_code == 200 #author or post  found
+     
+    
+    
+def test_get_comments():
+    '''Test get a comment & comments'''
+    startup_db_client()
 
+    # get one comment
+    comment = client.get(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}/comments").json()
+    print(comment["comments"])
+    assert comment["comments"][0]["author"]["id"] == "fakeid1"
+    assert comment["comments"][0]["comment"] == "fake comment"
+
+    response = client.post(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}/comments",headers={"Content-Type":"application/json"}, json=Fake_Comments)
+    assert response.status_code == 200
+    comments = client.get(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}/comments").json()
+    assert len(comments["comments"]) == 2
+    
+    app.database["comments"].delete_many({"post":"fakeid1"})
     app.database["authors"].delete_one({"_id": "fakeid1"})
     app.database["authors"].delete_one({"_id": "fakeid2"})
     app.database["post"].delete_one({"_id": "fakeid1"})
     app.database["authorManagers"].delete_many({"_id": "fakeid1"})
     app.database["authorManagers"].delete_many({"_id": "fakeid2"})
-     
-    
-    
-def test_get_comments():
-    startup_db_client()
-    response = client.get(f"/service/authors/'fakeAuthor'/posts/'fakePost'/comments/",headers={"Content-Type":"application/json"}, json = Fake_Comments)
-    assert response.status_code == 200
-    comment = response.json()
-     
 
+     
+def test_like_post():
+    startup_db_client()
 
 Fake_Author2 = {
     "id": "fakeid2",
@@ -316,22 +327,7 @@ Fake_Post = {
                 "post":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e",
                 "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/de305d54-75b4-431b-adb2-eb6b9e546013/comments",
                 "comments":[
-                    {
-                        "type":"comment",
-                        "author":{
-                            "type":"author",
-                            "id":"http://127.0.0.1:5454/authors/1d698d25ff008f7538453c120f581471",
-                            "url":"http://127.0.0.1:5454/authors/1d698d25ff008f7538453c120f581471",
-                            "host":"http://127.0.0.1:5454/",
-                            "displayName":"Greg Johnson",
-                            "github": "http://github.com/gjohnson",
-                            "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
-                        },
-                        "comment":"Sick Olde English",
-                        "contentType":"text/markdown",
-                        "published":"2015-03-09T13:07:04+00:00",
-                        "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/de305d54-75b4-431b-adb2-eb6b9e546013/comments/f6255bb01c648fe967714d52a89e8e9c",
-                    }
+                    
                 ]
             },
             "published":"2015-03-09T13:07:04+00:00",
@@ -368,22 +364,7 @@ Fake_Post_modified = {
                 "post":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e",
                 "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/de305d54-75b4-431b-adb2-eb6b9e546013/comments",
                 "comments":[
-                    {
-                        "type":"comment",
-                        "author":{
-                            "type":"author",
-                            "id":"http://127.0.0.1:5454/authors/1d698d25ff008f7538453c120f581471",
-                            "url":"http://127.0.0.1:5454/authors/1d698d25ff008f7538453c120f581471",
-                            "host":"http://127.0.0.1:5454/",
-                            "displayName":"Greg Johnson",
-                            "github": "http://github.com/gjohnson",
-                            "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
-                        },
-                        "comment":"Sick Olde English",
-                        "contentType":"text/markdown",
-                        "published":"2015-03-09T13:07:04+00:00",
-                        "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/de305d54-75b4-431b-adb2-eb6b9e546013/comments/f6255bb01c648fe967714d52a89e8e9c",
-                    }
+                    
                 ]
             },
             "published":"2015-03-09T13:07:04+00:00",
@@ -469,7 +450,7 @@ Fake_Follower = {
 
 
 
-Fake_Comments =  comment = {
+Fake_Comments = {
             "type": "comment",
             "_id":  'fakeid1',
             "author": "fakeid2", # Author ID of the post
