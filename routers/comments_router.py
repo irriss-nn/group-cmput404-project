@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request, status, Body
+from fastapi import APIRouter, HTTPException, Request, status, Body, Cookie
 from models.comments import Comment
 from models.inbox import InboxItem
 from fastapi.encoders import jsonable_encoder
@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from database import SocialDatabase
 import json
-
+from jose import JWTError, jwt
 static_dir = f"{Path.cwd()}/static"
 templates = Jinja2Templates(directory=f"{static_dir}/templates")
 
@@ -18,11 +18,15 @@ router = APIRouter(
 
 
 @router.get("/{author_id}/posts/{post_id}/comments/view")
-async def show_comment(author_id: str, post_id: str, request: Request, page: int | None = None, size: int | None = None):
+async def show_comment(author_id: str, post_id: str, request: Request, page: int | None = None, size: int | None = None, session: str = Cookie(None)):
     comments = await read_comments(request, author_id, post_id, page, size)
     found_user = SocialDatabase().get_author(author_id)
-    print(comments)
-    return templates.TemplateResponse("comments.html", {"request": request, "comments": comments, "user": found_user})
+    try:
+        our_profile_id = await get_userId_from_token(session)
+        our_profile = SocialDatabase().get_author(our_profile_id)
+    except HTTPException:
+        our_profile = found_user
+    return templates.TemplateResponse("comments.html", {"request": request, "comments": comments, "user": found_user, "myuser": our_profile})
 
 
 @router.post("/{author_id}/posts/{post_id}/comments")
@@ -102,3 +106,19 @@ async def read_comments(request: Request, author_id: str, post_id: str, page: in
         comments = list(request.app.database["comments"].find({"post": post_id}).sort(
             "_id", 1).skip(((page - 1) * size) if page > 0 else 0).limit(size))
         return {"type": "comments", "page": page, "size": size, "post": "http://127.0.0.1:5454/authors/{}/posts/{}".format(author_id, post_id), "id": "http://127.0.0.1:5454/authors/{}/posts/{}/comments".format(author_id, post_id), "comments": comments}
+
+
+SECRET_KEY = 'f015cb10b5caa9dd69ebeb340d580f0ad37f1dfcac30aef8b713526cc9191fa3'
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+
+async def get_userId_from_token(token: str):
+    try:
+        if (token == None):
+            raise HTTPException(status_code=401, detail="Unauthorized")
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        userId: str = payload.get("_id")
+        return userId
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
