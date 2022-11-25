@@ -163,9 +163,60 @@ body {
 #description-create-post-textarea {
   min-width: 100%;
   min-height: fit-content;
+  background-color: #e3f5fa;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  font-weight:500;
+  font-size:20px;
+  line-height:1.4;
+  border-radius: 10px;
+  border:2px solid transparent;
+}
+#title-create-post-textarea:hover {
+  cursor:pointer;
+  background-color: #faf5f1;
+}
+#description-create-post-textarea:hover {
+  cursor:pointer;
+  background-color: #faf5f1;
 }
 
 #content-create-post-textarea {
   min-width: 100%;
   min-height: 15vh;
+  background-color: #e3f5fa;
+  border-radius: 10px;
+  border:2px solid transparent;
+  outline:none;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  font-weight:500;
+  font-size:20px;
+  line-height:1.4;
+  width:200px;
+  height:100px;
+  transition:all 0.2s;
+}
+.btn {
+  background-color: #4e88ca; /* Green background */
+  border: 1px solid rgb(14, 168, 240); /* Green border */
+  border-radius: 20%;
+  color: white; /* White text */
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-weight:500;
+  font-size:16px;
+  padding: 10px 24px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  
+}
+.btn:hover {
+  background-color: #5994ee;
+}
+
+#content-create-post-textarea:hover {
+  cursor:pointer;
+  background-color: #faf5f1;
+}
+.flex-cont {
+  display: flex;
+  justify-content: space-between;
+ 
 }
