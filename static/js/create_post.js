@@ -1,6 +1,7 @@
 const openModal = document.querySelector("#create-post-btn");
 const modal = document.querySelector("#create-post-modal");
 const closeModal = document.querySelector("#close-create-post-btn");
+const submitModel = document.querySelector("#submit-create-post-btn");
 
 const followBtn = document.querySelector("#follow-user-btn");
 
@@ -26,22 +27,51 @@ closeModal.addEventListener("click", () => {
   modal.close();
 });
 
-followBtn.addEventListener("click", (e) => {
-  e.preventDefault();
+if (submitModel) {
+  submitModel.addEventListener("click", () => {
+    let title = document.querySelector("#title-create-post-textarea");
+    let description = document.querySelector(
+      "#description-create-post-textarea"
+    );
+    let content = document.querySelector("#content-create-post-textarea");
 
-  fetch(followBtn.getAttribute("data-url"), {
-    method: "POST",
-  })
-    .then((response) => {
-      return response.json();
+    fetch(submitModel.getAttribute("data-url"), {
+      method: "POST",
     })
-    .then((data) => {
-      document.getElementById("follow-user-btn").disabled = true;
-      document.getElementById("follow-user-btn").innerHTML = "Sent Request";
-      document.getElementById("follow-user-btn").style.pointerEvents = "none";
-      console.log(data);
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        document.querySelector("#title-create-post-textarea").value = "";
+        document.querySelector("#description-create-post-textarea").value = "";
+        document.querySelector("#content-create-post-textarea").value = "";
+        modal.close();
+        console.log(data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
+}
+
+if (followBtn) {
+  followBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    fetch(followBtn.getAttribute("data-url"), {
+      method: "POST",
     })
-    .catch((err) => {
-      console.log(err);
-    });
-});
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        document.getElementById("follow-user-btn").disabled = true;
+        document.getElementById("follow-user-btn").innerHTML = "Sent Request";
+        document.getElementById("follow-user-btn").style.pointerEvents = "none";
+        console.log(data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
+}
