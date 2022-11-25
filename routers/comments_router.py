@@ -20,8 +20,9 @@ router = APIRouter(
 @router.get("/{author_id}/posts/{post_id}/comments/view")
 async def show_comment(author_id: str, post_id: str, request: Request, page: int | None = None, size: int | None = None):
     comments = await read_comments(request, author_id, post_id, page, size)
+    found_user = SocialDatabase().get_author(author_id)
     print(comments)
-    return templates.TemplateResponse("comments.html", {"request": request, "comments": comments})
+    return templates.TemplateResponse("comments.html", {"request": request, "comments": comments, "user": found_user})
 
 
 @router.post("/{author_id}/posts/{post_id}/comments")
