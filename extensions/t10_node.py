@@ -23,7 +23,7 @@
 #         instead of requesting with this protocol.
 
 from dataclasses import dataclass, asdict
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Response, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from secrets import compare_digest
 
@@ -33,10 +33,20 @@ from models.base import Base
 security = HTTPBasic()  # username:password
 router = APIRouter(
     # TODO: Would be preferable to prefix with '/service/ext' (amend later?)
-    prefix="",
-    tags=["extensions"],
-    responses={404: {"description": "Not found"}},
+    prefix='',
+    tags=['extensions']
 )
+
+
+@dataclass
+class NodeAuthenticated:
+    message: str = 'Authentication Successful'
+    type: str = 'remoteNode'
+
+
+@dataclass
+class NodeValidationFail:
+    message: str
 
 
 @dataclass
@@ -50,8 +60,8 @@ class Node(Base):
 
     @classmethod
     def init_from_mongo(cls, data: dict):
-        data["remote_host"] = data["_id"]
-        del data["_id"]
+        data['remote_host'] = data['_id']
+        del data['_id']
         return cls.init_with_dict(data)
 
     def encode_for_mongo(self):
@@ -60,9 +70,16 @@ class Node(Base):
         del node['remote_host']
 
 # Path is /remote-node as per Team 10's documentation
-@router.get('/remote-node')
-async def get_node(origin: str | None = Header(default=None),
-                   credentials: HTTPBasicCredentials = Depends(security)):
+@router.get('/remote-node',
+    description='Validate node',
+    responses={
+                200: {'model': NodeAuthenticated},
+                401: {'model': NodeValidationFail},
+                404: {'model': NodeValidationFail},
+              })
+async def validate_node(response: Response,
+                        origin: str | None = Header(default=None),
+                        credentials: HTTPBasicCredentials = Depends(security)):
     db = SocialDatabase().database
     try:
         if not origin:
@@ -73,13 +90,14 @@ async def get_node(origin: str | None = Header(default=None),
             raise AttributeError
         
     except AttributeError:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="Node does not exist")
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {'message': 'Node not found'}
 
+    # Check credentials and return expected response
     node = Node.init_from_mongo(node)
-    if compare_digest(node.username, credentials.username)\
-        and compare_digest(node.password, credentials.password):
-        return {'username': node.remote_username, 'password': node.remote_password}
+    if compare_digest(node.remote_username, credentials.username)\
+        and compare_digest(node.remote_password, credentials.password):
+        return {'message': 'Authentication passed!', 'type': 'remoteNode'}
 
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail="Credentials not found")
+    response.status_code = status.HTTP_404_NOT_FOUND
+    return {'message': 'Unauthorized credentials'}
