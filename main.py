@@ -14,17 +14,19 @@ from os import getenv
 from pprint import pprint
 from routers.authors import encode_author
 from dataclasses import asdict
+
 # Local imports
 from database import SocialDatabase
 from routers import authors, posts, comments_router, likes
 from models.author import Author, AuthorManager
 from models.inbox import InboxItem
+from extensions import t10_node
+
 # All login and registering related fields
 SECRET_KEY = 'f015cb10b5caa9dd69ebeb340d580f0ad37f1dfcac30aef8b713526cc9191fa3'
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 def get_user(request: Request, username: str, password: str):
     found_user = request.app.database["authors"].find_one(
@@ -68,6 +70,7 @@ app.include_router(authors.router)
 app.include_router(posts.router)
 app.include_router(comments_router.router)
 app.include_router(likes.router)
+app.include_router(t10_node.router)
 
 
 @app.on_event("startup")

@@ -3,7 +3,6 @@ import uuid
 
 from dataclasses import dataclass, field
 from pydantic import root_validator
-#from passlib.hash import bcrypt
 
 from models.base import Base
 

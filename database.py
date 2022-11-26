@@ -17,7 +17,7 @@ def mongo_encode_dataclass(dataclass) -> dict:
 
 
 class SocialDatabase:
-    __slots__ = ['__mongo_client', 'db_name', 'database', 'host']
+    __slots__ = ['__mongo_client', 'db_name', 'database']
     _instance = None
 
     def __new__(cls, host: str = "localhost", port: int = 27017):
@@ -26,7 +26,6 @@ class SocialDatabase:
             cls.__mongo_client = MongoClient(host, port)
             cls.db_name = "socialnetwork"
             cls.database = cls.__mongo_client[cls.db_name]
-            cls.host = host
 
         return cls._instance
 
