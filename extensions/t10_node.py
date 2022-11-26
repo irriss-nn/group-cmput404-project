@@ -4,26 +4,21 @@
 # servers.
 #
 # When a foreign server authenticates with its credentials, the home server
-# will reply with a set of credentials required to authenticate with its own
-# API.
-#
-# Note that the reference implementation implies both servers must know the
-# credentials of both parties.
+# will verify and reply with whether the credentials are valid.
 #
 # Original documentation from Team 10 available at:
 # https://github.com/hgshah/cmput404-project/tree/staging/docs
 #
 # NOTE: Possible future protocol issues:
 #       - No CSRF tokens
-#       - Remote credentials may change
+#       - Credentials may change
 #           - If not, need to ensure credentials are secured well
 #           - Else, need expiry date (and regen credentials afterwards)
-#       - Since credentials of both parties are known, only one set of
-#         username:password/shared secret is needed and should be used directly
-#         instead of requesting with this protocol.
+#       - Since validation should already happen on other endpoints, this
+#         protocol may be redundant
 
 from dataclasses import dataclass, asdict
-from fastapi import APIRouter, Depends, Header, HTTPException, Response, status
+from fastapi import APIRouter, Depends, Header, Response, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from secrets import compare_digest
 
