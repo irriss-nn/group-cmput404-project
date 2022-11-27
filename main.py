@@ -12,7 +12,7 @@ from passlib.context import CryptContext
 from pathlib import Path
 from os import getenv
 from pprint import pprint
-from routers.authors import encode_author
+# from routers.authors import encode_author
 from dataclasses import asdict
 
 # Local imports
