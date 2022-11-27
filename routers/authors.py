@@ -115,6 +115,20 @@ async def read_followers(author_id: str, request: Request):
             request.app.database["authors"].find_one({"_id": objId}))
     return {"type": "followers", "items": return_list}
 
+@router.get("/{author_id}/following",
+            responses={
+                200: {'description': 'Return a list of all authors that an author follows'},
+                404: {'description': 'Author does not exist'},
+            })
+async def get_following_authors(author_id: str, request: Request):
+    '''Return a list of all authors that an author follows'''
+    author_manager = asdict(SocialDatabase().get_author_manager(author_id))
+    if not author_manager:
+        raise HTTPException(status.HTTP_404_NOT_FOUND,
+                            detail='Author does not exist')
+
+    return {"type": "following", "items": author_manager['following']}
+
 
 @router.get("/{author_id}/{foreign_author_id}/status")
 async def check_follow_status(author_id: str, foreign_author_id: str, request: Request):

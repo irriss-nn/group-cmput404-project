@@ -203,8 +203,12 @@ async def get_home(request: Request, session: str = Cookie(None)):
     except HTTPException:
         return RedirectResponse(url='/login', status_code=307)
     all_feed_posts = SocialDatabase().get_following_feed(sessionUserId)
-    found_user = app.database["authors"].find_one({"_id": sessionUserId})
-    return templates.TemplateResponse("landing.html", {"request": request, "user": found_user, "feed": all_feed_posts})
+    current_user = SocialDatabase().get_author(sessionUserId)
+    return templates.TemplateResponse("landing.html", {
+                                          "request": request,
+                                          "user": asdict(current_user),
+                                          "feed": all_feed_posts
+                                      })
 
 
 @app.get("/inbox")

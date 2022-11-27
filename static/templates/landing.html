@@ -8,54 +8,63 @@
 {% endblock %} {% endblock %} {% block content %}
 
 <script>
-  var modal = document.getElementById("myModal");
-  const followBtn = document.querySelector("#close");
+    var modal = document.getElementById("myModal");
+    const followBtn = document.querySelector("#close");
 
-  function myfunction() {
-  modal.showModal();
-}
-function closeModal() {
-  modal.close();
-}
-let likeBtn = document.querySelector("#open");
-let data = document.getElementById("content-create-post-textarea");
+    function myfunction() {
+      modal.showModal();
+    }
 
-if (likeBtn) {
-    likeBtn.addEventListener("click", (e) => {
-      e.preventDefault();
+    function closeModal() {
+      modal.close();
+    }
 
-      fetch(data.value, { method: "POST", })
-        .then((response) => { return response.json(); })
-        .then((data) => {
-          document.getElementById("open").innerHTML = "posted";
-          console.log(data);
-        })
-        .catch((err) => {
-          console.log(err);
+    let likeBtn = document.querySelector("#open");
+    let data = document.getElementById("content-create-post-textarea");
+
+    if (likeBtn) {
+        likeBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+
+          fetch(data.value, { method: "POST", })
+            .then((response) => { return response.json(); })
+            .then((data) => {
+              document.getElementById("open").innerHTML = "posted";
+              console.log(data);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         });
-    });
-}
+    }
 
-// TODO: Fetch followers and get the user's feed from it
-//let followers = fetch('/service/...')
-
-let foreign_posts;
-fetch("https://fallprojback.herokuapp.com/authors/test_heroku_01/posts")
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        for (let i = 0; i < data.length; i++) {
-            postList=document.getElementById("landing-container").innerHTML+=
-                `<div id='allpost-single-container'>
-                    <div id='allpost-top'>
-                        <div id='allpost-info'>
-                            <div id='allpost-title'>${data[i].title}</div>
-                            <div id='allpost-description'>${data[i].description}</div>
-                        <div>
-                    </div>
-                </div>`;
+    // TODO: Authenticate fetch calls
+    function displayPosts(following_list) {
+        for (author of following_list) {
+            fetch(`${author.host}/authors/${author.id}/posts`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    for (let i = 0; i < data.length; i++) {
+                        postList = document.getElementById("landing-container").innerHTML +=
+                            `<div id='allpost-single-container'>
+                                <div id='allpost-top'>
+                                    <div id='allpost-info'>
+                                        <div id='allpost-title'>${data[i].title}</div>
+                                        <div id='allpost-description'>${data[i].description}</div>
+                                    <div>
+                                </div>
+                            </div>`;
+                    }
+                });
         }
-});
+    }
+
+    // Fetch posts from followed authors
+    let user = {{ user | safe }};
+    fetch(`/service/authors/${user.id}/following`)
+        .then(response => response.json())
+        .then(data => displayPosts(data.items));
 </script>
 
 <dialog class="modal" id="myModal">
