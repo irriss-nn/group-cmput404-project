@@ -103,7 +103,7 @@ async def read_comments(request: Request, author_id: str, post_id: str, page: in
                 "host": author.host,
                 "id": author.id
             }
-            
+
         # TODO: change hardcoded url to actual url
         return {"type": "comments", "page": page, "size": size, "post": "http://127.0.0.1:5454/authors/{}/posts/{}".format(author_id, post_id), "id": "http://127.0.0.1:5454/authors/{}/posts/{}/comments".format(author_id, post_id), "comments": comments}
     else:

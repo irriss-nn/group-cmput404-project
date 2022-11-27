@@ -5,15 +5,6 @@ from models.author import Author, AuthorManager
 from models.post import Post
 from models.like import Like
 from models.inbox import InboxItem
-from pprint import pprint
-
-
-def mongo_encode_dataclass(dataclass) -> dict:
-    dataclass = asdict(dataclass)
-    dataclass["_id"] = dataclass["id"]
-    del dataclass["id"]
-
-    return dataclass
 
 
 class SocialDatabase:
@@ -40,16 +31,16 @@ class SocialDatabase:
         if self.get_author(author.id):
             return False
 
-        data = mongo_encode_dataclass(author)
+        data = author.encode_for_mongo()
         result = self.database.authors.insert_one(data)
         if result.acknowledged:
-            manager = mongo_encode_dataclass(AuthorManager(id=author.id))
+            manager = AuthorManager(id=author.id).encode_for_mongo()
             self.database.authorManagers.insert_one(manager)
 
         return result.acknowledged
 
     def update_author(self, author: Author) -> bool:
-        data = mongo_encode_dataclass(author)
+        data = author.encode_for_mongo()
         result = self.database.authors.update_one({"_id": author.id},
                                                   {"$set": data})
         return result.acknowledged
@@ -128,7 +119,7 @@ class SocialDatabase:
             return False
 
         result = self.database.authorManagers.update_one({"_id": author_id},
-                                                         {"$set": {f"posts.{post.id}": mongo_encode_dataclass(post)}})
+                                                         {"$set": {f"posts.{post.id}": post.encode_for_mongo()}})
         return result.acknowledged
 
     def update_post(self, author_id: str, post_id: str, post: Post) -> bool:
@@ -137,7 +128,7 @@ class SocialDatabase:
             return False
 
         result = self.database.authorManagers.update_one({"_id": author_id},
-                                                         {"$set": {f"posts.{post.id}": mongo_encode_dataclass(post)}})
+                                                         {"$set": {f"posts.{post.id}": post.encode_for_mongo()}})
         return result.acknowledged
 
     def like_post(self,  post_id: str, like_author: str) -> bool:

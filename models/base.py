@@ -1,4 +1,4 @@
-from dataclasses import dataclass, fields
+from dataclasses import asdict, dataclass, fields
 
 @dataclass
 class Base:
@@ -16,3 +16,14 @@ class Base:
         data["id"] = data["_id"]
         del data["_id"]
         return cls.init_with_dict(data)
+
+    def encode_for_mongo(self) -> dict:
+        data = asdict(self)
+        data["_id"] = data["id"]
+        del data["id"]
+
+        return data
+
+    def json(self) -> dict:
+        '''Return a JSON representation of the object'''
+        return asdict(self)

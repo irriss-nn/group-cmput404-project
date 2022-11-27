@@ -1,6 +1,7 @@
+#import datetime
 import uuid
+
 from pydantic import BaseModel, Field
-import datetime
 
 class Like(BaseModel):
     context: str = "https://www.w3.org/ns/activitystreams" # change this
@@ -15,7 +16,7 @@ class Like(BaseModel):
             "example": {
                         "author":{"name": "Billy joel",
                                   "id": "283218319873918"
-                                  },  
+                                  },
                         object: "posts/12321331231232333"
             }
             }

@@ -1,4 +1,3 @@
-from dataclasses import asdict
 from fastapi import APIRouter, HTTPException, Request, status, Cookie
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
@@ -6,6 +5,11 @@ from pathlib import Path
 from database import SocialDatabase
 from models.post import Post
 from jose import JWTError, jwt
+
+SECRET_KEY = 'f015cb10b5caa9dd69ebeb340d580f0ad37f1dfcac30aef8b713526cc9191fa3'
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
 router = APIRouter(
     prefix="/service/authors",
     tags=["posts"],
@@ -15,12 +19,15 @@ router = APIRouter(
 static_dir = f"{Path.cwd()}/static"
 templates = Jinja2Templates(directory=f"{static_dir}/templates")
 
-
-def encode_post(post: Post):
-    enc_post = asdict(post)
-    enc_post["type"] = "post"
-    return enc_post
-
+async def get_userId_from_token(token: str):
+    try:
+        if (token == None):
+            raise HTTPException(status_code=401, detail="Unauthorized")
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        userId: str = payload.get("_id")
+        return userId
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 @router.get("/{author_id}/posts/{post_id}/view")
 async def read_post(request: Request, author_id: str, post_id: str, session: str = Cookie(None)):
@@ -48,16 +55,14 @@ async def read_post(request: Request, author_id: str, post_id: str, session: str
 
     raise HTTPException(status_code=404, detail="Post not found")
 
-
 @router.get("/{author_id}/posts/{post_id}")
 async def read_post(author_id: str, post_id: str):
     '''Return a post belonging to an author'''
     post = SocialDatabase().get_post(author_id, post_id)
     if post:
-        return encode_post(post)
+        return post.json()
 
     raise HTTPException(status_code=404, detail="Post not found")
-
 
 @router.get("/{author_id}/posts/")
 async def read_posts(author_id: str):
@@ -68,15 +73,13 @@ async def read_posts(author_id: str):
 
     raise HTTPException(status_code=404, detail="Author does not exist")
 
-
 @router.post("/{author_id}/posts/")
 async def create_post_without_id(author_id: str, post: Post):
     '''Create a new post'''
     if SocialDatabase().create_post(author_id, post):
-        return encode_post(post)
+        return post.json()
 
     raise HTTPException(status_code=400, detail="Could not create post")
-
 
 @router.post("/{author_id}/posts/{post_id}")
 async def update_post(author_id: str, post_id: str, post: Post):
@@ -86,10 +89,9 @@ async def update_post(author_id: str, post_id: str, post: Post):
                             detail="Post ids do not match")
 
     if SocialDatabase().update_post(author_id, post_id, post):
-        return encode_post(post)
+        return post.json()
 
     raise HTTPException(status_code=400, detail="Failed to update post")
-
 
 @router.delete("/{author_id}/posts/{post_id}")
 async def delete_post(author_id: str, post_id: str):
@@ -99,28 +101,11 @@ async def delete_post(author_id: str, post_id: str):
 
     raise HTTPException(status_code=404, detail="Post not found")
 
-
 @router.put("/{author_id}/posts/{post_id}")
 async def put_post(author_id: str, post_id: str, post: Post):
     '''Create a new post with given post_id'''
     post.id = post_id
     if SocialDatabase().create_post(author_id, post):
-        return encode_post(post)
+        return post.json()
 
     raise HTTPException(status_code=400, detail="Could not create post")
-
-
-SECRET_KEY = 'f015cb10b5caa9dd69ebeb340d580f0ad37f1dfcac30aef8b713526cc9191fa3'
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-
-async def get_userId_from_token(token: str):
-    try:
-        if (token == None):
-            raise HTTPException(status_code=401, detail="Unauthorized")
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        userId: str = payload.get("_id")
-        return userId
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")

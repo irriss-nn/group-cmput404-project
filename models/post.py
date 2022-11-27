@@ -1,15 +1,16 @@
 import uuid
 
-from dataclasses import dataclass,field
+from dataclasses import asdict, dataclass
+
 from models.base import Base
 
 @dataclass
 class Post(Base):
-    title: str 
+    title: str
     source: str
-    origin: str 
-    description: str 
-    contentType: str 
+    origin: str
+    description: str
+    contentType: str
     content: str
     author: dict|None  # TODO: Store author id instead
     categories: list
@@ -21,6 +22,11 @@ class Post(Base):
     unlisted: str
     likes =list
     id: str | None = str(uuid.uuid4())
+
+    def json(self) -> dict:
+        data = asdict(self)
+        data["type"] = "post"
+        return data
 
     class Config:
         allow_population_by_field_name = True

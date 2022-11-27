@@ -18,7 +18,7 @@ from dataclasses import asdict
 # Local imports
 from database import SocialDatabase
 from routers import authors, posts, comments_router, likes
-from models.author import Author, AuthorManager
+from models.author import Author
 from models.inbox import InboxItem
 from extensions import t10_node
 

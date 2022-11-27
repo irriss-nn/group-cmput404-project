@@ -83,7 +83,7 @@ async def validate_node(response: Response,
         node = db.nodes.find_one({'_id': origin})
         if not node:
             raise AttributeError
-        
+
     except AttributeError:
         response.status_code = status.HTTP_404_NOT_FOUND
         return {'message': 'Node not found'}

@@ -1,6 +1,7 @@
-import uuid
-from pydantic import BaseModel, Field
 import datetime
+import uuid
+
+from pydantic import BaseModel, Field
 
 class InboxItem(BaseModel):
     type: str = "InboxItem"
@@ -10,7 +11,7 @@ class InboxItem(BaseModel):
     actionReference: str = "" # ID of the post/comment that was liked, or ID of the person requesting to follow
     actionNeeded: bool = False # True if the user needs to do something for exmaple accept the request
     actionValues: dict = {} # Values that are needed to perform the action for exmaple {"Accept": "{url_to_accept_request}", {"Reject": "{url_to_reject_request}"}
-    
+
     time: str = datetime.datetime.now().isoformat()
 
     class Config:

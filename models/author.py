@@ -1,15 +1,15 @@
 import secrets
 import uuid
 
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from pydantic import root_validator
 
 from models.base import Base
 
 @dataclass
 class Author(Base):
-    displayName: str 
-    github: str 
+    displayName: str
+    github: str
     id: str = str(uuid.uuid4())
     # TODO: Remove hardcoded URLs
     url: str = "http://127.0.0.1:8000/" + str(uuid.uuid4())
@@ -26,8 +26,16 @@ class Author(Base):
         # This basically makes it so the password is still hashed even if it is randomly generated
         # if(values["hashedPassword"] is not None): Not hashing right now for simplicity
         #     values["hashedPassword"] = bcrypt.hash(values["hashedPassword"])
-        
+
         return values
+
+    def json(self) -> dict:
+        data = asdict(self)
+        data["type"] = "author"
+        del data['authLevel']
+        del data['hashedPassword']
+
+        return data
 
     class Config:
         allow_population_by_field_name = True

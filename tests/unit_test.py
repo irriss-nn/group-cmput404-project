@@ -27,7 +27,7 @@ def test_template_responses():
 ################################################################### Author tests ##################################################################
 def test_add_author():
     '''Add author via post request'''
-    # TODO: probably remove this test in future when starts using data import to database directly 
+    # TODO: probably remove this test in future when starts using data import to database directly
     startup_db_client()
 
     response = client.post(f"/service/authors/{Fake_Author['id']}",
@@ -38,7 +38,7 @@ def test_add_author():
     author = response.json()
     assert author["id"] == Fake_Author["id"]
 
-     
+
 def test_get_one_author():
     '''Get added author'''
     startup_db_client()
@@ -60,7 +60,7 @@ def test_get_authors():
                     "hashedPassword": "as#!%lls"
                 }
     client.post(f"/service/authors/{Fake_Author2['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author2)
-    
+
     response = client.get(f"/service/authors/",headers={"Content-Type":"application/json"})
     authors = response.json()["items"]
     for i in range(len(authors)):
@@ -68,7 +68,7 @@ def test_get_authors():
     assert response.status_code == 200
     assert Fake_Author["id"] in authors
     assert Fake_Author2["id"] in authors
-     
+
 
 def test_update_author():
     startup_db_client()
@@ -91,7 +91,7 @@ def test_update_author():
     # remove fake authors
     db.delete_author("fakeid1")
     db.delete_author("fakeid2")
-     
+
 
 
 ################################################################### Posts tests ##################################################################
@@ -109,14 +109,14 @@ def test_add_post():
     assert response.status_code == 200
     assert post["id"] == Fake_Post["id"]
 
-     
+
 
 def test_add_post_again():
     '''This should receive a 400 for duplicate posts'''
     startup_db_client()
     response = client.put(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}",headers={"Content-Type": "application/json"}, json=Fake_Post)
     assert response.status_code == 400
-     
+
 
 def test_add_no_id_post():
     '''This method adds a post without id, host should generate one for it'''
@@ -136,7 +136,7 @@ def test_add_no_id_post():
 def test_get_posts():
     '''This method should fetch all posts from one user'''
     response = client.get(f"/service/authors/{Fake_Author['id']}/posts/").json()
-    
+
     assert len(response.keys()), 2
     assert "fakeid1" in response.keys()
 
@@ -163,7 +163,7 @@ def test_delete_post():
 
     # Delete the author as well
     db.delete_author("fakeid1")
-     
+
 
 
 ##############################################################################Followers########################################################################################################
@@ -172,12 +172,12 @@ def test_add_followers():
     startup_db_client()
     response = client.post(f"/service/authors/{Fake_Author['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author)
     assert response.status_code == 200
-    # add one fakeauthor2 as a follower of fake author 1 
+    # add one fakeauthor2 as a follower of fake author 1
     response = client.put(f"/service/authors/{Fake_Author['id']}/followers/{Fake_Author2['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author2)
     assert response.status_code == 200
     follower = response.json()
     assert follower['foreign_author_id']== Fake_Author2['id']
-     
+
 
 def test_check_followers():
     '''
@@ -190,7 +190,7 @@ def test_check_followers():
 
     follower = response.json()
     assert follower['foreign_author_id']==Fake_Author2['id']
-     
+
 
 def test_read_followers():
     startup_db_client()
@@ -202,7 +202,7 @@ def test_read_followers():
     "github": "http://github.com/laracroft",
     "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
     "hashedPassword": "as#!%lls"
-} 
+}
 
     client.post(f"/service/authors/{Fake_Author2['id']}",
                 headers={"Content-Type":"application/json"}, json=Fake_Author2)
@@ -217,11 +217,11 @@ def test_read_followers():
     assert response.status_code == 200
     assert Fake_Author2['id'],Fake_Author3['id'] in follower['item']
     #assert len(follower['items']) == 2
-    app.database["authors"].delete_one({"_id":"fakeid3"}) 
-     
+    app.database["authors"].delete_one({"_id":"fakeid3"})
+
 
 def test_delete_followers():
-    startup_db_client()   
+    startup_db_client()
     client.delete(f"/service/authors/{Fake_Author['id']}/followers/{Fake_Author2['id']}",headers={"Content-Type":"application/json"}, json = Fake_Author2)
     response = client.get(f"/service/authors/{Fake_Author['id']}/followers/{Fake_Author2['id']}")
     assert response.status_code == 404
@@ -231,7 +231,7 @@ def test_delete_followers():
     app.database["authorManagers"].delete_many({"_id": "fakeid1"})
     app.database["authorManagers"].delete_many({"_id": "fakeid2"})
     app.database["authorManagers"].delete_many({"_id": "fakeid3"})
-     
+
 
 
 ##########################################Comments###########################################################
@@ -247,11 +247,11 @@ def test_add_comment():
 
     # Add comment on post
     response = client.post(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}/comments",headers={"Content-Type":"application/json"}, json=Fake_Comments)
-    
+
     assert response.status_code == 200 #author or post  found
-     
-    
-    
+
+
+
 def test_get_comments():
     '''Test get a comment & comments'''
     startup_db_client()
@@ -266,7 +266,7 @@ def test_get_comments():
     assert response.status_code == 200
     comments = client.get(f"/service/authors/{Fake_Author['id']}/posts/{Fake_Post['id']}/comments").json()
     assert len(comments["comments"]) == 2
-    
+
     app.database["comments"].delete_many({"post":"fakeid1"})
     app.database["authors"].delete_one({"_id": "fakeid1"})
     app.database["authors"].delete_one({"_id": "fakeid2"})
@@ -274,7 +274,7 @@ def test_get_comments():
     app.database["authorManagers"].delete_many({"_id": "fakeid1"})
     app.database["authorManagers"].delete_many({"_id": "fakeid2"})
 
-     
+
 def test_like_post():
     startup_db_client()
     response = client.post("")
@@ -289,7 +289,7 @@ Fake_Author2 = {
     "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
     "hashedPassword": "as#!%lls",
     "posts":{}
-}   
+}
 Fake_Author = {
     "id": "fakeid1",
     "url":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
@@ -329,7 +329,7 @@ Fake_Post = {
                 "post":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e",
                 "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/de305d54-75b4-431b-adb2-eb6b9e546013/comments",
                 "comments":[
-                    
+
                 ]
             },
             "published":"2015-03-09T13:07:04+00:00",
@@ -366,7 +366,7 @@ Fake_Post_modified = {
                 "post":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e",
                 "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/de305d54-75b4-431b-adb2-eb6b9e546013/comments",
                 "comments":[
-                    
+
                 ]
             },
             "published":"2015-03-09T13:07:04+00:00",
@@ -426,7 +426,7 @@ Fake_Post_no_id = {
         }
 
 Fake_Follower = {
-    "type": "followers",      
+    "type": "followers",
     "items":[
         {
             "type":"author",
