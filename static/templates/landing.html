@@ -7,74 +7,77 @@
 <script src="{{ url_for('static', path='/js/script.js') }}" defer></script>
 {% endblock %} {% endblock %} {% block content %}
 
-<script>
-    var modal = document.getElementById("myModal");
-    const followBtn = document.querySelector("#close");
 
-    function myfunction() {
-      modal.showModal();
-    }
-
-    function closeModal() {
-      modal.close();
-    }
-
-    let likeBtn = document.querySelector("#open");
-    let data = document.getElementById("content-create-post-textarea");
-
-    if (likeBtn) {
-        likeBtn.addEventListener("click", (e) => {
-          e.preventDefault();
-
-          fetch(data.value, { method: "POST", })
-            .then((response) => { return response.json(); })
-            .then((data) => {
-              document.getElementById("open").innerHTML = "posted";
-              console.log(data);
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        });
-    }
-
-    // TODO: Authenticate fetch calls
-    function displayPosts(following_list) {
-        for (author of following_list) {
-            fetch(`${author.host}/authors/${author.id}/posts`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                    for (let i = 0; i < data.length; i++) {
-                        postList = document.getElementById("landing-container").innerHTML +=
-                            `<div id='allpost-single-container'>
-                                <div id='allpost-top'>
-                                    <div id='allpost-info'>
-                                        <div id='allpost-title'>${data[i].title}</div>
-                                        <div id='allpost-description'>${data[i].description}</div>
-                                    <div>
-                                </div>
-                            </div>`;
-                    }
-                });
-        }
-    }
-
-    // Fetch posts from followed authors
-    let user = {{ user | safe }};
-    fetch(`/service/authors/${user.id}/following`)
-        .then(response => response.json())
-        .then(data => displayPosts(data.items));
-</script>
 
 <dialog class="modal" id="myModal">
 
   <textarea id="content-create-post-textarea" placeholder="leave your comment here.."></textarea>
   <div class="flex-cont">
-    <button id="open" class="btn" >post</button>
+    <button id="open" class="btn">post</button>
     <button id="close" class="btn" onclick="closeModal()">close</button>
   </div>
 </dialog>
+<script>
+  const modal = document.getElementById("myModal");
+  const followBtn = document.querySelector("#close");
+
+  function myfunction() {
+    document.getElementById("open").innerHTML = "post";
+    modal.showModal();
+  }
+
+  function closeModal() {
+    document.querySelector("#content-create-post-textarea").value = "";
+    modal.close();
+  }
+
+  let likeBtn = document.querySelector("#open");
+  let data = document.getElementById("content-create-post-textarea");
+
+  if (likeBtn) {
+      likeBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        fetch(data.value, { method: "POST", })
+          .then((response) => { return response.json(); })
+          .then((data) => {
+            document.getElementById("open").innerHTML = "posted";
+            console.log(data);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      });
+  }
+
+  // TODO: Authenticate fetch calls
+  function displayPosts(following_list) {
+      for (author of following_list) {
+          fetch(`${author.host}/authors/${author.id}/posts`)
+              .then(response => response.json())
+              .then(data => {
+                  console.log(data);
+                  for (let i = 0; i < data.length; i++) {
+                      postList = document.getElementById("landing-container").innerHTML +=
+                          `<div id='allpost-single-container'>
+                              <div id='allpost-top'>
+                                  <div id='allpost-info'>
+                                      <div id='allpost-title'>${data[i].title}</div>
+                                      <div id='allpost-description'>${data[i].description}</div>
+                                  <div>
+                              </div>
+                          </div>`;
+                  }
+              });
+      }
+  }
+
+  // Fetch posts from followed authors
+  let user = {{ user | safe }};
+  fetch(`/service/authors/${user.id}/following`)
+      .then(response => response.json())
+      .then(data => displayPosts(data.items));
+</script>
 <div id="landing-container">
   <div id="landing-search-container">
     <h2 style="margin-top: 0">Find User</h2>
