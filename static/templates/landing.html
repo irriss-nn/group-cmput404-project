@@ -50,24 +50,38 @@
       });
   }
 
-  // TODO: Authenticate fetch calls
+  // TODO: Authenticate fetch calls using database
+  // TODO: Sort posts by date
   function displayPosts(following_list) {
       for (author of following_list) {
           let url = `${author.host}/service/authors/${author.id}/posts`;
-          if (author.host === 'https://fallprojback.herokuapp.com')
+          let headers = {};
+
+          // Handle quirks of other teams
+          if (author.host === 'https://fallprojback.herokuapp.com'
+                || author.host === 'https://socioecon.herokuapp.com')
+            // Handle lack of '/service' in url
             url = `${author.host}/authors/${author.id}/posts`;
 
-          fetch(url)
+          if (author.host === 'https://socioecon.herokuapp.com') {
+            // Auth required
+            headers.Authorization = `Basic ${btoa('team7:pot8os_are_yummy')}`
+          }
+
+          fetch(url, { headers: headers })
               .then(response => response.json())
               .then(data => {
+                  // Some groups do not use this format
+                  if (data.items) { data = data.items; }
+
                   console.log(data);
-                  for (let i = 0; i < data.length; i++) {
+                  for (post of data) {
                       postList = document.getElementById("landing-container").innerHTML +=
                           `<div id='allpost-single-container'>
                               <div id='allpost-top'>
                                   <div id='allpost-info'>
-                                      <div id='allpost-title'>${data[i].title}</div>
-                                      <div id='allpost-description'>${data[i].description}</div>
+                                      <div id='allpost-title'>${post.title}</div>
+                                      <div id='allpost-description'>${post.description}</div>
                                   <div>
                               </div>
                           </div>`;
