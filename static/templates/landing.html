@@ -53,7 +53,11 @@
   // TODO: Authenticate fetch calls
   function displayPosts(following_list) {
       for (author of following_list) {
-          fetch(`${author.host}/authors/${author.id}/posts`)
+          let url = `${author.host}/service/authors/${author.id}/posts`;
+          if (author.host === 'https://fallprojback.herokuapp.com')
+            url = `${author.host}/authors/${author.id}/posts`;
+
+          fetch(url)
               .then(response => response.json())
               .then(data => {
                   console.log(data);

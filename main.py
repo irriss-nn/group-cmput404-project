@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import uvicorn
 import uuid
+
+from dataclasses import asdict
 from datetime import datetime, timedelta
 from fastapi import FastAPI, Cookie, Form, HTTPException, Request, Response, status
 from fastapi.encoders import jsonable_encoder
@@ -12,8 +14,6 @@ from passlib.context import CryptContext
 from pathlib import Path
 from os import getenv
 from pprint import pprint
-# from routers.authors import encode_author
-from dataclasses import asdict
 
 # Local imports
 from database import SocialDatabase
