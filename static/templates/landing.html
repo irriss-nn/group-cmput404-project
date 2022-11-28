@@ -4,6 +4,7 @@
   rel="stylesheet"
 />
 {% block javascript %}
+<script src="{{ url_for('static', path='/js/auth.js') }}"></script>
 <script src="{{ url_for('static', path='/js/script.js') }}" defer></script>
 {% endblock %} {% endblock %} {% block content %}
 
@@ -57,16 +58,15 @@
           let url = `${author.host}/service/authors/${author.id}/posts`;
           let headers = {};
 
+          let credentials = getCredentials(author.host);
+          if (credentials)
+              headers.Authorization = `Basic ${credentials}`;
+
           // Handle quirks of other teams
           if (author.host === 'https://fallprojback.herokuapp.com'
                 || author.host === 'https://socioecon.herokuapp.com')
             // Handle lack of '/service' in url
             url = `${author.host}/authors/${author.id}/posts`;
-
-          if (author.host === 'https://socioecon.herokuapp.com') {
-            // Auth required
-            headers.Authorization = `Basic ${btoa('team7:pot8os_are_yummy')}`
-          }
 
           fetch(url, { headers: headers })
               .then(response => response.json())
