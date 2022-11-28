@@ -5,6 +5,7 @@ from dataclasses import asdict, dataclass, field
 from pydantic import root_validator
 
 from models.base import Base
+#from models.post import Post
 
 @dataclass
 class Author(Base):
@@ -59,6 +60,13 @@ class AuthorManager(Base):
     posts: dict = field(default_factory=dict)
     inbox: list = field(default_factory=list)
     requests: list = field(default_factory=list)
+
+    @classmethod
+    def init_from_mongo(cls, data: dict):
+        # TODO: Recursively replace id of children
+        data["id"] = data["_id"]
+        del data["_id"]
+        return cls.init_with_dict(data)
 
     class Config:
         schema_extra = {

@@ -65,13 +65,18 @@ async def read_post(author_id: str, post_id: str):
     raise HTTPException(status_code=404, detail="Post not found")
 
 @router.get("/{author_id}/posts/")
-async def read_posts(author_id: str):
+async def read_posts(author_id: str) -> list[dict]:
     '''Return all posts belonging to an author'''
-    posts = SocialDatabase().get_posts(author_id)
+    db = SocialDatabase()
+    if not db.get_author(author_id):
+        raise HTTPException(status_code=404, detail="Author does not exist")
+
+    posts = db.get_posts(author_id)
     if posts:
+        #return [post.json() for post in posts.values()]
         return posts
 
-    raise HTTPException(status_code=404, detail="Author does not exist")
+    return []
 
 @router.post("/{author_id}/posts/")
 async def create_post_without_id(author_id: str, post: Post):
