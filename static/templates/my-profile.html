@@ -11,13 +11,28 @@
   <textarea id="description-create-post-textarea"></textarea>
   <h3>Content:</h3>
   <textarea id="content-create-post-textarea"></textarea>
+  <div class="container">
+    <h2>Wanna make your post public?</h2>
+    <ul>
+    <li>
+      <input type="radio" id="f" name="se">
+      <label for="f">No!!! Friends only</label>
+      <div class="check"></div>
+    </li>
+    <li>
+      <input type="radio" id="p" name="se">
+      <label for="p">Yesss!</label>
+      <div class="check"><div class="inside"></div></div>
+    </li>
+  </ul>
+  </div>
   <div class="flex-cont">
   <button class="btn" id="close-create-post-btn">Close</button>
 
   <button
     id="submit-create-post-btn"
     class="btn"
-    data-url="service/authors/{{post._id}}/posts/"
+    data-url="service/authors/posts/{{post._id}}"
   >
     Create
   </button>

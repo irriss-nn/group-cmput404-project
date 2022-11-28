@@ -88,23 +88,27 @@ class SocialDatabase:
     def get_post(self, author_id: str, post_id: str) -> Post | None:
         manager = self.get_author_manager(author_id)
         if manager and post_id in manager.posts:
+            #return manager.posts[post_id]
             return Post.init_from_mongo(manager.posts[post_id])
 
         return None
 
-    def get_posts(self, author_id: str, limit: int = 0) -> list[Post] | None:
+    def get_posts(self, author_id: str, limit: int = 0) -> list[dict] | None:
         manager = self.get_author_manager(author_id)
         if not manager:
             return None
 
+        #return manager.posts
         return asdict(manager)["posts"]
 
     def get_post_by_id(self, post_id: str) -> Post | None:
         authorsManagers = self.database["authorManagers"].find()
-        # iterate through all iauthor managers and find the post
+
+        # iterate through all author managers and find the post
         for authorManager in authorsManagers:
             if authorManager and post_id in authorManager["posts"].keys():
                 return authorManager["posts"][post_id]
+
         return None
 
     def get_comment_by_id(self, comment_id: str) -> dict | None:

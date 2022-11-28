@@ -8,94 +8,111 @@
 <script src="{{ url_for('static', path='/js/script.js') }}" defer></script>
 {% endblock %} {% endblock %} {% block content %}
 
-
-
-<dialog class="modal" id="myModal">
-
-  <textarea id="content-create-post-textarea" placeholder="leave your comment here.."></textarea>
-  <div class="flex-cont">
-    <button id="open" class="btn">post</button>
-    <button id="close" class="btn" onclick="closeModal()">close</button>
-  </div>
-</dialog>
 <script>
-  const modal = document.getElementById("myModal");
-  const followBtn = document.querySelector("#close");
+    var modal;
+    let data ;
 
-  function myfunction() {
-    document.getElementById("open").innerHTML = "post";
-    modal.showModal();
-  }
+    const followBtn = document.querySelector("#close");
 
-  function closeModal() {
-    document.querySelector("#content-create-post-textarea").value = "";
-    modal.close();
-  }
+    function myfunction() {
+      document.getElementById("open").innerHTML = "post";
+      modal = document.getElementById("myModal");
+      modal.showModal();
+    }
 
-  let likeBtn = document.querySelector("#open");
-  let data = document.getElementById("content-create-post-textarea");
+    function closeModal() {
+      document.getElementById("open").innerHTML = "posted";
+      document.querySelector("#content-create-post-textarea").value = "";
+      modal.close();
+    }
 
-  if (likeBtn) {
-      likeBtn.addEventListener("click", (e) => {
-        e.preventDefault();
+    function postComment() {
+      data = document.getElementById("content-create-post-textarea");
+      fetch(`/service/authors/${user.id}/posts/{{post_id}}/comments`,{
+        method: 'POST',
+        headers:{
+          'Content-Type': 'application/json',
+          body: Json.stringify(data.value),
+        },
+      }).then((response) => { return response.json(); })
+            .then((data) => {
+              console.log(data);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+      }
 
-        fetch(data.value, { method: "POST", })
-          .then((response) => { return response.json(); })
-          .then((data) => {
-            document.getElementById("open").innerHTML = "posted";
-            console.log(data);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      });
-  }
+    let likeBtn = document.querySelector("#open");
+    if (likeBtn) {
+        likeBtn.addEventListener("click", (e) => {
+          e.preventDefault();
 
-  // TODO: Authenticate fetch calls using database
-  // TODO: Sort posts by date
-  function displayPosts(following_list) {
-      for (author of following_list) {
-          let url = `${author.host}/service/authors/${author.id}/posts`;
-          let headers = {};
+          fetch(data.value, { method: "POST", })
+            .then((response) => { return response.json(); })
+            .then((data) => {
+              console.log(data);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        });
+    }
 
-          let credentials = getCredentials(author.host);
-          if (credentials)
-              headers.Authorization = `Basic ${credentials}`;
+    // TODO: Sort posts by date
+    function displayPosts(following_list) {
+        for (author of following_list) {
+            let url = `${author.host}/service/authors/${author.id}/posts`;
+            let headers = {};
 
-          // Handle quirks of other teams
-          if (author.host === 'https://fallprojback.herokuapp.com'
+            let credentials = getCredentials(author.host);
+            if (credentials)
+            headers.Authorization = `Basic ${credentials}`;
+
+            // Handle quirks of other teams
+            if (author.host === 'https://fallprojback.herokuapp.com'
                 || author.host === 'https://socioecon.herokuapp.com')
             // Handle lack of '/service' in url
             url = `${author.host}/authors/${author.id}/posts`;
 
-          fetch(url, { headers: headers })
-              .then(response => response.json())
-              .then(data => {
-                  // Some groups do not use this format
-                  if (data.items) { data = data.items; }
+            fetch(url, { headers: headers })
+                .then(response => response.json())
+                .then(data => {
+                    // Some groups do not use this format
+                    if (data.items) { data = data.items; }
 
-                  console.log(data);
-                  for (post of data) {
-                      postList = document.getElementById("landing-container").innerHTML +=
-                          `<div id='allpost-single-container'>
-                              <div id='allpost-top'>
-                                  <div id='allpost-info'>
-                                      <div id='allpost-title'>${post.title}</div>
-                                      <div id='allpost-description'>${post.description}</div>
-                                  <div>
-                              </div>
-                          </div>`;
-                  }
-              });
-      }
-  }
+                    console.log(data);
+                    for (post of data) {
+                        postList = document.getElementById("landing-container").innerHTML +=
+                            `<div id='allpost-single-container'>
+                                <div id='allpost-top'>
+                                    <div id='allpost-info'>
+                                        <div id='allpost-title'>${post.title}</div>
+                                        <div id='allpost-description'>${post.description}</div>
+                                    <div>
+                                </div>
+                            </div>`;
+                    }
+                });
+        }
+    }
 
-  // Fetch posts from followed authors
-  let user = {{ user | safe }};
-  fetch(`/service/authors/${user.id}/following`)
-      .then(response => response.json())
-      .then(data => displayPosts(data.items));
+    // Fetch posts from followed authors
+    let user = {{ user | safe }};
+    fetch(`/service/authors/${user.id}/following`)
+        .then(response => response.json())
+        .then(data => displayPosts(data.items));
 </script>
+
+
+<dialog class="modal" id="myModal">
+  <textarea id="content-create-post-textarea" placeholder="leave your comment here.."></textarea>
+  <div class="flex-cont">
+    <button id="open" class="btn" onclick="postComment()">post</button>
+    <button id="close" class="btn" onclick="closeModal()">close</button>
+  </div>
+</dialog>
+
 <div id="landing-container">
   <div id="landing-search-container">
     <h2 style="margin-top: 0">Find User</h2>
