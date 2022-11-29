@@ -5,7 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from database import SocialDatabase
-import json
+import uuid
 from jose import JWTError, jwt
 static_dir = f"{Path.cwd()}/static"
 templates = Jinja2Templates(directory=f"{static_dir}/templates")
@@ -26,7 +26,8 @@ async def show_comment(author_id: str, post_id: str, request: Request, page: int
         our_profile = SocialDatabase().get_author(our_profile_id)
     except HTTPException:
         our_profile = found_user
-    return templates.TemplateResponse("comments.html", {"request": request, "comments": comments, "user": our_profile, "myuser": our_profile})
+    
+    return templates.TemplateResponse("comments.html", {"request": request, "comments": comments, "user": our_profile, "myuser": our_profile,"post_id": post_id})
 
 
 @router.post("/{author_id}/posts/{post_id}/comments")
@@ -45,16 +46,20 @@ async def create_comment(author_id: str, post_id: str, request: Request, comment
                 break
         # This is author for comment
         author = SocialDatabase().get_author(author_id)
+      
         if (author == None or post == None):
+            print('ddd')
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Author or post not found")
-    except:
+    except Exception as e:
+        print(e)
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Post or author not found")
     try:
         comment = jsonable_encoder(comment)
         comment['author'] = author_id
         comment['post'] = post_id
+        comment["id"] = str(uuid.uuid4())
         comment["_id"] = comment["id"]
         comment.pop('id', None)
         comment_id = comment["_id"]
@@ -72,7 +77,8 @@ async def create_comment(author_id: str, post_id: str, request: Request, comment
                                                           "$push": {"inbox": inbox_item}})
         # Adding comment to post
         return request.app.database["comments"].find_one({"_id": comment_id})
-    except:
+    except Exception as e:
+        print(e)
         raise HTTPException(status_code=404, detail="Invalid Comment")
 
 
@@ -92,7 +98,7 @@ async def read_comments(request: Request, author_id: str, post_id: str, page: in
             author = SocialDatabase().get_author(
                 comments[i]["author"])  # get comment's author
             author.hashedPassword = None  # clear password before return author object
-
+            comments[i]["id"]=comments[i]["_id"]
             # convert author into a dictionary
             comments[i]["author"] = {
                 "displayName": author.displayName,

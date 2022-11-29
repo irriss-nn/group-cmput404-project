@@ -4,91 +4,74 @@
   rel="stylesheet"
 />
 {% block javascript %}
-<script src="{{ url_for('static', path='/js/auth.js') }}"></script>
 <script src="{{ url_for('static', path='/js/script.js') }}" defer></script>
 {% endblock %} {% endblock %} {% block content %}
 
 <script>
     var modal;
     let data ;
-
+    let postid;
     const followBtn = document.querySelector("#close");
 
-    function myfunction() {
+    function myfunction(post_id) {
+      postid = post_id;
+      console.log(post_id);
       document.getElementById("open").innerHTML = "post";
       modal = document.getElementById("myModal");
       modal.showModal();
+      
     }
 
     function closeModal() {
-      document.getElementById("open").innerHTML = "posted";
       document.querySelector("#content-create-post-textarea").value = "";
       modal.close();
     }
 
     function postComment() {
       data = document.getElementById("content-create-post-textarea");
-      fetch(`/service/authors/${user.id}/posts/{{post_id}}/comments`,{
+      console.log({"comment":data.value});
+      fetch(`/service/authors/${user.id}/posts/${postid}/comments`,{
         method: 'POST',
         headers:{
-          'Content-Type': 'application/json',
-          body: Json.stringify(data.value),
-        },
-      }).then((response) => { return response.json(); })
+          'Content-Type': 'application/json'},
+        body: JSON.stringify({"type":"comment",
+            "id":"",
+            "author":`${user.id}`,
+            "post":`${postid}`,
+             "comment":data.value,
+             "contentType": "text/markdown",
+            "published": '2022-10-25T11:09:11.383160',
+            "likes":[]
+        })
+      }).then((response) => { console.log(response)})
             .then((data) => {
               console.log(data);
             })
             .catch((err) => {
               console.log(err);
             });
+      document.querySelector("#content-create-post-textarea").value = "";
+      document.getElementById("open").innerHTML = "posted";
+      modal.close();
       }
+    
 
-    let likeBtn = document.querySelector("#open");
-    if (likeBtn) {
-        likeBtn.addEventListener("click", (e) => {
-          e.preventDefault();
+    
 
-          fetch(data.value, { method: "POST", })
-            .then((response) => { return response.json(); })
-            .then((data) => {
-              console.log(data);
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        });
-    }
-
-    // TODO: Sort posts by date
+    // TODO: Authenticate fetch calls
     function displayPosts(following_list) {
         for (author of following_list) {
-            let url = `${author.host}/service/authors/${author.id}/posts`;
-            let headers = {};
-
-            let credentials = getCredentials(author.host);
-            if (credentials)
-            headers.Authorization = `Basic ${credentials}`;
-
-            // Handle quirks of other teams
-            if (author.host === 'https://fallprojback.herokuapp.com'
-                || author.host === 'https://socioecon.herokuapp.com')
-            // Handle lack of '/service' in url
-            url = `${author.host}/authors/${author.id}/posts`;
-
-            fetch(url, { headers: headers })
+            fetch(`${author.host}/authors/${author.id}/posts`)
                 .then(response => response.json())
                 .then(data => {
-                    // Some groups do not use this format
-                    if (data.items) { data = data.items; }
-
                     console.log(data);
-                    for (post of data) {
+                    for (let i = 0; i < data.length; i++) {
                         postList = document.getElementById("landing-container").innerHTML +=
                             `<div id='allpost-single-container'>
                                 <div id='allpost-top'>
                                     <div id='allpost-info'>
-                                        <div id='allpost-title'>${post.title}</div>
-                                        <div id='allpost-description'>${post.description}</div>
+                                        <div id='allpost-title'>${data[i].title}</div>
+                                        <div id='allpost-description'>${data[i].description}</div>
                                     <div>
                                 </div>
                             </div>`;
@@ -148,7 +131,7 @@
         href="/service/authors/{{l.author.id}}/posts/{{l._id}}/view"
         >View Post</a
       >
-      <button id="myBtn" class="allpost-btn" onclick="myfunction()">Create Comments</button>
+      <button id="myBtn" class="allpost-btn" onclick="myfunction('{{l._id}}')">Create Comments</button>
 
     </div>
   </div>
