@@ -30,6 +30,9 @@
     function postComment() {
       data = document.getElementById("content-create-post-textarea");
       console.log({"comment":data.value});
+      if (data.value == ""){
+        alert("Please leave a comment before post");
+      }else{
       fetch(`/service/authors/${user.id}/posts/${postid}/comments`,{
         method: 'POST',
         headers:{
@@ -52,7 +55,7 @@
             });
       document.querySelector("#content-create-post-textarea").value = "";
       document.getElementById("open").innerHTML = "posted";
-      modal.close();
+      modal.close();}
       }
     
 
