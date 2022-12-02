@@ -17,7 +17,7 @@ from pprint import pprint
 
 # Local imports
 from database import SocialDatabase
-from routers import authors, posts, comments_router, likes
+from routers import authors, posts, comments_router, likes,admin
 from models.author import Author
 from models.inbox import InboxItem
 from extensions import t10_node
@@ -70,7 +70,9 @@ app.include_router(authors.router)
 app.include_router(posts.router)
 app.include_router(comments_router.router)
 app.include_router(likes.router)
+app.include_router(admin.router)
 app.include_router(t10_node.router)
+
 
 
 @app.on_event("startup")

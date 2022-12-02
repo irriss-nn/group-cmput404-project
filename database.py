@@ -77,7 +77,11 @@ class SocialDatabase:
             return None
 
         return AuthorManager.init_from_mongo(manager)
-
+    
+    def approve_author(self, author_id: str) -> bool:
+        result = self.database.authors.update_one({"_id": author_id}, {"$set": {"authLevel": "user"}})
+        return result.acknowledged
+    
     def get_inbox(self, author_id: str) -> list[Post] | None:
         manager = self.get_author_manager(author_id)
         if not manager:
