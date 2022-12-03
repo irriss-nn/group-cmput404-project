@@ -6,38 +6,65 @@
 <dialog class="modal" id="create-post-modal">
   <h2>Add a new post</h2>
   <h3>Title:</h3>
-  <textarea id="title-create-post-textarea"></textarea>
+  <textarea id="title-create-post-textarea" class="dialog-input" data-author={{post.author}}></textarea>
   <h3>Description:</h3>
-  <textarea id="description-create-post-textarea"></textarea>
+  <textarea
+    id="description-create-post-textarea"
+    class="dialog-input"
+  ></textarea>
+  <h3>Source:</h3>
+  <input type="text" id="source-create-post-textarea" class="dialog-input"></input>
+  <h3>Origin:</h3>
+  <input type="text" id="origin-create-post-textarea" class="dialog-input"></input>
+  <h3>Content Type:</h3>
+  <select type="text" id="contenttype-create-post-textarea" class="dialog-input">
+    <option value="text/markdown">text/markdown</option>
+    <option value="text/plain">text/plain</option>
+    <option value="application/base64">application/base64</option>
+    <option value="image/png;base64">image/png;base64</option>
+    <option value="image/jpeg;base64">image/jpeg;base64</option>
+  </select>
   <h3>Content:</h3>
-  <textarea id="content-create-post-textarea"></textarea>
+  <textarea id="content-create-post-textarea" class="dialog-input"></textarea>
+  <input type="file" id="content-create-post-file" class="dialog-input" style="display: none;"></input>
+  <h3>Categories (separate with commas):</h3>
+  <textarea id="categories-create-post-textarea" class="dialog-input"></textarea>
+  <!-- <h3>Content Type:</h3>
+  <select id="visibility-create-post-select" class="dialog-input">
+    <option value="public">Public</option>
+    <option value="friends">Friends</option>
+  </select> -->
+  <h3>Listing:</h3>
+  <input type="radio" id="visibility-create-post-select-true" name="visibility-create-post-select" value="false"></input>
+  <label for="visibility-create-post-select-true">Listed</label>
+  <input type="radio" id="visibility-create-post-select-false" name="visibility-create-post-select" value="true"></input>
+  <label for="visibility-create-post-select-true">Unlisted</label>
   <div class="container">
     <h2>Wanna make your post public?</h2>
     <ul>
-    <li>
-      <input type="radio" id="f" name="se">
-      <label for="f">No!!! Friends only</label>
-      <div class="check"></div>
-    </li>
-    <li>
-      <input type="radio" id="p" name="se">
-      <label for="p">Yesss!</label>
-      <div class="check"><div class="inside"></div></div>
-    </li>
-  </ul>
+      <li>
+        <input type="radio" id="f" name="se" value="FRIENDS"/>
+        <label for="f">No!!! Friends only</label>
+        <div class="check"></div>
+      </li>
+      <li>
+        <input type="radio" id="p" name="se" value="PUBLIC"/>
+        <label for="p">Yesss!</label>
+        <div class="check"><div class="inside"></div></div>
+      </li>
+    </ul>
   </div>
   <div class="flex-cont">
-  <button class="btn" id="close-create-post-btn">Close</button>
+    <button class="btn" id="close-create-post-btn">Close</button>
 
-  <button
-    id="submit-create-post-btn"
-    class="btn"
-    data-url="service/authors/posts/{{post._id}}"
-  >
-    Create
-  </button>
-</div>
-
+    <button
+      id="submit-create-post-btn"
+      class="btn"
+      data-url="service/authors/posts/{{post._id}}"
+    >
+      Create
+    </button>
+  </div>
 </dialog>
 
 <div class="main-content">

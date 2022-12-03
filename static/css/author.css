@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap");
-@import url('https://fonts.googleapis.com/css?family=Lato');
+@import url("https://fonts.googleapis.com/css?family=Lato");
 
 html {
   min-height: 100%;
@@ -15,7 +15,7 @@ body {
   display: flex;
 }
 
-.container{
+.container {
   display: block;
   position: relative;
   margin: 40px auto;
@@ -25,18 +25,18 @@ body {
 }
 
 h2 {
-  color: #AAAAAA;
-  font-style:calc();
+  color: #aaaaaa;
+  font-style: calc();
 }
 
-.container ul{
+.container ul {
   list-style: none;
   margin: 0;
   padding: 0;
   overflow: auto;
 }
 
-ul li{
+ul li {
   color: #f5900c;
   display: block;
   position: relative;
@@ -46,12 +46,12 @@ ul li{
   border-bottom: 1px solid #333;
 }
 
-ul li input[type=radio]{
+ul li input[type="radio"] {
   position: absolute;
   visibility: hidden;
 }
 
-ul li label{
+ul li label {
   display: block;
   position: relative;
   font-weight: 300;
@@ -64,22 +64,22 @@ ul li label{
   -webkit-transition: all 0.25s linear;
 }
 
-ul li:hover label{
+ul li:hover label {
   color: #1cd5ee;
 }
 
-ul li .check{
+ul li .check {
   display: block;
   position: absolute;
-  border: 5px solid #AAAAAA;
+  border: 5px solid #aaaaaa;
   border-radius: 100%;
   height: 25px;
   width: 25px;
   top: 30px;
   left: 20px;
   z-index: 5;
-  transition: border .25s linear;
-  -webkit-transition: border .25s linear;
+  transition: border 0.25s linear;
+  -webkit-transition: border 0.25s linear;
 }
 
 ul li:hover .check {
@@ -89,7 +89,7 @@ ul li:hover .check {
 ul li .check::before {
   display: block;
   position: absolute;
-  content: '';
+  content: "";
   border-radius: 100%;
   height: 15px;
   width: 15px;
@@ -100,15 +100,15 @@ ul li .check::before {
   -webkit-transition: background 0.25s linear;
 }
 
-input[type=radio]:checked ~ .check {
+input[type="radio"]:checked ~ .check {
   border: 5px solid #1966f5;
 }
 
-input[type=radio]:checked ~ .check::before{
+input[type="radio"]:checked ~ .check::before {
   background: #1966f5;
 }
 
-input[type=radio]:checked ~ label{
+input[type="radio"]:checked ~ label {
   color: #1966f5;
 }
 
@@ -257,41 +257,19 @@ input[type=radio]:checked ~ label{
   min-height: fit-content;
 }
 
-#title-create-post-textarea,
-#description-create-post-textarea {
-  min-width: 100%;
-  min-height: fit-content;
-  background-color: #e3f5fa;
-  font-family:Verdana, Geneva, Tahoma, sans-serif;
-  font-weight:500;
-  font-size:20px;
-  line-height:1.4;
-  border-radius: 10px;
-  border:2px solid transparent;
-}
 #title-create-post-textarea:hover {
-  cursor:pointer;
+  cursor: pointer;
   background-color: #faf5f1;
 }
 #description-create-post-textarea:hover {
-  cursor:pointer;
+  cursor: pointer;
   background-color: #faf5f1;
 }
 
 #content-create-post-textarea {
-  min-width: 100%;
   min-height: 15vh;
-  background-color: #e3f5fa;
-  border-radius: 10px;
-  border:2px solid transparent;
-  outline:none;
-  font-family:Verdana, Geneva, Tahoma, sans-serif;
-  font-weight:500;
-  font-size:20px;
-  line-height:1.4;
-  width:200px;
-  height:100px;
-  transition:all 0.2s;
+  height: 100px;
+  transition: all 0.2s;
 }
 .btn {
   background-color: #4e88ca; /* Green background */
@@ -299,22 +277,40 @@ input[type=radio]:checked ~ label{
   border-radius: 20%;
   color: white; /* White text */
   font-family: Verdana, Geneva, Tahoma, sans-serif;
-  font-weight:500;
-  font-size:16px;
+  font-weight: 500;
+  font-size: 16px;
   padding: 10px 24px; /* Some padding */
   cursor: pointer; /* Pointer/hand icon */
-
 }
 .btn:hover {
   background-color: #5994ee;
 }
 
 #content-create-post-textarea:hover {
-  cursor:pointer;
+  cursor: pointer;
   background-color: #faf5f1;
 }
 .flex-cont {
   display: flex;
   justify-content: space-between;
+}
 
+.modal {
+  max-height: 80vh;
+  max-width: 80vw;
+  border: none;
+}
+
+.dialog-input {
+  min-width: 100%;
+  min-height: fit-content;
+  background-color: #e3f5fa;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1.4;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  padding: 5px;
+  box-sizing: border-box;
 }

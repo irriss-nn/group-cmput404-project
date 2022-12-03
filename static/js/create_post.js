@@ -3,6 +3,12 @@ const modal = document.querySelector("#create-post-modal");
 const closeModal = document.querySelector("#close-create-post-btn");
 const submitModel = document.querySelector("#submit-create-post-btn");
 
+const contentType = document.querySelector("#contenttype-create-post-textarea");
+const contentTextInput = document.querySelector(
+  "#content-create-post-textarea"
+);
+const contentFileInput = document.querySelector("#content-create-post-file");
+
 const followBtn = document.querySelector("#follow-user-btn");
 
 if (openModal) {
@@ -10,6 +16,16 @@ if (openModal) {
     modal.showModal();
   });
 }
+
+contentType.addEventListener("change", (e) => {
+  if (e.target.value === "text/markdown" || e.target.value === "text/plain") {
+    contentTextInput.style.display = "block";
+    contentFileInput.style.display = "none";
+  } else {
+    contentTextInput.style.display = "none";
+    contentFileInput.style.display = "block";
+  }
+});
 
 closeModal.addEventListener("click", () => {
   //fetch user's post content
@@ -33,13 +49,57 @@ if (submitModel) {
     let description = document.querySelector(
       "#description-create-post-textarea"
     );
-    let content = document.querySelector("#content-create-post-textarea");
+    let source = document.querySelector("#source-create-post-textarea");
+    let origin = document.querySelector("#origin-create-post-textarea");
+    let contentType = document.querySelector(
+      "#contenttype-create-post-textarea"
+    );
+    let content;
+    if (
+      contentType.value === "text/markdown" ||
+      contentType.value === "text/plain"
+    ) {
+      content = document.querySelector("#content-create-post-textarea");
+    } else {
+      content = document.querySelector("#content-create-post-file");
+    }
+    let categories = document.querySelector("#categories-create-post-textarea");
+    let unlisted = document.querySelector(
+      'input[name="visibility-create-post-select"]:checked'
+    );
+    let visibility = document.querySelector('input[name="se"]:checked');
+
+    let author = title.getAttribute("data-author");
+    let date = new Date().toISOString();
+
+    let payload = {
+      title: title.value,
+      source: source.value,
+      origin: origin.value,
+      description: description.value,
+      contentType: contentType.value,
+      content: content.value,
+      author: author,
+      categories: categories.value.split(",").map((x) => x.trim()),
+      count: 0,
+      comments: "",
+      commentsSrc: null,
+      published: date,
+      visibility: visibility.value,
+      unlisted: unlisted.value,
+      likes: [],
+    };
 
     fetch(submitModel.getAttribute("data-url"), {
       method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(),
     })
       .then((response) => {
-        return response.json();
+        return response.json(payload);
       })
       .then((data) => {
         document.querySelector("#title-create-post-textarea").value = "";

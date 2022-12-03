@@ -17,7 +17,7 @@ from pprint import pprint
 
 # Local imports
 from database import SocialDatabase
-from routers import authors, posts, comments_router, likes,admin
+from routers import authors, posts, comments_router, likes, admin
 from models.author import Author
 from models.inbox import InboxItem
 from extensions import t10_node
@@ -27,6 +27,7 @@ SECRET_KEY = 'f015cb10b5caa9dd69ebeb340d580f0ad37f1dfcac30aef8b713526cc9191fa3'
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 def get_user(request: Request, username: str, password: str):
     found_user = request.app.database["authors"].find_one(
@@ -72,7 +73,6 @@ app.include_router(comments_router.router)
 app.include_router(likes.router)
 app.include_router(admin.router)
 app.include_router(t10_node.router)
-
 
 
 @app.on_event("startup")
@@ -207,10 +207,10 @@ async def get_home(request: Request, session: str = Cookie(None)):
     all_feed_posts = SocialDatabase().get_following_feed(sessionUserId)
     current_user = SocialDatabase().get_author(sessionUserId)
     return templates.TemplateResponse("landing.html", {
-                                          "request": request,
-                                          "user": asdict(current_user),
-                                          "feed": all_feed_posts
-                                      })
+        "request": request,
+        "user": asdict(current_user),
+        "feed": all_feed_posts
+    })
 
 
 @app.get("/inbox")
