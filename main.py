@@ -100,6 +100,16 @@ def shutdown_db_client():
 async def root():
     return RedirectResponse(url='/login')
 
+@app.get("/service/credentials/{remote_host}")
+async def get_remote_credentials(remote_host: str):
+    '''Return credentials needed to query a remote host'''
+    # TODO: Require auth so that only users may query this endpoint
+    credentials = SocialDatabase().get_credentials(remote_host)
+    if credentials:
+        return credentials.json()
+
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                        detail="No credentials for specified host")
 
 @app.get("/login", response_class=HTMLResponse)
 async def read_item(request: Request):

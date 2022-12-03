@@ -1,7 +1,9 @@
 from dataclasses import asdict
 from pymongo import ASCENDING, MongoClient
 from fastapi.encoders import jsonable_encoder
+
 from models.author import Author, AuthorManager
+from models.credentials import Credentials
 from models.post import Post
 from models.like import Like
 from models.inbox import InboxItem
@@ -352,3 +354,11 @@ class SocialDatabase:
         postsToReturn = sorted(
             postsToReturn, key=lambda d: d['published'], reverse=True)
         return postsToReturn
+
+    def get_credentials(self, remote_host: str) -> Credentials | None:
+        '''Get credentials for a remote host'''
+        credentials = self.database.remote_credentials.find_one({'_id': remote_host})
+        if not credentials:
+            return None
+
+        return Credentials.init_from_mongo(credentials)
