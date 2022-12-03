@@ -206,6 +206,8 @@ async def get_home(request: Request, session: str = Cookie(None)):
         return RedirectResponse(url='/login', status_code=307)
     all_feed_posts = SocialDatabase().get_following_feed(sessionUserId)
     all_feed_posts += SocialDatabase().get_all_public_posts()
+
+
     current_user = SocialDatabase().get_author(sessionUserId)
     return templates.TemplateResponse("landing.html", {
         "request": request,
@@ -228,19 +230,18 @@ async def get_inbox(request: Request, session: str = Cookie(None)):
     return templates.TemplateResponse("inbox.html", {"request": request, "user": found_user, "inbox": all_inbox_posts})
 
 
-@app.get("/author/{author_name}")
-async def get_author(request: Request, author_name: str, session: str = Cookie(None)):
+@app.get("/author/{author_id}")
+async def get_author(request: Request, author_id: str, session: str = Cookie(None)):
     if (session == None):
         return RedirectResponse(url="/login")
     try:
         sessionUserId = await get_userId_from_token(session)
     except HTTPException:
         return RedirectResponse(url='/login', status_code=307)
-    author_name = author_name.replace("_", " ")
-    found_user = app.database["authors"].find_one({"displayName": author_name})
+
+    found_user = SocialDatabase().get_author(author_id)
     me_user = app.database["authors"].find_one({"_id": sessionUserId})
-    is_following = SocialDatabase().is_following(
-        sessionUserId, found_user["_id"])
+    is_following = SocialDatabase().is_following(sessionUserId, found_user.id)
     if found_user:
         return templates.TemplateResponse("author.html", {"request": request, "user": me_user, "post": found_user, "status": {"following": is_following}})
     return RedirectResponse(url='/home')
@@ -449,10 +450,10 @@ async def verify_jwt(session: str | None = Cookie(default=None)):
  ## Testing PAGES ##
 
 
-@app.get("/landing", response_class=HTMLResponse)
-async def get_landing(request: Request):
-    foundAuthor = request.app.database["authors"].find({})
-    return templates.TemplateResponse("landing.html", {"request": request, "landing": foundAuthor[0]})
+# @app.get("/landing", response_class=HTMLResponse)
+# async def get_landing(request: Request):
+#     foundAuthor = request.app.database["authors"].find({})
+#     return templates.TemplateResponse("landing.html", {"request": request, "landing": foundAuthor[0]})
 
 
 @app.get("/post", response_class=HTMLResponse)
@@ -485,10 +486,10 @@ async def get_all_posts(request: Request):
 #     return templates.TemplateResponse("user-feed.html", {"request": request})
 
 
-@app.get("/author", response_class=HTMLResponse)
-async def get_post(request: Request):
-    foundAuthor = request.app.database["authors"].find({})
-    return templates.TemplateResponse("author.html", {"request": request, "post": foundAuthor[1]})
+# @app.get("/author", response_class=HTMLResponse)
+# async def get_post(request: Request):
+#     foundAuthor = request.app.database["authors"].find({})
+#     return templates.TemplateResponse("author.html", {"request": request, "post": foundAuthor[1]})
 
 
 # currently everything is hardcoded. Just initial design

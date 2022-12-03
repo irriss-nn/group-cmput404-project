@@ -33,21 +33,26 @@ async def get_userId_from_token(token: str):
 async def read_post(request: Request, author_id: str, post_id: str, session: str = Cookie(None)):
     '''Method to view post form template'''
     try:
-        author = request.app.database["authors"].find_one({"_id": author_id})
-        author_manager = request.app.database["authorManagers"].find_one({
-                                                                         "_id": author_id})
+        # fetch author of the post
+        author = SocialDatabase().get_author(author_id)
+        author_manager = request.app.database["authorManagers"].find_one({"_id": author_id})
 
-        authorImg = author["profileImage"]
+        # fetch the post with post_id within this user's post
         document = author_manager["posts"][post_id]
-        document["author"]["profileImage"] = authorImg
+        document["author"] = author
+        
     except:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
 
     try:
+        # current user
         our_profile_id = await get_userId_from_token(session)
         our_profile = SocialDatabase().get_author(our_profile_id)
-    except HTTPException:
+    except HTTPException as e:
+        # Should we redirect to /home if session is token expires?
+        print("Error getting profile from session, in method read_post: ")
+        print(e)
         our_profile = author
 
     if document:

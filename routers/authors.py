@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, HTTPException, Request, status, Cookie
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
@@ -188,18 +188,19 @@ async def accept_or_reject_follower(author_id: str, action: str, foreign_author:
         # return False
         return RedirectResponse(url='/home')
 
-#### USER FACING VIEWS ####
-@router.get("/{author_id}/view")
-async def read_item(request: Request, author_id: str,):
-    '''
-    Display author profile
-    '''
-    try:
-        document = request.app.database["authors"].find_one({"_id": author_id})
-        if (document is None):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
-        return templates.TemplateResponse("author.html", {"request": request, "post": document})
-    except:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
+# #### USER FACING VIEWS ####
+# @router.get("/{author_id}/view")
+# async def read_item(request: Request, author_id: str, session:  str=Cookie(None)):
+#     '''
+#     Display author profile
+#     '''
+#     # try:
+#     document = SocialDatabase().get_author(author_id)
+#     if (document is None):
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
+#     return templates.TemplateResponse("author.html", {"request": request, "user": document})
+#     # except Exception as e:
+#     #     print(e)
+#     #     raise HTTPException(
+#     #         status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")

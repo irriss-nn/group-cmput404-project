@@ -114,8 +114,8 @@
   {% for l in feed %}
   <div id="allpost-single-container">
     <div id="allpost-top">
-      <a href="/author/{{l.displayName}}" id="allpost-author"
-        >{{l.displayName}}</a
+      <a href="/author/{{l.author.id}}" id="allpost-author"
+        >{{l.author.displayName}}</a
       >
       <div id="allpost-date">{{l.published.split("T")[0]}}</div>
     </div>

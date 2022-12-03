@@ -9,7 +9,8 @@ const apiCall = (url) => {
     })
     .then((data) => {
       console.log(data);
-      console.log("liked post");
+      // console.log("liked post");
+      
       //   window.location.reload();
       likeBtn[0].innerHTML = "Liked";
       likeBtn[0].disabled = true;
@@ -19,6 +20,9 @@ const apiCall = (url) => {
     });
 };
 
-likeBtn[0].addEventListener("click", () => {
-  apiCall(likeBtn[0].getAttribute("data-url"));
-});
+for (let i =0; i<likeBtn.length; i++) {
+  likeBtn[i].addEventListener("click", () => {
+    apiCall(likeBtn[i].getAttribute("data-url"));
+  });
+}
+
