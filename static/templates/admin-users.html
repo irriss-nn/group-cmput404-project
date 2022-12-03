@@ -1,4 +1,9 @@
 {% extends "admin-base.html" %}
+{% block head %}
+{% block javascript %}
+<script src="{{ url_for('static', path='/js/admin_script.js') }}" defer></script>
+{% endblock %}
+{% endblock %}
 {% block content %}
 <div class="user-manage">
   <div class="stats-title">
@@ -12,11 +17,15 @@
       <h5>Password: {{user.hashedPassword}}</h5>
       <h5>Number of posts: {{user.posts|length}}</h5>
       {% if user.authLevel != "user" and user.authLevel != "admin"%}
-        <button data-url="/allow/{{user._id}}" class="allow-button">Allow User</button>
+        <button data-url="/service/admin/{{user._id}}/approve" class="allow-button">Allow User</button>
       {% endif %}
-      <button data-url="/delete/{{user._id}}" class="delete-button">Delete User</button>
-      <button data-url="/modify/{{user._id}}" class="modify-button">Modify User</button>
-      <button data-url="/view/{{user._id}}" class="view-post-button">View Posts</button>
+      <button data-url="/service/admin/{{user._id}}" class="delete-user-button">Delete User</button>
+      <a href="/admin-modify-user/{{user._id}}">  
+      <button data-url="/service/admin/modify/{{user._id}}" class="modify-button">Modify User</button>
+    </a>
+      <a href="/admin-specific-user/{{user._id}}">  
+      <button data-url="/admin-specific-user/{{user._id}}" class="view-post-button">View Posts</button>
+    </a>
     </div>
 
     {% endfor %}

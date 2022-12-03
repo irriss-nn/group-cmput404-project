@@ -359,12 +359,77 @@ async def get_admin_posts(request: Request, session: str = Cookie(None)):
         return RedirectResponse(url='/login', status_code=307)
     found_user = app.database["authors"].find_one({"_id": sessionUserId})
     posts = SocialDatabase().get_all_posts()
-    pprint(posts[0])
+
     if found_user:
-        return templates.TemplateResponse("admin-posts.html", {"request": request, "user": found_user, "posts": posts})
+        return templates.TemplateResponse("admin-posts.html", {"request": request, "user": found_user, "posts": posts, "desc": "All "})
+    else:
+        return RedirectResponse(url="/login")
+
+
+@app.get("/admin-specific-user/{user_id}")
+async def get_admin_specific_user(request: Request, user_id: str, session: str = Cookie(None)):
+    if (session == None):
+        return RedirectResponse(url="/login")
+    try:
+        sessionUserId = await get_userId_from_token(session)
+    except HTTPException:
+        print("Invalid Token")
+        return RedirectResponse(url='/login', status_code=307)
+    if (SocialDatabase().is_login_user_admin(sessionUserId) == False):
+        print("User not admin")
+        return RedirectResponse(url='/login', status_code=307)
+    found_user = app.database["authors"].find_one({"_id": sessionUserId})
+    found_author = app.database["authors"].find_one({"_id": user_id})
+    if found_user:
+        return templates.TemplateResponse("admin-posts.html", {"request": request, "user": found_user, "posts": SocialDatabase().get_all_author_posts(user_id), "desc": "User '" + found_author["displayName"]+"' :"})
+    else:
+        return RedirectResponse(url="/login")
+
+
+@app.get("/admin-modify-user/{user_id}")
+async def get_admin_specific_user(request: Request, user_id: str, session: str = Cookie(None)):
+    if (session == None):
+        return RedirectResponse(url="/login")
+    try:
+        sessionUserId = await get_userId_from_token(session)
+    except HTTPException:
+        print("Invalid Token")
+        return RedirectResponse(url='/login', status_code=307)
+    if (SocialDatabase().is_login_user_admin(sessionUserId) == False):
+        print("User not admin")
+        return RedirectResponse(url='/login', status_code=307)
+    found_user = app.database["authors"].find_one({"_id": sessionUserId})
+    found_author = app.database["authors"].find_one({"_id": user_id})
+    if found_user:
+        return templates.TemplateResponse("admin-mod-user.html", {"request": request, "user": found_user, "author": found_author})
+    else:
+        return RedirectResponse(url="/login")
+
+
+@app.get("/admin-modify-post/{post_id}")
+async def get_admin_specific_user(request: Request, post_id: str, session: str = Cookie(None)):
+    if (session == None):
+        return RedirectResponse(url="/login")
+    try:
+        sessionUserId = await get_userId_from_token(session)
+    except HTTPException:
+        print("Invalid Token")
+        return RedirectResponse(url='/login', status_code=307)
+    if (SocialDatabase().is_login_user_admin(sessionUserId) == False):
+        print("User not admin")
+        return RedirectResponse(url='/login', status_code=307)
+    found_user = app.database["authors"].find_one({"_id": sessionUserId})
+    found_post = SocialDatabase().get_post_by_id(post_id)
+    if found_user:
+        return templates.TemplateResponse("admin-mod-post.html", {"request": request, "user": found_user, "post": found_post})
     else:
         return RedirectResponse(url="/login")
 # Example of how we would get current user from cookie to verify action being done
+
+
+@app.get("/test")
+async def rabdintest(request: Request):
+    return SocialDatabase().get_all_author_posts("405702f1-2db1-4228-9f37-9d7871de5f2d")
 
 
 @app.get("/examplejwt")

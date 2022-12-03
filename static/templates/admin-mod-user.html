@@ -1,0 +1,56 @@
+{% extends "admin-base.html" %} {% block head %} {% block javascript %}
+<script
+  src="{{ url_for('static', path='/js/admin_script.js') }}"
+  defer
+></script>
+{% endblock %} {% endblock %} {% block content %}
+
+<div class="user-mod-disp">
+  <h1>User Modification</h1>
+  <form
+    class="mod-user-form"
+    action="/service/admin/modify/{{author._id}}"
+    method="post"
+  >
+    <label for="displayName">Display Name</label>
+    <input
+      type="text"
+      id="displayName"
+      name="displayName"
+      value="{{author.displayName}}"
+    />
+    <label for="github">GitHub</label>
+    <input type="text" id="github" name="github" value="{{author.github}}" />
+    <label for="hashedPassword">Password</label>
+    <input
+      type="text"
+      id="hashedPassword"
+      name="hashedPassword"
+      value="{{author.hashedPassword}}"
+    />
+    <label for="authLevel">Auth Level</label>
+    <input
+      type="text"
+      id="authLevel"
+      name="authLevel"
+      value="{{author.authLevel}}"
+    />
+    <label for="profileImage">Profile Image</label>
+    <input
+      type="text"
+      id="profileImage"
+      name="profileImage"
+      value="{{author.profileImage}}"
+    />
+    <button
+      data-url="/service/admin/modify/{{author._id}}"
+      class="modify-button-click"
+    >
+      Modify User
+    </button>
+  </form>
+
+  <span class="user-update-sucess"></span>
+</div>
+
+{% endblock %}

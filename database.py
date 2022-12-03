@@ -45,6 +45,11 @@ class SocialDatabase:
                                                   {"$set": data})
         return result.acknowledged
 
+    def update_author_using_fields(self, name: str, github: str, password: str, auth_level: str, profileImage: str, id: str) -> bool:
+        result = self.database.authors.update_one({"_id": id}, {"$set": {
+                                                  "displayName": name, "github": github, "hashedPassword": password, "authLevel": auth_level, "profileImage": profileImage}})
+        return result.acknowledged
+
     def delete_author(self, author_id: str) -> bool:
         result = self.database.authors.delete_one({"_id": author_id})
         if result.acknowledged:
@@ -77,11 +82,12 @@ class SocialDatabase:
             return None
 
         return AuthorManager.init_from_mongo(manager)
-    
+
     def approve_author(self, author_id: str) -> bool:
-        result = self.database.authors.update_one({"_id": author_id}, {"$set": {"authLevel": "user"}})
+        result = self.database.authors.update_one(
+            {"_id": author_id}, {"$set": {"authLevel": "user"}})
         return result.acknowledged
-    
+
     def get_inbox(self, author_id: str) -> list[Post] | None:
         manager = self.get_author_manager(author_id)
         if not manager:
@@ -92,7 +98,7 @@ class SocialDatabase:
     def get_post(self, author_id: str, post_id: str) -> Post | None:
         manager = self.get_author_manager(author_id)
         if manager and post_id in manager.posts:
-            #return manager.posts[post_id]
+            # return manager.posts[post_id]
             return Post.init_from_mongo(manager.posts[post_id])
 
         return None
@@ -102,7 +108,7 @@ class SocialDatabase:
         if not manager:
             return None
 
-        #return manager.posts
+        # return manager.posts
         return asdict(manager)["posts"]
 
     def get_post_by_id(self, post_id: str) -> Post | None:
@@ -137,6 +143,11 @@ class SocialDatabase:
 
         result = self.database.authorManagers.update_one({"_id": author_id},
                                                          {"$set": {f"posts.{post.id}": post.encode_for_mongo()}})
+        return result.acknowledged
+
+    def update_post_using_fields(self, title: str, content: str, contentType: str, description: str, visibility: str, unlisted: str, post_id: str, author_id: str) -> bool:
+        result = self.database.authorManagers.update_one({"_id": author_id}, {"$set": {
+            f"posts.{post_id}.title": title, f"posts.{post_id}.content": content, f"posts.{post_id}.contentType": contentType, f"posts.{post_id}.description": description, f"posts.{post_id}.visibility": visibility, f"posts.{post_id}.unlisted": unlisted}})
         return result.acknowledged
 
     def like_post(self,  post_id: str, like_author: str) -> bool:
@@ -288,6 +299,12 @@ class SocialDatabase:
             for post in manager["posts"].values():
                 posts.append(post)
         return posts
+
+    def get_all_author_posts(self, author_id: str) -> list[Post]:
+        author = self.get_author_manager(author_id)
+        if not author:
+            return []
+        return list(author.posts.values())
 
     def is_following(self, author_id: str, target_author_id: str) -> bool:
         manager = self.get_author_manager(author_id)
