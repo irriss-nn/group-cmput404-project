@@ -96,12 +96,14 @@ if (submitModel) {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(),
+      body: JSON.stringify(payload),
     })
       .then((response) => {
         return response.json(payload);
       })
       .then((data) => {
+        source.innerHTML="";
+        origin.innerHTML="";
         document.querySelector("#title-create-post-textarea").value = "";
         document.querySelector("#description-create-post-textarea").value = "";
         document.querySelector("#content-create-post-textarea").value = "";
