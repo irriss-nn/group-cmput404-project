@@ -53,11 +53,12 @@
   padding: 20px;
   border-radius: 15px;
   display: flex;
+  gap: 50px;
   flex-direction: column;
   justify-content: space-between;
   margin-top: 30px;
   width: 350px;
-  height: 500px;
+  /* height: 500px; */
 }
 
 #allpost-top {
@@ -130,24 +131,23 @@
   min-height: 15vh;
   background-color: #e3f5fa;
   border-radius: 10px;
-  border:2px solid transparent;
-  outline:none;
-  font-family:Verdana, Geneva, Tahoma, sans-serif;
-  font-weight:500;
-  font-size:20px;
-  line-height:1.4;
-  width:200px;
-  height:100px;
-  transition:all 0.2s;
+  border: 2px solid transparent;
+  outline: none;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.4;
+  width: 200px;
+  height: 100px;
+  transition: all 0.2s;
 }
 #content-create-post-textarea:hover {
-  cursor:pointer;
+  cursor: pointer;
   background-color: #faf5f1;
 }
 .flex-cont {
   display: flex;
   justify-content: space-between;
-
 }
 
 .btn {
@@ -156,12 +156,9 @@
   border-radius: 20%;
   color: white; /* White text */
 
-
   padding: 10px 24px; /* Some padding */
   cursor: pointer; /* Pointer/hand icon */
-
 }
-
 
 .allpost-btn {
   font-family: var(--main-font);

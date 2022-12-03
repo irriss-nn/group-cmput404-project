@@ -8,11 +8,10 @@ body {
   background-color: #6f95c0;
   --main-font: "Roboto", sans-serif;
   font-family: var(--main-font);
-
 }
 
 #base-container {
-  font-size:500%;
+  font-size: 500%;
   position: absolute;
   width: 100%;
   top: 0;
@@ -22,13 +21,11 @@ body {
   align-items: center;
   box-sizing: border-box;
   height: 60px;
-
 }
 .name {
   background: linear-gradient(to right, rgb(19, 2, 49), rgb(76, 100, 233));
   -webkit-background-clip: text;
   color: transparent;
-
 }
 
 #nav-header {
@@ -47,7 +44,6 @@ body {
   width: 170px;
 }
 
-
 #login-container {
   width: 350px;
   height: fit-content;
@@ -55,7 +51,6 @@ body {
   background-color: #f2f2f2;
   /* box-shadow: 0 0 5px 1px rgb(107, 107, 107); */
   display: flex;
-  margin-top:13%;
   flex-direction: column;
   align-items: center;
   padding: 40px;
