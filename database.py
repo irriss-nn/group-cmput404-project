@@ -300,6 +300,15 @@ class SocialDatabase:
                 posts.append(post)
         return posts
 
+    def get_all_public_posts(self) -> list[Post]:
+        '''fetch all public posts'''
+        posts = self.get_all_posts()
+        for i in range(len(posts)):
+            if posts[i]["visibility"] != "PUBLIC":
+                posts.pop(i)
+        return posts
+                
+
     def get_all_author_posts(self, author_id: str) -> list[Post]:
         author = self.get_author_manager(author_id)
         if not author:
