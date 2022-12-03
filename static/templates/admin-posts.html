@@ -1,7 +1,7 @@
 {% extends "admin-base.html" %} {% block content %}
 <div class="posts-manage">
   <div class="posts-title">
-    <h1>Posts Management</h1>
+    <h1>{{desc}} Posts Management</h1>
     <h4>Total Posts: {{posts|length}}</h4>
   </div>
   {% for post in posts%}

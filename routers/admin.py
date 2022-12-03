@@ -16,9 +16,11 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+
 @router.get("/")
 async def verify_admin(request: Request, session: str = Cookie(None)):
     return verify_user_is_admin_from_token(session)
+
 
 @router.post("/{user_id}/approve")
 async def approve_user(request: Request, user_id: str, session: str = Cookie(None)):
@@ -27,11 +29,12 @@ async def approve_user(request: Request, user_id: str, session: str = Cookie(Non
     #     return RedirectResponse(url="/service/admin", status_code=303)
     # else:
     #     raise HTTPException(status_code=401, detail="Unauthorized")
-    
+
     user = SocialDatabase().get_author(user_id)
-    if(user.authLevel == "user" or user.authLevel == "admin"):
+    if (user.authLevel == "user" or user.authLevel == "admin"):
         raise HTTPException(status_code=400, detail="User is already approved")
     return SocialDatabase().approve_author(user_id)
+
 
 @router.delete("/{user_id}")
 async def delete_user(request: Request, user_id: str, session: str = Cookie(None)):
@@ -41,6 +44,18 @@ async def delete_user(request: Request, user_id: str, session: str = Cookie(None
     # else:
     #     raise HTTPException(status_code=401, detail="Unauthorized")
     return SocialDatabase().delete_author(user_id)
+
+
+@router.post("/modify/{user_id}")
+async def modify_user(request: Request, user_id: str, session: str = Cookie(None)):
+    # if(verify_user_is_admin_from_token(session)):
+    #     SocialDatabase().delete_author(user_id)
+    #     return RedirectResponse(url="/service/admin", status_code=303)
+    # else:
+    #     raise HTTPException(status_code=401, detail="Unauthorized")
+    form_data = await request.form()
+    form_data = dict(form_data)
+    return SocialDatabase().update_author_using_fields(form_data.get("displayName"), form_data.get("github"), form_data.get("hashedPassword"), form_data.get("authLevel"), form_data.get("profileImage"), user_id)
 
 
 SECRET_KEY = 'f015cb10b5caa9dd69ebeb340d580f0ad37f1dfcac30aef8b713526cc9191fa3'
@@ -55,7 +70,7 @@ async def verify_user_is_admin_from_token(token: str):
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         userId: str = payload.get("_id")
         theUser = SocialDatabase().get_author(userId)
-        if(theUser.authLevel != 'admin'):
+        if (theUser.authLevel != 'admin'):
             raise False
         return True
     except JWTError:
