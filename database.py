@@ -145,6 +145,11 @@ class SocialDatabase:
                                                          {"$set": {f"posts.{post.id}": post.encode_for_mongo()}})
         return result.acknowledged
 
+    def update_post_using_fields(self, title: str, content: str, contentType: str, description: str, visibility: str, unlisted: str, post_id: str, author_id: str) -> bool:
+        result = self.database.authorManagers.update_one({"_id": author_id}, {"$set": {
+            f"posts.{post_id}.title": title, f"posts.{post_id}.content": content, f"posts.{post_id}.contentType": contentType, f"posts.{post_id}.description": description, f"posts.{post_id}.visibility": visibility, f"posts.{post_id}.unlisted": unlisted}})
+        return result.acknowledged
+
     def like_post(self,  post_id: str, like_author: str) -> bool:
         author = jsonable_encoder(self.get_author(like_author))
         if author is None:

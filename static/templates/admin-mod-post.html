@@ -1,0 +1,70 @@
+{% extends "admin-base.html" %} {% block head %} {% block javascript %}
+<script
+  src="{{ url_for('static', path='/js/admin_script.js') }}"
+  defer
+></script>
+{% endblock %} {% endblock %} {% block content %}
+
+<div class="post-mod-disp">
+  <h1>Post Modification</h1>
+  <form
+    class="mod-user-form mod-pst-frm"
+    action="/service/admin/modify/post/{{post._id}}"
+    method="post"
+  >
+    <label for="title">Title</label>
+    <input type="text" id="title" name="title" value="{{post.title}}" />
+
+    <label for="content">Content</label>
+    <input type="text" id="content" name="content" value="{{post.content}}" />
+
+    <label for="contentType">Content Type</label>
+    <input
+      type="text"
+      id="contentType"
+      name="contentType"
+      value="{{post.contentType}}"
+    />
+
+    <label for="description">Description</label>
+    <input
+      type="text"
+      id="description"
+      name="description"
+      value="{{post.description}}"
+    />
+
+    <label for="visibility">Visibility</label>
+    <input
+      type="text"
+      id="visibility"
+      name="visibility"
+      value="{{post.visibility}}"
+    />
+
+    <label for="unlisted">Unlisted</label>
+    <input
+      type="text"
+      id="unlisted"
+      name="unlisted"
+      value="{{post.unlisted}}"
+    />
+    <input
+      type="hidden"
+      id="authorId"
+      name="authorId"
+      value="{{post.author.id}}"
+    />
+
+    <button
+      data-url="/service/admin/modify/post/{{post._id}}"
+      class="modify-post-button"
+    >
+      Modify Post
+    </button>
+  </form>
+
+  <span class="post-update-sucess user-update-sucess"></span>
+</div>
+
+{% endblock %}

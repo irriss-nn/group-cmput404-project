@@ -1,4 +1,10 @@
-{% extends "admin-base.html" %} {% block content %}
+{% extends "admin-base.html" %}
+{% block head %} {% block javascript %}
+<script
+  src="{{ url_for('static', path='/js/admin_script.js') }}"
+  defer
+></script>
+{% endblock %} {% endblock %} {% block content %}
 <div class="posts-manage">
   <div class="posts-title">
     <h1>{{desc}} Posts Management</h1>
@@ -11,9 +17,10 @@
       <h5>Author ID: {{post.author.id}}</h5>
       <h5>Number of likes: {{post.likes|length}}</h5>
 
-      <button data-url="/delete/{{post._id}}" class="delete-button">Delete Posts</button>
+      <button data-url="/service/admin/post/{{post._id}}/{{post.author.id}}" class="delete-button-posts">Delete Post</button>
+      <a href="/admin-modify-post/{{post._id}}">  
       <button data-url="/modify/{{post._id}}" class="modify-button">Modify Post</button>
-
+        </a>
     </div>
 
     {% endfor %}

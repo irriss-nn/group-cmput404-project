@@ -62,6 +62,12 @@ margin: 10px;
     flex-direction: column;
 }
 
+.post-mod-disp{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
 .user-mod-disp > h1{
     margin-bottom: 2rem;
     font-size:4rem;
