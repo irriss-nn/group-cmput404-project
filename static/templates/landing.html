@@ -4,6 +4,7 @@
   rel="stylesheet"
 />
 {% block javascript %}
+<script src="{{ url_for('static', path='/js/auth.js') }}"></script>
 <script src="{{ url_for('static', path='/js/script.js') }}" defer></script>
 {% endblock %} {% endblock %} {% block content %}
 
@@ -19,7 +20,6 @@
       document.getElementById("open").innerHTML = "post";
       modal = document.getElementById("myModal");
       modal.showModal();
-      
     }
 
     function closeModal() {
@@ -57,27 +57,39 @@
       document.getElementById("open").innerHTML = "posted";
       modal.close();}
       }
-    
 
-    
-
-    // TODO: Authenticate fetch calls
-    function displayPosts(following_list) {
+    // TODO: Sort posts by date
+    async function displayPosts(following_list) {
         for (author of following_list) {
-            fetch(`${author.host}/authors/${author.id}/posts`)
+            let url = `${author.host}/service/authors/${author.id}/posts`;
+            let headers = {};
+
+            let credentials = await getCredentials(author.host);
+            if (credentials)
+                headers.Authorization = `Basic ${credentials}`;
+
+            // Handle quirks of other teams
+            if (author.host === 'https://fallprojback.herokuapp.com'
+                || author.host === 'https://socioecon.herokuapp.com')
+                // Handle lack of '/service' in url
+                url = `${author.host}/authors/${author.id}/posts`;
+
+            fetch(url, { headers: headers })
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
-                    for (let i = 0; i < data.length; i++) {
+                    // Some groups do not use this format
+                    if (data.items) { data = data.items; }
+
+                    for (post of data) {
                         postList = document.getElementById("landing-container").innerHTML +=
                             `<div id='allpost-single-container'>
-                                <div id='allpost-top'>
-                                    <div id='allpost-info'>
-                                        <div id='allpost-title'>${data[i].title}</div>
-                                        <div id='allpost-description'>${data[i].description}</div>
-                                    <div>
-                                </div>
-                            </div>`;
+                         <div id='allpost-top'>
+                            <div id='allpost-info'>
+                               <div id='allpost-title'>${post.title}</div>
+                               <div id='allpost-description'>${post.description}</div>
+                            <div>
+                         </div>
+                      </div>`;
                     }
                 });
         }
