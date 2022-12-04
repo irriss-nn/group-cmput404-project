@@ -63,3 +63,30 @@ async def create_like_and_send_to_author_inbox(request: Request, comment_id: str
         return RedirectResponse(url='/login', status_code=307)
     status = SocialDatabase().like_comment(comment_id, author_id)
     return status
+
+@router.get("/{author_id}/{item_id}/{item_type}/like_already")
+async def check_liked(author_id:str, item_id:str, item_type:str):
+    '''
+    Check if this author has liked this item:
+    author_id: author about to like this post/comment
+    item: a string can be either "post" or "comment"
+    item_id: id of post/comment
+    Returns a string of boolean value
+    '''
+    if item_type == "post":
+        item = SocialDatabase().get_post_by_id(item_id)
+    elif item_type == "comment":
+        item = SocialDatabase().get_comment_by_id(item_id)
+    else:
+        print("wrong type")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found!") # wrong type error
+    
+    if not item:
+        print("item not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found!") # comment/post not found
+    print(author_id, item_id)
+    if SocialDatabase().check_liked(item, author_id):
+        print("already liked")
+        return "true"
+    
+    return "false"

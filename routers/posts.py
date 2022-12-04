@@ -38,8 +38,8 @@ async def read_post(request: Request, author_id: str, post_id: str, session: str
         author_manager = request.app.database["authorManagers"].find_one({"_id": author_id})
 
         # fetch the post with post_id within this user's post
-        document = author_manager["posts"][post_id]
-        document["author"] = author
+        post = author_manager["posts"][post_id]
+        post["author"] = author
         
     except:
         raise HTTPException(
@@ -55,8 +55,8 @@ async def read_post(request: Request, author_id: str, post_id: str, session: str
         print(e)
         our_profile = author
 
-    if document:
-        return templates.TemplateResponse("post.html", {"request": request, "post": document, "user": our_profile, "myuser": our_profile})
+    if post:
+        return templates.TemplateResponse("post.html", {"request": request, "post": post, "user": our_profile, "myuser": our_profile})
 
     raise HTTPException(status_code=404, detail="Post not found")
 

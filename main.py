@@ -244,6 +244,7 @@ async def get_inbox(request: Request, session: str = Cookie(None)):
 
 @app.get("/author/{author_id}")
 async def get_author(request: Request, author_id: str, session: str = Cookie(None)):
+    '''Return html with selected author & this author's post'''
     if (session == None):
         return RedirectResponse(url="/login")
     try:

@@ -16,6 +16,15 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+# This like method here is because likes.py has router /service/authors/likes, which is not
+# What project's scope provides, put it here to make it work for now.
+@router.get("/{author_id}/liked")
+async def get_liked(reuquest:Request, author_id:str):
+    '''List of likes originated from this author'''
+    if not SocialDatabase().get_author(author_id):
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
+
+    return SocialDatabase().get_author_likes(author_id)
 
 @router.get("/{author_id}/posts/{post_id}/comments/view")
 async def show_comment(author_id: str, post_id: str, request: Request, page: int | None = None, size: int | None = None, session: str = Cookie(None)):

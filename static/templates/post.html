@@ -37,6 +37,8 @@
         </div>
         <button
           id="like-button"
+          authorid="{{user.id}}"
+          postid="{{post._id}}"
           data-url="/service/authors/likes/create/post/{{post._id}}"
         >
           Like Post

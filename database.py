@@ -160,6 +160,28 @@ class SocialDatabase:
             f"posts.{post_id}.title": title, f"posts.{post_id}.content": content, f"posts.{post_id}.contentType": contentType, f"posts.{post_id}.description": description, f"posts.{post_id}.visibility": visibility, f"posts.{post_id}.unlisted": unlisted}})
         return result.acknowledged
 
+    def check_liked(self, item:dict, like_author: str)->bool:
+        '''Check if this user liked this post/comment already'''
+        if "likes" in item:
+            for like in item["likes"]:
+                print(item, like_author)
+                if like["author"]["id"] == like_author:
+                    print("Already liked")
+                    return True
+        return False
+
+    def get_author_likes(self, author_id:str)->list:
+        '''Return all liked item from author with author_id into a list'''
+        posts = self.get_all_posts()
+        author_likes = []
+        for post in posts:
+            if "likes" in post.keys(): 
+                for like in post["likes"]: # for each post with like attribute
+                     if author_id == like["author"]["id"]: # if liked by this author
+                        author_likes.append(like)
+
+        return author_likes
+
     def like_post(self,  post_id: str, like_author: str) -> bool:
         author = jsonable_encoder(self.get_author(like_author))
         if author is None:
@@ -170,11 +192,9 @@ class SocialDatabase:
         if not post:
             return False
         # Check if already liked
-        if "likes" in post:
-            for likes in post["likes"]:
-                if likes["author"]["id"] == like_author:
-                    print("Already liked")
-                    return False
+        if self.check_liked(post, like_author):
+            return False
+
         postid = post["_id"]
         # update the post with the new like
         result = self.database.authorManagers.update_one({"_id": post["author"]["id"]},
@@ -194,10 +214,9 @@ class SocialDatabase:
         if not comment:
             return False
         # Check if already liked
-        if "likes" in comment:
-            for like in comment["likes"]:
-                if like["author"]["id"] == like_author:
-                    return False
+        if self.check_liked(comment, like_author):
+            return False
+
         # update the comment with the new like
         result = self.database["comments"].update_one({"_id": comment_id},
                                                       {"$push": {"likes": like_obj}})
@@ -362,3 +381,15 @@ class SocialDatabase:
             return None
 
         return Credentials.init_from_mongo(credentials)
+    
+    def check_friends(self, current_author_id:str, foreign_author_id:str):
+        '''Check if two users are True friend'''
+        current_manager = self.database.authorManagers.find_one({"_id": current_author_id})
+        foreign_manager  = self.database.authorManagers.find_one({"_id": foreign_author_id})
+
+        if not current_manager or not foreign_manager:
+            return False
+        
+        # True friends
+        if current_author_id in foreign_manager["following"] and foreign_author_id in current_manager["following"]:
+            return True
