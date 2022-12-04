@@ -249,9 +249,20 @@ async def get_author(request: Request, author_id: str, session: str = Cookie(Non
     except HTTPException:
         return RedirectResponse(url='/login', status_code=307)
 
-    found_user = SocialDatabase().get_author(author_id)
     me_user = app.database["authors"].find_one({"_id": sessionUserId})
-    is_following = SocialDatabase().is_following(sessionUserId, found_user.id)
+    found_user = SocialDatabase().get_author(author_id)
+    found_user = asdict(found_user)
+    found_user_manager = SocialDatabase().get_author_manager(author_id)
+    found_user_manager = asdict(found_user_manager)
+    if me_user["_id"] in found_user_manager["followers"]:
+        found_user["posts"] = found_user_manager["posts"]
+    else:
+        found_user["posts"] = []
+        for post_id in found_user_manager["posts"].keys():
+            if found_user_manager["posts"][post_id]["visibility"] == "PUBLIC":
+                found_user["posts"].append(found_user_manager["posts"][post_id])
+
+    is_following = SocialDatabase().is_following(sessionUserId, found_user["id"])
     if found_user:
         return templates.TemplateResponse("author.html", {"request": request, "user": me_user, "post": found_user, "status": {"following": is_following}})
     return RedirectResponse(url='/home')
