@@ -11,6 +11,9 @@ const contentFileInput = document.querySelector("#content-create-post-file");
 
 const followBtn = document.querySelector("#follow-user-btn");
 
+// pass user_id to javascript
+let userid = submitModel.getAttribute("userid");
+
 if (openModal) {
   openModal.addEventListener("click", () => {
     modal.showModal();
@@ -72,23 +75,27 @@ if (submitModel) {
     let author = title.getAttribute("data-author");
     let date = new Date().toISOString();
 
-    let payload = {
-      title: title.value,
-      source: source.value,
-      origin: origin.value,
-      description: description.value,
-      contentType: contentType.value,
-      content: content.value,
-      author: author,
-      categories: categories.value.split(",").map((x) => x.trim()),
-      count: 0,
-      comments: "",
-      commentsSrc: null,
-      published: date,
-      visibility: visibility.value,
-      unlisted: unlisted.value,
-      likes: [],
-    };
+    try{
+      let payload = {
+        title: title.value,
+        source: source.value,
+        origin: origin.value,
+        description: description.value,
+        contentType: contentType.value,
+        content: content.value,
+        author: author,
+        categories: categories.value.split(",").map((x) => x.trim()),
+        count: 0,
+        comments: "",
+        commentsSrc: null,
+        published: date,
+        visibility: visibility.value,
+        unlisted: unlisted.value,
+        likes: [],
+      };
+    } catch(e) {
+      alert(e);
+    }
 
     fetch(submitModel.getAttribute("data-url"), {
       method: "POST",

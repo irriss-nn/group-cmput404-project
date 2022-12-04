@@ -254,7 +254,9 @@ async def get_author(request: Request, author_id: str, session: str = Cookie(Non
     found_user = asdict(found_user)
     found_user_manager = SocialDatabase().get_author_manager(author_id)
     found_user_manager = asdict(found_user_manager)
-    if me_user["_id"] in found_user_manager["followers"]:
+
+    # if user is a friend of current user:
+    if me_user["_id"] in found_user_manager["followers"] :
         found_user["posts"] = found_user_manager["posts"]
     else:
         found_user["posts"] = []

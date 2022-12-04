@@ -19,6 +19,7 @@ router = APIRouter(
 
 @router.get("/{author_id}/posts/{post_id}/comments/view")
 async def show_comment(author_id: str, post_id: str, request: Request, page: int | None = None, size: int | None = None, session: str = Cookie(None)):
+    SocialDatabase().get_post_by_id(post_id)
     comments = await read_comments(request, author_id, post_id, page, size)
     found_user = SocialDatabase().get_author(author_id)
     try:
