@@ -60,10 +60,10 @@ class SocialDatabase:
         return result.acknowledged
 
     def get_author(self, author_id: str) -> Author | None:
-        '''Return author by id, author's password and authlevel have removed before returning
-        '''
+        '''Return author by id, author's password and authlevel have removed before returning'''
+
         author = self.database.authors.find_one({"_id": author_id})
-        if author is None:
+        if not author:
             return None
 
         return Author.init_from_mongo(author)
@@ -326,12 +326,7 @@ class SocialDatabase:
     def get_all_public_posts(self) -> list[Post]:
         '''fetch all public posts'''
         posts = self.get_all_posts()
-        public_posts = []
-        for i in range(len(posts)):
-            if posts[i]["visibility"] == "PUBLIC":
-                posts[i]["author"] = self.get_author(posts[i]["author"]["id"])
-                public_posts.append(posts[i])
-        return public_posts
+        return [post for post in posts if post['visibility'] == 'PUBLIC']
                 
 
     def get_all_author_posts(self, author_id: str) -> list[Post]:
