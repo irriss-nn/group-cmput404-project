@@ -59,16 +59,28 @@
           document.getElementById("comment-box").innerHTML +=  " --"
           document.getElementById("comment-box").innerHTML +=  com.comments[check+i]['author'].displayName;
           let likeButton = document.createElement("button");
-         
-          if(likeButton){
-          console.log("owo")
-          console.log(likeButton)
-          console.log(likeButton.innerHTML);
           likeButton.innerHTML = "Like";
-          
-        }
           likeButton.id = com.comments[check+i]['_id'];
           likeButton.classList.add("like-buts");
+          let buttons = document.querySelectorAll('.like-buts');
+          //for (let i = 0; i < buttons.length; i++) {
+            //fetch("/service/authors/likes/create/comment/"+buttons[i].id, {
+           // method: "GET",
+           // })
+           // .then((response) => {
+           // return response.json();
+           //})
+          //.then((data) => {
+           // console.log(data);
+           // console.log("shittycomment");
+           
+         // })
+         // .catch((err) => {
+           // console.log(err);
+          //});
+              
+           
+       // }
           comBox.appendChild(likeButton);
       }
       if(i==com.size){
