@@ -131,12 +131,14 @@ async def register_author_todb(request: Request, response: Response, username: s
         return RedirectResponse(url='/register')
 
     while True:
-        id = str(uuid.uuid4())
+        id = str(uuid.uuid4()) # author id
         if not SocialDatabase().get_author(id):
             break
 
     newUser = Author(id=id, displayName=usnm, github=git,
                      hashedPassword=pswd)  # TODO: Hash password
+    #newUser.url = #hostname+/service/authors/id/
+    #newUser.host = #hostname
     print("Creating user" + newUser.id)
     if SocialDatabase().create_author(newUser):
         return RedirectResponse('/login', status_code=status.HTTP_302_FOUND)
