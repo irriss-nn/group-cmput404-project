@@ -10,43 +10,49 @@ const contentTextInput = document.querySelector(
 const contentFileInput = document.querySelector("#content-create-post-file");
 
 const followBtn = document.querySelector("#follow-user-btn");
-
-// pass user_id to javascript
-let userid = submitModel.getAttribute("userid");
+let userid;
 
 if (openModal) {
   openModal.addEventListener("click", () => {
-    modal.showModal();
+  modal.showModal();
   });
 }
 
-contentType.addEventListener("change", (e) => {
-  if (e.target.value === "text/markdown" || e.target.value === "text/plain") {
-    contentTextInput.style.display = "block";
-    contentFileInput.style.display = "none";
-  } else {
-    contentTextInput.style.display = "none";
-    contentFileInput.style.display = "block";
-  }
-});
+if (contentType){
 
-closeModal.addEventListener("click", () => {
-  //fetch user's post content
-  let title = document.querySelector("#title-create-post-textarea");
-  let description = document.querySelector("#description-create-post-textarea");
-  let content = document.querySelector("#content-create-post-textarea");
-  console.log(title.value);
-  console.log(description.value);
-  console.log(content.value);
+  contentType.addEventListener("change", (e) => {
+    if (e.target.value === "text/markdown" || e.target.value === "text/plain") {
+      contentTextInput.style.display = "block";
+      contentFileInput.style.display = "none";
+    } else {
+      contentTextInput.style.display = "none";
+      contentFileInput.style.display = "block";
+    }
+  });
+}
 
-  //clear value in textarea
-  document.querySelector("#title-create-post-textarea").value = "";
-  document.querySelector("#description-create-post-textarea").value = "";
-  document.querySelector("#content-create-post-textarea").value = "";
-  modal.close();
-});
+if (closeModal) {
+
+  closeModal.addEventListener("click", () => {
+    //fetch user's post content
+    let title = document.querySelector("#title-create-post-textarea");
+    let description = document.querySelector("#description-create-post-textarea");
+    let content = document.querySelector("#content-create-post-textarea");
+    console.log(title.value);
+    console.log(description.value);
+    console.log(content.value);
+  
+    //clear value in textarea
+    document.querySelector("#title-create-post-textarea").value = "";
+    document.querySelector("#description-create-post-textarea").value = "";
+    document.querySelector("#content-create-post-textarea").value = "";
+    modal.close();
+  });
+}
 
 if (submitModel) {
+  // pass user_id to javascript
+  userid = submitModel.getAttribute("userid");
   submitModel.addEventListener("click", () => {
     let title = document.querySelector("#title-create-post-textarea");
     let description = document.querySelector(
@@ -126,7 +132,7 @@ if (submitModel) {
 if (followBtn) {
   followBtn.addEventListener("click", (e) => {
     e.preventDefault();
-
+    console.log("clicked follow button");
     fetch(followBtn.getAttribute("data-url"), {
       method: "POST",
     })
