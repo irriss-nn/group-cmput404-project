@@ -60,15 +60,15 @@ class SocialDatabase:
         return result.acknowledged
 
     def get_author(self, author_id: str) -> Author | None:
-        '''Return author by id, author's password and authlevel have removed before returning
-        '''
+        '''Return an author by id'''
         author = self.database.authors.find_one({"_id": author_id})
-        if author is None:
+        if not author:
             return None
 
         return Author.init_from_mongo(author)
 
     def get_author_byname(self, author_name: str) -> Author | None:
+        '''Return an author by display name'''
         author = self.database.authors.find_one({"displayName": author_name})
         if author is None:
             return None
@@ -169,7 +169,7 @@ class SocialDatabase:
         posts = self.get_all_posts()
         author_likes = []
         for post in posts:
-            if "likes" in post.keys(): 
+            if "likes" in post.keys():
                 for like in post["likes"]: # for each post with like attribute
                      if author_id == like["author"]["id"]: # if liked by this author
                         author_likes.append(like)
@@ -315,6 +315,7 @@ class SocialDatabase:
                     user["requests"] = manager["requests"]
         return users
 
+    # TODO: Functions should match their type hints
     def get_all_posts(self) -> list[Post]:
         posts = []
         # go through all authormanagers and add posts in them to posts list
@@ -326,13 +327,7 @@ class SocialDatabase:
     def get_all_public_posts(self) -> list[Post]:
         '''fetch all public posts'''
         posts = self.get_all_posts()
-        public_posts = []
-        for i in range(len(posts)):
-            if posts[i]["visibility"] == "PUBLIC":
-                posts[i]["author"] = self.get_author(posts[i]["author"]["id"])
-                public_posts.append(posts[i])
-        return public_posts
-                
+        return [post for post in posts if post['visibility'] == 'PUBLIC']
 
     def get_all_author_posts(self, author_id: str) -> list[Post]:
         author = self.get_author_manager(author_id)
@@ -375,7 +370,7 @@ class SocialDatabase:
             return None
 
         return Credentials.init_from_mongo(credentials)
-    
+
     def check_friends(self, current_author_id:str, foreign_author_id:str):
         '''Check if two users are True friend'''
         current_manager = self.database.authorManagers.find_one({"_id": current_author_id})
@@ -383,7 +378,7 @@ class SocialDatabase:
 
         if not current_manager or not foreign_manager:
             return False
-        
+
         # True friends
         if current_author_id in foreign_manager["following"] and foreign_author_id in current_manager["following"]:
             return True
