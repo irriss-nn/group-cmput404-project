@@ -63,12 +63,6 @@ class SocialDatabase:
         '''Return author by id, author's password and authlevel have removed before returning
         '''
         author = self.database.authors.find_one({"_id": author_id})
-        author["id"] = author["_id"]
-        author.pop(author["_id"], None)
-        author.pop(author["hashedPassword"], None)
-        if "authlevel" in  author.keys():
-            author.pop(author["authlevel"], None)
-        
         if author is None:
             return None
 
