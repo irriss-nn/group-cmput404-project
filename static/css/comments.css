@@ -62,3 +62,7 @@
 .comment-btns:hover {
   background-color: #007bff;
 }
+
+.like-buts{
+  min-height: 20px;
+}

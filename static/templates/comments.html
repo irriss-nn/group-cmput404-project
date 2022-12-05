@@ -59,7 +59,7 @@
           document.getElementById("comment-box").innerHTML +=  " --"
           document.getElementById("comment-box").innerHTML +=  com.comments[check+i]['author'].displayName;
           let likeButton = document.createElement("button");
-         
+         likeButton.innerHTML = "Like"
           likeButton.id = com.comments[check+i]['_id'];
           likeButton.classList.add("like-buts");
           let buttons = document.querySelectorAll('.like-buts');
@@ -81,7 +81,7 @@
 
 
        // }
-       
+
           comBox.appendChild(likeButton);
       }
       if(i==com.size){
