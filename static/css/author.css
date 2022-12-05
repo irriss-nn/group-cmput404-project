@@ -353,6 +353,7 @@ input[type="radio"]:checked ~ label {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  display: none;
 }
 
 .popup-header{
