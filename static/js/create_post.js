@@ -58,8 +58,8 @@ if (submitModel) {
     let description = document.querySelector(
       "#description-create-post-textarea"
     );
-    let source = document.querySelector("#source-create-post-textarea");
-    let origin = document.querySelector("#origin-create-post-textarea");
+    let page = document.querySelector("#source-create-post-textarea");
+    let size = document.querySelector("#origin-create-post-textarea");
     let contentType = document.querySelector(
       "#contenttype-create-post-textarea"
     );
@@ -82,10 +82,10 @@ if (submitModel) {
     let date = new Date().toISOString();
 
     try{
-      let payload = {
+        let payload = {
         title: title.value,
-        source: source.value,
-        origin: origin.value,
+        size: parseInt(source.value),
+        page: parseInt(origin.value),
         description: description.value,
         contentType: contentType.value,
         content: content.value,
