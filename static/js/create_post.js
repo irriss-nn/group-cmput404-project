@@ -81,9 +81,8 @@ if (submitModel) {
     let author = title.getAttribute("data-author");
     let date = new Date().toISOString();
     let payload;
-      // console.log(location.hostname);
+
     // create post without id, payload needs append post id in backend 
-    try{
         payload = {
           "title": title.value,
           "origin": location.hostname,
@@ -91,7 +90,7 @@ if (submitModel) {
           "description": description.value,
           "contentType": contentType.value,
           "content": content.value,
-          "author": author,
+          "author": {"id":author},
           "categories": categories.value.split(",").map((x) => x.trim()),
           "count": 0,
           "comments": location.hostname,
@@ -101,9 +100,6 @@ if (submitModel) {
           "unlisted": unlisted.value,
           "likes": [],
       };
-    } catch(e) {
-      alert(e);
-    }
 
     page.innerHTML="";
     size.innerHTML="";
