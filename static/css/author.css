@@ -320,3 +320,78 @@ input[type="radio"]:checked ~ label {
   top: 0px;
   left: 30px;
 }
+
+.main-content{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.follow-container{
+  display: flex;
+  flex-direction: column;
+  /* gap: 10px; */
+}
+
+.follow-container > div:not(:last-child){
+  border-bottom: 1px solid black;
+}
+
+.follow-list-popup{
+  position: absolute;
+  margin: auto;
+  background-color: #f2f2f2;
+  border-radius: 10px;
+  padding: 20px;
+  box-sizing: border-box;
+  width: 600px;
+  min-height: 50vh;
+  max-height: 50vh;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.popup-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.popup-title{
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.popup-close{
+  border: 1px solid black;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+.follow-person{
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 0;
+}
+
+.follow-person-pic{
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+}
+
+.follow-person-name{
+  font-size: 20px;
+  font-weight: 500;
+}

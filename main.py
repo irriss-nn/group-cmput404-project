@@ -201,6 +201,7 @@ async def get_current_user(request: Request, session: str = Cookie(None)):
     user_info = app.database["authors"].find_one({"_id": sessionUserId})
     follower_list = SocialDatabase().get_followers(sessionUserId)
     following_list = SocialDatabase().get_following(sessionUserId)
+    pprint(follower_list)
     if found_user:
         return templates.TemplateResponse("my-profile.html", {"request": request, "user": user_info, "post": found_user, "followers":follower_list, "following":following_list})
     else:
