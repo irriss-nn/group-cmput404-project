@@ -69,6 +69,9 @@ class SocialDatabase:
         return Author.init_from_mongo(author)
 
     def get_author_byname(self, author_name: str) -> Author | None:
+        '''Get author by their name'''
+        author_name= author_name.replace('_', ' ')
+
         author = self.database.authors.find_one({"displayName": author_name})
         if author is None:
             return None

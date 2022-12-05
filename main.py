@@ -254,7 +254,13 @@ async def get_author(request: Request, author_id: str, session: str = Cookie(Non
 
     me_user = app.database["authors"].find_one({"_id": sessionUserId})
     found_user = SocialDatabase().get_author(author_id)
+    
+    if not found_user: # if id doesn't match any author, maybe it's a search by display name
+        found_user = SocialDatabase().get_author_byname(author_id)
+        if not found_user:
+            return RedirectResponse(url='/home')
     found_user = asdict(found_user)
+    author_id = found_user["id"]
     found_user_manager = SocialDatabase().get_author_manager(author_id)
     found_user_manager = asdict(found_user_manager)
 
