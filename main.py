@@ -218,8 +218,8 @@ async def get_home(request: Request, session: str = Cookie(None)):
         return RedirectResponse(url='/login', status_code=307)
     all_feed_posts = SocialDatabase().get_following_feed(sessionUserId)
     all_feed_posts += SocialDatabase().get_all_public_posts()
-
-
+    for post in all_feed_posts:
+        post["author"] = asdict(SocialDatabase().get_author(post["author"]["id"]))
     current_user = SocialDatabase().get_author(sessionUserId)
     return templates.TemplateResponse("landing.html", {
         "request": request,
