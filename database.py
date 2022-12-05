@@ -223,6 +223,20 @@ class SocialDatabase:
                 comment["author"], "comment", like_obj)
 
         return True
+    
+    def get_all_comments(self) -> list:
+        comments = self.database["comments"].find()
+        return list(comments)
+    
+    def get_all_our_liked_comments(self, author_id: str) -> list():
+        comments = self.get_all_comments()
+        our_liked_comments = []
+        for comment in comments:
+            if "likes" in comment.keys():
+                for like in comment["likes"]:
+                    if like["author"]["id"] == author_id:
+                        our_liked_comments.append(comment.get("_id"))
+        return our_liked_comments
 
     def create_inbox_like_notification(self, target_author_id: str, typeLike: str, likeObj: Like) -> bool:
         inbox_item = InboxItem(
@@ -343,6 +357,18 @@ class SocialDatabase:
         if not manager:
             return False
         return target_author_id in manager.following
+    
+    def get_followers(self, author_id: str) -> list[Author] | None:
+        manager = self.get_author_manager(author_id)
+        if not manager:
+            return None
+        return [self.get_author(follower) for follower in manager.followers]
+    
+    def get_following(self, author_id: str) -> list[Author] | None:
+        manager = self.get_author_manager(author_id)
+        if not manager:
+            return None
+        return [self.get_author(following) for following in manager.following]
 
     def get_following_feed(self, author_id: str, limit: int = 0) -> list[Post] | None:
         manager = self.get_author_manager(author_id)

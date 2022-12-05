@@ -314,3 +314,9 @@ input[type="radio"]:checked ~ label {
   padding: 5px;
   box-sizing: border-box;
 }
+
+.followers-list{
+  position: absolute;
+  top: 0px;
+  left: 30px;
+}
