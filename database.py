@@ -357,6 +357,18 @@ class SocialDatabase:
         if not manager:
             return False
         return target_author_id in manager.following
+    
+    def get_followers(self, author_id: str) -> list[Author] | None:
+        manager = self.get_author_manager(author_id)
+        if not manager:
+            return None
+        return [self.get_author(follower) for follower in manager.followers]
+    
+    def get_following(self, author_id: str) -> list[Author] | None:
+        manager = self.get_author_manager(author_id)
+        if not manager:
+            return None
+        return [self.get_author(following) for following in manager.following]
 
     def get_following_feed(self, author_id: str, limit: int = 0) -> list[Post] | None:
         manager = self.get_author_manager(author_id)
