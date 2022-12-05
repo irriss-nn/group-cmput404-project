@@ -81,30 +81,37 @@ if (submitModel) {
     let author = title.getAttribute("data-author");
     let date = new Date().toISOString();
     let payload;
-      console.log(location.hostname);
+      // console.log(location.hostname);
     // create post without id, payload needs append post id in backend 
     try{
         payload = {
-          title: title.value,
-          origin: location.hostname,
-          source:location.hostname,
-          description: description.value,
-          contentType: contentType.value,
-          content: content.value,
-          author: author,
-          categories: categories.value.split(",").map((x) => x.trim()),
-          count: 0,
-          comments: location.hostname,
-          commentsSrc: {"size": parseInt(source.value), "page": parseInt(origin.value),"type":"comments"},
-          published: date,
-          visibility: visibility.value,
-          unlisted: unlisted.value,
-          likes: [],
+          "title": title.value,
+          "origin": location.hostname,
+          "source":location.hostname,
+          "description": description.value,
+          "contentType": contentType.value,
+          "content": content.value,
+          "author": author,
+          "categories": categories.value.split(",").map((x) => x.trim()),
+          "count": 0,
+          "comments": location.hostname,
+          "commentsSrc": {"size": parseInt(size.value), "page": parseInt(page.value),"type":"comments"},
+          "published": date,
+          "visibility": visibility.value,
+          "unlisted": unlisted.value,
+          "likes": [],
       };
     } catch(e) {
       alert(e);
     }
 
+    page.innerHTML="";
+    size.innerHTML="";
+    categories.innerHTML = "";
+    document.querySelector("#title-create-post-textarea").value = "";
+    document.querySelector("#description-create-post-textarea").value = "";
+    document.querySelector("#content-create-post-textarea").value = "";
+    modal.close();
     fetch(submitModel.getAttribute("data-url"), {
       method: "POST",
       headers: {
@@ -117,18 +124,12 @@ if (submitModel) {
         return response.json(payload);
       })
       .then((data) => {
-        source.innerHTML="";
-        origin.innerHTML="";
-        document.querySelector("#title-create-post-textarea").value = "";
-        document.querySelector("#description-create-post-textarea").value = "";
-        document.querySelector("#content-create-post-textarea").value = "";
-        modal.close();
         console.log(data);
       })
       .catch((err) => {
         console.log(err);
       });
-  });
+    });
 }
 
 if (followBtn) {
