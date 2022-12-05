@@ -3,13 +3,13 @@ const modal = document.querySelector("#create-post-modal");
 const closeModal = document.querySelector("#close-create-post-btn");
 const submitModel = document.querySelector("#submit-create-post-btn");
 
-const followerBtn = document.querySelector("#follower-btn")
-const followerPopup = document.querySelector(".follow-list-popup")
-const followerClose = document.querySelector("#popup-close-follow")
-
 const followingBtn = document.querySelector("#following-btn")
-const followingPopup = document.querySelector(".follow-list-popup")
+const followingPopup = document.querySelector("#following-popup")
 const followingClose = document.querySelector("#popup-close-follow")
+
+const followerBtn = document.querySelector("#follower-btn")
+const followerPopup = document.querySelector("#follower-popup")
+const followerClose = document.querySelector("#popup-close-follower")
 
 const contentType = document.querySelector("#contenttype-create-post-textarea");
 const contentTextInput = document.querySelector(
@@ -25,6 +25,14 @@ if (openModal) {
   modal.showModal();
   });
 }
+
+followerBtn.addEventListener("click", () => {
+  followerPopup.style = "display:flex;"
+})
+
+followerClose.addEventListener("click", () => {
+  followerPopup.style = "display:none;"
+})
 
 followingBtn.addEventListener("click", () => {
   followingPopup.style = "display:flex;"

@@ -117,13 +117,27 @@
     </div>
     {% endfor %}
   </div>
-  <div class="follow-list-popup">
+  <div class="follow-list-popup" id="following-popup">
     <div class="popup-header">
       <div class="popup-title">Following</div>
       <div class="popup-close" id="popup-close-follow">×</div>
     </div>
     <div class="follow-container">
         {% for p in following %}
+        <div class="follow-person">
+          <img src={{p.profileImage}} class="follow-person-pic" alt="profile-pic"/>
+          <div class="follow-person-name">{{p.displayName}}</div>
+        </div>
+        {% endfor %}    
+      </div>
+  </div>
+  <div class="follow-list-popup" id="follower-popup">
+    <div class="popup-header">
+      <div class="popup-title">Followers</div>
+      <div class="popup-close" id="popup-close-follower">×</div>
+    </div>
+    <div class="follow-container">
+        {% for p in followers %}
         <div class="follow-person">
           <img src={{p.profileImage}} class="follow-person-pic" alt="profile-pic"/>
           <div class="follow-person-name">{{p.displayName}}</div>
