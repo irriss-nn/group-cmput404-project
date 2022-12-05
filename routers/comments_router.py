@@ -6,6 +6,7 @@ from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from database import SocialDatabase
 import uuid
+from pprint import pprint
 from jose import JWTError, jwt
 static_dir = f"{Path.cwd()}/static"
 templates = Jinja2Templates(directory=f"{static_dir}/templates")
@@ -34,10 +35,12 @@ async def show_comment(author_id: str, post_id: str, request: Request, page: int
     try:
         our_profile_id = await get_userId_from_token(session)
         our_profile = SocialDatabase().get_author(our_profile_id)
+        liked_comments = SocialDatabase().get_all_our_liked_comments(our_profile_id)
     except HTTPException:
         our_profile = found_user
+        liked_comments = ""
     
-    return templates.TemplateResponse("comments.html", {"request": request, "comments": comments, "user": our_profile, "myuser": our_profile,"post_id": post_id})
+    return templates.TemplateResponse("comments.html", {"request": request, "comments": comments, "user": our_profile, "myuser": our_profile,"post_id": post_id, "liked_comments": liked_comments})
 
 
 @router.post("/{author_id}/posts/{post_id}/comments")
