@@ -80,24 +80,26 @@ if (submitModel) {
 
     let author = title.getAttribute("data-author");
     let date = new Date().toISOString();
-
+    let payload;
+      console.log(location.hostname);
+    // create post without id, payload needs append post id in backend 
     try{
-        let payload = {
-        title: title.value,
-        size: parseInt(source.value),
-        page: parseInt(origin.value),
-        description: description.value,
-        contentType: contentType.value,
-        content: content.value,
-        author: author,
-        categories: categories.value.split(",").map((x) => x.trim()),
-        count: 0,
-        comments: "",
-        commentsSrc: null,
-        published: date,
-        visibility: visibility.value,
-        unlisted: unlisted.value,
-        likes: [],
+        payload = {
+          title: title.value,
+          origin: location.hostname,
+          source:location.hostname,
+          description: description.value,
+          contentType: contentType.value,
+          content: content.value,
+          author: author,
+          categories: categories.value.split(",").map((x) => x.trim()),
+          count: 0,
+          comments: location.hostname,
+          commentsSrc: {"size": parseInt(source.value), "page": parseInt(origin.value),"type":"comments"},
+          published: date,
+          visibility: visibility.value,
+          unlisted: unlisted.value,
+          likes: [],
       };
     } catch(e) {
       alert(e);
