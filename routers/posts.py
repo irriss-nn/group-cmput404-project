@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Request, status, Cookie
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
-
+import uuid
 from database import SocialDatabase
 from models.post import Post
 from jose import JWTError, jwt
@@ -86,6 +86,11 @@ async def read_posts(author_id: str) -> list[dict]:
 @router.post("/{author_id}/posts/")
 async def create_post_without_id(author_id: str, post: Post):
     '''Create a new post'''
+    while True:
+        post.id = str(uuid.uuid4())
+        if not SocialDatabase().get_post_by_id(post.id):
+            break
+
     if SocialDatabase().create_post(author_id, post):
         return post.json()
 
