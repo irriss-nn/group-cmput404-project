@@ -271,10 +271,10 @@ async def get_author(request: Request, author_id: str, session: str = Cookie(Non
     if me_user["_id"] in found_user_manager["followers"] :
         found_user["posts"] = found_user_manager["posts"]
     else:
-        found_user["posts"] = []
+        found_user["posts"] = {}
         for post_id in found_user_manager["posts"].keys():
             if found_user_manager["posts"][post_id]["visibility"] == "PUBLIC":
-                found_user["posts"].append(found_user_manager["posts"][post_id])
+                found_user["posts"][post_id] = (found_user_manager["posts"][post_id])
 
     is_following = SocialDatabase().is_following(sessionUserId, found_user["id"])
     if found_user:
