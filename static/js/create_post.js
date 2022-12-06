@@ -3,13 +3,13 @@ const modal = document.querySelector("#create-post-modal");
 const closeModal = document.querySelector("#close-create-post-btn");
 const submitModel = document.querySelector("#submit-create-post-btn");
 
-const followingBtn = document.querySelector("#following-btn")
-const followingPopup = document.querySelector("#following-popup")
-const followingClose = document.querySelector("#popup-close-follow")
+const followingBtn = document.querySelector("#following-btn");
+const followingPopup = document.querySelector("#following-popup");
+const followingClose = document.querySelector("#popup-close-follow");
 
-const followerBtn = document.querySelector("#follower-btn")
-const followerPopup = document.querySelector("#follower-popup")
-const followerClose = document.querySelector("#popup-close-follower")
+const followerBtn = document.querySelector("#follower-btn");
+const followerPopup = document.querySelector("#follower-popup");
+const followerClose = document.querySelector("#popup-close-follower");
 
 const contentType = document.querySelector("#contenttype-create-post-textarea");
 const contentTextInput = document.querySelector(
@@ -22,28 +22,27 @@ let userid;
 
 if (openModal) {
   openModal.addEventListener("click", () => {
-  modal.showModal();
+    modal.showModal();
   });
 }
 
 followerBtn.addEventListener("click", () => {
-  followerPopup.style = "display:flex;"
-})
+  followerPopup.style = "display:flex;";
+});
 
 followerClose.addEventListener("click", () => {
-  followerPopup.style = "display:none;"
-})
+  followerPopup.style = "display:none;";
+});
 
 followingBtn.addEventListener("click", () => {
-  followingPopup.style = "display:flex;"
-})
+  followingPopup.style = "display:flex;";
+});
 
 followingClose.addEventListener("click", () => {
-  followingPopup.style = "display:none;"
-})
+  followingPopup.style = "display:none;";
+});
 
-if (contentType){
-
+if (contentType) {
   contentType.addEventListener("change", (e) => {
     if (e.target.value === "text/markdown" || e.target.value === "text/plain") {
       contentTextInput.style.display = "block";
@@ -56,16 +55,17 @@ if (contentType){
 }
 
 if (closeModal) {
-
   closeModal.addEventListener("click", () => {
     //fetch user's post content
     let title = document.querySelector("#title-create-post-textarea");
-    let description = document.querySelector("#description-create-post-textarea");
+    let description = document.querySelector(
+      "#description-create-post-textarea"
+    );
     let content = document.querySelector("#content-create-post-textarea");
     console.log(title.value);
     console.log(description.value);
     console.log(content.value);
-  
+
     //clear value in textarea
     document.querySelector("#title-create-post-textarea").value = "";
     document.querySelector("#description-create-post-textarea").value = "";
@@ -105,28 +105,36 @@ if (submitModel) {
     let author = title.getAttribute("data-author");
     let date = new Date().toISOString();
     let payload;
-
-    // create post without id, payload needs append post id in backend 
-        payload = {
-          "title": title.value,
-          "origin": location.hostname,
-          "source":location.hostname,
-          "description": description.value,
-          "contentType": contentType.value,
-          "content": content.value,
-          "author": {"id":author},
-          "categories": categories.value.split(",").map((x) => x.trim()),
-          "count": 0,
-          "comments": location.hostname,
-          "commentsSrc": {"size": parseInt(size.value), "page": parseInt(page.value),"type":"comments"},
-          "published": date,
-          "visibility": visibility.value,
-          "unlisted": unlisted.value,
-          "likes": [],
+    try {
+      // create post without id, payload needs append post id in backend
+      payload = {
+        title: title.value,
+        origin: location.hostname,
+        source: location.hostname,
+        description: description.value,
+        contentType: contentType.value,
+        content: content.value,
+        author: { id: author },
+        categories: categories.value.split(",").map((x) => x.trim()),
+        count: 0,
+        comments: location.hostname,
+        commentsSrc: {
+          size: parseInt(size.value),
+          page: parseInt(page.value),
+          type: "comments",
+        },
+        published: date,
+        visibility: visibility.value,
+        unlisted: unlisted.value,
+        likes: [],
       };
+    } catch (e) {
+      console.log(e);
+      alert(e);
+    }
 
-    page.innerHTML="";
-    size.innerHTML="";
+    page.innerHTML = "";
+    size.innerHTML = "";
     categories.innerHTML = "";
     document.querySelector("#title-create-post-textarea").value = "";
     document.querySelector("#description-create-post-textarea").value = "";
@@ -149,7 +157,7 @@ if (submitModel) {
       .catch((err) => {
         console.log(err);
       });
-    });
+  });
 }
 
 if (followBtn) {
