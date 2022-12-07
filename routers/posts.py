@@ -60,6 +60,23 @@ async def read_post(request: Request, author_id: str, post_id: str, session: str
 
     raise HTTPException(status_code=404, detail="Post not found")
 
+
+@router.get("/share/{post_id}/{author_id}")
+async def share_post_to_author(request: Request, post_id:str, author_id:str):
+    # try:
+    #     # current user
+    #     our_profile_id = await get_userId_from_token(session)
+    #     our_profile = SocialDatabase().get_author(our_profile_id)
+    # except HTTPException as e:
+    #     # Should we redirect to /home if session is token expires?
+    #     print("Error getting profile from session, in method read_post:")
+    #     return False
+    
+    our_profile = SocialDatabase().get_author("bd048c0f-c900-4d36-a0ff-934ecb29d93a")
+    return SocialDatabase().create_share_post_notification( author_id,post_id, our_profile.displayName)
+    # return True
+
+
 @router.get("/{author_id}/posts/{post_id}")
 async def read_post(author_id: str, post_id: str):
     '''Return a post belonging to an author'''
@@ -124,3 +141,5 @@ async def put_post(author_id: str, post_id: str, post: Post):
         return post.json()
 
     raise HTTPException(status_code=400, detail="Could not create post")
+
+

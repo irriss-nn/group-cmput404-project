@@ -249,6 +249,17 @@ class SocialDatabase:
         result = self.database.authorManagers.update_one({"_id": target_author_id},
                                                          {"$push": {"inbox": inbox_item}})
         return result.acknowledged
+    
+    def create_share_post_notification(self, target_author_id: str, post_id: str, origin_author_name: str) -> bool:
+        inbox_item = InboxItem(
+            action=f"Share Notification",
+            actionDescription="{} sent you a post".format(origin_author_name),
+            actionReference=post_id,
+        )
+        inbox_item = jsonable_encoder(inbox_item)
+        result = self.database.authorManagers.update_one({"_id": target_author_id},
+                                                         {"$push": {"inbox": inbox_item}})
+        return result.acknowledged
 
     def create_generic_like_notification(self, author_id: str) -> bool:
         inbox_item = InboxItem(
