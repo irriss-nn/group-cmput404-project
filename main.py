@@ -224,10 +224,12 @@ async def get_home(request: Request, session: str = Cookie(None)):
     for post in all_feed_posts:
         post["author"] = asdict(SocialDatabase().get_author(post["author"]["id"]))
     current_user = SocialDatabase().get_author(sessionUserId)
+    following_list = SocialDatabase().get_following(sessionUserId)
     return templates.TemplateResponse("landing.html", {
         "request": request,
         "user": asdict(current_user),
-        "feed": all_feed_posts
+        "feed": all_feed_posts,
+        "following": following_list
     })
 
 
