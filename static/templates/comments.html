@@ -56,9 +56,12 @@
         if((check+i) < length){
           let comBox = document.getElementById("comment-box")
           document.getElementById("comment-box").innerHTML += "<br></br>"
-          document.getElementById("comment-box").innerHTML +=  com.comments[check+i]['comment'];
-          document.getElementById("comment-box").innerHTML +=  " --"
+          
+          
           document.getElementById("comment-box").innerHTML +=  com.comments[check+i]['author'].displayName;
+          document.getElementById("comment-box").innerHTML +=  ":  "
+          document.getElementById("comment-box").innerHTML +=  com.comments[check+i]['comment'];
+          
           let likeButton = document.createElement("button");
           if(liked.includes(com.comments[check+i]['_id'])){
             likeButton.innerHTML = "Liked";

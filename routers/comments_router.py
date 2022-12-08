@@ -5,6 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from database import SocialDatabase
+from urllib.parse import parse_qsl, urljoin, urlparse
 import uuid
 from pprint import pprint
 from jose import JWTError, jwt
@@ -107,11 +108,8 @@ async def create_comment(author_id: str, post_id: str, request: Request, comment
 @router.get("/{author_id}/posts/{post_id}/comments")
 async def read_comments(request: Request, author_id: str, post_id: str, page: int | None = None, size: int | None = None):
     url = request.url._url
-    if "/view" in url:
-        url= url.replace("/view","")
-        print(url)
-
-    post_url = url.replace("/comments","")
+    parsed_uri = urlparse(url)
+    host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
     if SocialDatabase().get_author(author_id) is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
 
@@ -137,11 +135,11 @@ async def read_comments(request: Request, author_id: str, post_id: str, page: in
             }
 
         # TODO: change hardcoded url to actual url
-        return {"type": "comments", "page": page, "size": size, "post": post_url, "id": url, "comments": comments}
+        return {"type": "comments", "page": page, "size": size, "post": "{}authors/{}/posts/{}".format(host,author_id, post_id), "id": "{}authors/{}/posts/{}/comments".format(host,author_id, post_id), "comments": comments}
     else:
         comments = list(request.app.database["comments"].find({"post": post_id}).sort(
             "_id", 1).skip(((page - 1) * size) if page > 0 else 0).limit(size))
-        return {"type": "comments", "page": page, "size": size, "post": post_url, "id": url, "comments": comments}
+        return {"type": "comments", "page": page, "size": size, "post": "{}authors/{}/posts/{}".format(host,author_id, post_id), "id": "{}authors/{}/posts/{}/comments".format(host,author_id, post_id), "comments": comments}
 
 
 SECRET_KEY = 'f015cb10b5caa9dd69ebeb340d580f0ad37f1dfcac30aef8b713526cc9191fa3'
