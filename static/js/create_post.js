@@ -122,6 +122,7 @@ if (submitModel) {
           size: parseInt(size.value),
           page: parseInt(page.value),
           type: "comments",
+          comments: []
         },
         published: date,
         visibility: visibility.value,

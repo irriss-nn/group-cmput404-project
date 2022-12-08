@@ -61,7 +61,6 @@ async def create_comment(author_id: str, post_id: str, request: Request, comment
         author = SocialDatabase().get_author(author_id)
       
         if (author == None or post == None):
-            print('ddd')
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Author or post not found")
     except Exception as e:
@@ -86,6 +85,16 @@ async def create_comment(author_id: str, post_id: str, request: Request, comment
             actionReference=comment_id,
         )
         inbox_item = jsonable_encoder(inbox_item)
+
+        #cater for old data
+        try:
+            result = manager.posts[post_id]["commentsSrc"]["comments"]
+        except KeyError as e:
+            manager.posts[post_id]["commentsSrc"]["comments"] = []
+        # update comment into post
+
+        manager.posts[post_id]["commentsSrc"]["comments"].append(comment)
+        request.app.database["authorManagers"].update_one({"_id":manager.id}, {"$set": {"posts": manager.posts}})
         request.app.database["authorManagers"].update_one({"_id": manager.id}, {
                                                           "$push": {"inbox": inbox_item}})
         # Adding comment to post
@@ -98,7 +107,11 @@ async def create_comment(author_id: str, post_id: str, request: Request, comment
 @router.get("/{author_id}/posts/{post_id}/comments")
 async def read_comments(request: Request, author_id: str, post_id: str, page: int | None = None, size: int | None = None):
     url = request.url._url
-    print(url)
+    if "/view" in url:
+        url= url.replace("/view","")
+        print(url)
+
+    post_url = url.replace("/comments","")
     if SocialDatabase().get_author(author_id) is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Author not found")
 
@@ -124,11 +137,11 @@ async def read_comments(request: Request, author_id: str, post_id: str, page: in
             }
 
         # TODO: change hardcoded url to actual url
-        return {"type": "comments", "page": page, "size": size, "post": "http://127.0.0.1:5454/authors/{}/posts/{}".format(author_id, post_id), "id": "http://127.0.0.1:5454/authors/{}/posts/{}/comments".format(author_id, post_id), "comments": comments}
+        return {"type": "comments", "page": page, "size": size, "post": post_url, "id": url, "comments": comments}
     else:
         comments = list(request.app.database["comments"].find({"post": post_id}).sort(
             "_id", 1).skip(((page - 1) * size) if page > 0 else 0).limit(size))
-        return {"type": "comments", "page": page, "size": size, "post": "http://127.0.0.1:5454/authors/{}/posts/{}".format(author_id, post_id), "id": "http://127.0.0.1:5454/authors/{}/posts/{}/comments".format(author_id, post_id), "comments": comments}
+        return {"type": "comments", "page": page, "size": size, "post": post_url, "id": url, "comments": comments}
 
 
 SECRET_KEY = 'f015cb10b5caa9dd69ebeb340d580f0ad37f1dfcac30aef8b713526cc9191fa3'
