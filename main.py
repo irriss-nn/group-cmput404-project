@@ -100,6 +100,7 @@ def shutdown_db_client():
 async def root():
     return RedirectResponse(url='/login')
 
+
 @app.get("/service/credentials/{remote_host}")
 async def get_remote_credentials(remote_host: str):
     '''Return credentials needed to query a remote host'''
@@ -110,6 +111,7 @@ async def get_remote_credentials(remote_host: str):
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                         detail="No credentials for specified host")
+
 
 @app.get("/login", response_class=HTMLResponse)
 async def read_item(request: Request):
@@ -131,14 +133,14 @@ async def register_author_todb(request: Request, response: Response, username: s
         return RedirectResponse(url='/register')
 
     while True:
-        id = str(uuid.uuid4()) # author id
+        id = str(uuid.uuid4())  # author id
         if not SocialDatabase().get_author(id):
             break
 
     newUser = Author(id=id, displayName=usnm, github=git,
                      hashedPassword=pswd)  # TODO: Hash password
-    #newUser.url = #hostname+/service/authors/id/
-    #newUser.host = #hostname
+    # newUser.url = #hostname+/service/authors/id/
+    # newUser.host = #hostname
     print("Creating user" + newUser.id)
     if SocialDatabase().create_author(newUser):
         return RedirectResponse('/login', status_code=status.HTTP_302_FOUND)
@@ -201,9 +203,9 @@ async def get_current_user(request: Request, session: str = Cookie(None)):
     user_info = app.database["authors"].find_one({"_id": sessionUserId})
     follower_list = SocialDatabase().get_followers(sessionUserId)
     following_list = SocialDatabase().get_following(sessionUserId)
-    pprint(follower_list)
+    inbox_size = SocialDatabase().get_inbox_size(sessionUserId)
     if found_user:
-        return templates.TemplateResponse("my-profile.html", {"request": request, "user": user_info, "post": found_user, "followers":follower_list, "following":following_list})
+        return templates.TemplateResponse("my-profile.html", {"request": request, "user": user_info, "post": found_user, "followers": follower_list, "following": following_list, "inbox_size": inbox_size})
     else:
         return RedirectResponse(url="/login")
 
@@ -222,14 +224,17 @@ async def get_home(request: Request, session: str = Cookie(None)):
     all_feed_posts = SocialDatabase().get_following_feed(sessionUserId)
     all_feed_posts += SocialDatabase().get_all_public_posts()
     for post in all_feed_posts:
-        post["author"] = asdict(SocialDatabase().get_author(post["author"]["id"]))
+        post["author"] = asdict(
+            SocialDatabase().get_author(post["author"]["id"]))
     current_user = SocialDatabase().get_author(sessionUserId)
     following_list = SocialDatabase().get_following(sessionUserId)
+    inbox_size = SocialDatabase().get_inbox_size(sessionUserId)
     return templates.TemplateResponse("landing.html", {
         "request": request,
         "user": asdict(current_user),
         "feed": all_feed_posts,
-        "following": following_list
+        "following": following_list,
+        "inbox_size": inbox_size
     })
 
 
@@ -259,8 +264,8 @@ async def get_author(request: Request, author_id: str, session: str = Cookie(Non
 
     me_user = app.database["authors"].find_one({"_id": sessionUserId})
     found_user = SocialDatabase().get_author(author_id)
-    
-    if not found_user: # if id doesn't match any author, maybe it's a search by display name
+
+    if not found_user:  # if id doesn't match any author, maybe it's a search by display name
         found_user = SocialDatabase().get_author_byname(author_id)
         if not found_user:
             return RedirectResponse(url='/home')
@@ -270,15 +275,17 @@ async def get_author(request: Request, author_id: str, session: str = Cookie(Non
     found_user_manager = asdict(found_user_manager)
 
     # if user is a friend of current user:
-    if me_user["_id"] in found_user_manager["followers"] :
+    if me_user["_id"] in found_user_manager["followers"]:
         found_user["posts"] = found_user_manager["posts"]
     else:
         found_user["posts"] = {}
         for post_id in found_user_manager["posts"].keys():
             if found_user_manager["posts"][post_id]["visibility"] == "PUBLIC":
-                found_user["posts"][post_id] = (found_user_manager["posts"][post_id])
+                found_user["posts"][post_id] = (
+                    found_user_manager["posts"][post_id])
 
-    is_following = SocialDatabase().is_following(sessionUserId, found_user["id"])
+    is_following = SocialDatabase().is_following(
+        sessionUserId, found_user["id"])
     if found_user:
         return templates.TemplateResponse("author.html", {"request": request, "user": me_user, "post": found_user, "status": {"following": is_following}})
     return RedirectResponse(url='/home')

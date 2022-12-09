@@ -13,7 +13,11 @@
         <div id="nav-logo">Social Network</div>
         <div class="navbar">
           <a href="/home">Home</a><br />
-          <a href="/inbox">Inbox</a><br />
+          {%if inbox_size is defined %}
+          <a href="/inbox" id="inbox-ref">Inbox ({{inbox_size}})</a><br />
+          {% else %}
+          <a href="/inbox" id="inbox-ref">Inbox</a><br />
+          {% endif %}
           <a href="/logout">Logout</a><br />
         </div>
         <a href="/current" id="nav-user">

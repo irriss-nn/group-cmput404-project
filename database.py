@@ -70,7 +70,7 @@ class SocialDatabase:
 
     def get_author_byname(self, author_name: str) -> Author | None:
         '''Get author by their name'''
-        author_name= author_name.replace('_', ' ')
+        author_name = author_name.replace('_', ' ')
 
         author = self.database.authors.find_one({"displayName": author_name})
         if author is None:
@@ -157,7 +157,7 @@ class SocialDatabase:
             f"posts.{post_id}.title": title, f"posts.{post_id}.content": content, f"posts.{post_id}.contentType": contentType, f"posts.{post_id}.description": description, f"posts.{post_id}.visibility": visibility, f"posts.{post_id}.unlisted": unlisted}})
         return result.acknowledged
 
-    def check_liked(self, item:dict, like_author: str)->bool:
+    def check_liked(self, item: dict, like_author: str) -> bool:
         '''Check if this user liked this post/comment already'''
         if "likes" in item:
             for like in item["likes"]:
@@ -167,14 +167,14 @@ class SocialDatabase:
                     return True
         return False
 
-    def get_author_likes(self, author_id:str)->list:
+    def get_author_likes(self, author_id: str) -> list:
         '''Return all liked item from author with author_id into a list'''
         posts = self.get_all_posts()
         author_likes = []
         for post in posts:
-            if "likes" in post.keys(): 
-                for like in post["likes"]: # for each post with like attribute
-                     if author_id == like["author"]["id"]: # if liked by this author
+            if "likes" in post.keys():
+                for like in post["likes"]:  # for each post with like attribute
+                    if author_id == like["author"]["id"]:  # if liked by this author
                         author_likes.append(like)
 
         return author_likes
@@ -223,11 +223,11 @@ class SocialDatabase:
                 comment["author"], "comment", like_obj)
 
         return True
-    
+
     def get_all_comments(self) -> list:
         comments = self.database["comments"].find()
         return list(comments)
-    
+
     def get_all_our_liked_comments(self, author_id: str) -> list():
         comments = self.get_all_comments()
         our_liked_comments = []
@@ -249,7 +249,7 @@ class SocialDatabase:
         result = self.database.authorManagers.update_one({"_id": target_author_id},
                                                          {"$push": {"inbox": inbox_item}})
         return result.acknowledged
-    
+
     def create_share_post_notification(self, target_author_id: str, post_id: str, origin_author_name: str) -> bool:
         inbox_item = InboxItem(
             action=f"Share Notification",
@@ -271,6 +271,12 @@ class SocialDatabase:
         result = self.database.authorManagers.update_one({"_id": author_id},
                                                          {"$push": {"inbox": inbox_item}})
         return result.acknowledged
+
+    def get_inbox_size(self, author_id: str) -> int:
+        author = self.get_author_manager(author_id)
+        if author is None:
+            return 0
+        return len(author.inbox)
 
     def get_likes_for_post(self, post_id: str, author_id: str) -> list[Like] | None:
         post = self.get_post_by_id(post_id)
@@ -355,7 +361,6 @@ class SocialDatabase:
         '''fetch all public posts'''
         posts = self.get_all_posts()
         return [post for post in posts if post['visibility'] == 'PUBLIC']
-                
 
     def get_all_author_posts(self, author_id: str) -> list[Post]:
         author = self.get_author_manager(author_id)
@@ -368,13 +373,13 @@ class SocialDatabase:
         if not manager:
             return False
         return target_author_id in manager.following
-    
+
     def get_followers(self, author_id: str) -> list[Author] | None:
         manager = self.get_author_manager(author_id)
         if not manager:
             return None
         return [self.get_author(follower) for follower in manager.followers]
-    
+
     def get_following(self, author_id: str) -> list[Author] | None:
         manager = self.get_author_manager(author_id)
         if not manager:
@@ -405,20 +410,23 @@ class SocialDatabase:
 
     def get_credentials(self, remote_host: str) -> Credentials | None:
         '''Get credentials for a remote host'''
-        credentials = self.database.remote_credentials.find_one({'_id': remote_host})
+        credentials = self.database.remote_credentials.find_one(
+            {'_id': remote_host})
         if not credentials:
             return None
 
         return Credentials.init_from_mongo(credentials)
-    
-    def check_friends(self, current_author_id:str, foreign_author_id:str):
+
+    def check_friends(self, current_author_id: str, foreign_author_id: str):
         '''Check if two users are True friend'''
-        current_manager = self.database.authorManagers.find_one({"_id": current_author_id})
-        foreign_manager  = self.database.authorManagers.find_one({"_id": foreign_author_id})
+        current_manager = self.database.authorManagers.find_one(
+            {"_id": current_author_id})
+        foreign_manager = self.database.authorManagers.find_one(
+            {"_id": foreign_author_id})
 
         if not current_manager or not foreign_manager:
             return False
-        
+
         # True friends
         if current_author_id in foreign_manager["following"] and foreign_author_id in current_manager["following"]:
             return True

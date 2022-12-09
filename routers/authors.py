@@ -15,6 +15,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+
 @router.get("/")
 async def read_authors(page: int | None = 0, size: int | None = 0):
     if page is None or size is None:
@@ -49,12 +50,15 @@ async def read_item(author_id: str):
     return author.json()
 
 # Follower functionalities
+
+
 @router.delete("/{author_id}/followers/{foreign_author_id}")
 async def delete_follower(author_id: str, foreign_author_id: str, request: Request):
     '''Delete a follower from authors follower list'''
     request.app.database["authorManagers"].update_one(
         {"_id": author_id}, {"$pull": {"followers": foreign_author_id}})
     return {"message": "Successfully deleted follower", "author_id": author_id, "foreign_author_id": foreign_author_id}
+
 
 @router.put("/{author_id}/followers/{foreign_author_id}")
 async def add_follower(author_id: str, foreign_author_id: str, request: Request):
@@ -64,12 +68,14 @@ async def add_follower(author_id: str, foreign_author_id: str, request: Request)
         {"_id": author_id}, {"$push": {"followers": foreign_author_id}})
     return {"message": "Successfully added follower", "author_id": author_id, "foreign_author_id": foreign_author_id}
 
+
 @router.delete("/{author_id}/inbox/{inbox_request_id}")
 async def delete_inbox(inbox_request_id: str, author_id: str, request: Request):
     '''Delete a inbox item from authors inbox list'''
     request.app.database["authorManagers"].update_one(
         {"_id": author_id}, {"$pull": {"inbox": {"id": inbox_request_id}}})
     return {"message": "Successfully deleted inbox request", "inbox_request_id": inbox_request_id}
+
 
 @router.get("/{author_id}/followers/{foreign_author_id}")
 # Check if foreign author id is a follower of author id, if it is return message if not return error
@@ -84,6 +90,7 @@ async def check_follower(author_id: str, foreign_author_id: str, request: Reques
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                         detail="Foreign author is not a follower of author")
 
+
 @router.get("/{author_id}/followers")
 async def read_followers(author_id: str, request: Request):
     '''Get a list of all followers of the author'''
@@ -96,6 +103,7 @@ async def read_followers(author_id: str, request: Request):
         return_list.append(
             request.app.database["authors"].find_one({"_id": objId}))
     return {"type": "followers", "items": return_list}
+
 
 @router.get("/{author_id}/following",
             responses={
@@ -112,6 +120,7 @@ async def get_following_authors(author_id: str):
     author_manager = author_manager.json()
     return {"type": "following", "items": author_manager['following']}
 
+
 @router.get("/{author_id}/{foreign_author_id}/status")
 async def check_follow_status(author_id: str, foreign_author_id: str, request: Request):
     '''As an author, When I befriend someone I follow them, only when the other author befriends me do I count as a real friend'''
@@ -123,6 +132,8 @@ async def check_follow_status(author_id: str, foreign_author_id: str, request: R
         return {"message": "We are not friends", "author_id": author_id, "foreign_author_id": foreign_author_id}
 
 ### IMPLEMENT PROJECT SPECS FOR LIKES ###
+
+
 @router.post("/{author_id}/inbox")
 async def add_like_to_inbox(author_id: str, request: Request):
     '''Add a like to the inbox of the author'''
@@ -130,15 +141,23 @@ async def add_like_to_inbox(author_id: str, request: Request):
 
     return SocialDatabase().create_generic_like_notification(author_id)
 
+
 @router.get("/{author_id}/posts/{post_id}/likes")
 async def get_likes_for_post(author_id: str, post_id: str, request: Request):
     '''Get a list of all likes for a post'''
     return SocialDatabase().get_likes_for_post(post_id, author_id)
 
+
 @router.get("/{author_id}/posts/{post_id}/comments/{comment_id}/likes")
 async def get_likes_on_comment_on_post(author_id: str, post_id: str, comment_id: str, request: Request):
     '''Get a list of all likes for a comment on a post'''
     return SocialDatabase().get_likes_on_comment_on_post(post_id, comment_id, author_id)
+
+
+@router.get("/inboxsize/{author_id}")
+async def get_inbox_size(author_id: str, request: Request):
+    '''Get the size of the inbox of the author'''
+    return SocialDatabase().get_inbox_size(author_id)
 
 ### INBOX RELATED FUNCTIONALITY ###
 # Add button to all profiles to send friend request, first author id is the author sending the request, second author id is the author receiving the request
@@ -159,6 +178,7 @@ async def get_likes_on_comment_on_post(author_id: str, post_id: str, comment_id:
 #         return True
 #     except:
 #         return False
+
 
 @router.post("/{author_id}/{action}/{foreign_author}")
 async def accept_or_reject_follower(author_id: str, action: str, foreign_author: str, request: Request):
