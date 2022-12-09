@@ -51,6 +51,7 @@ if (contentType) {
       contentTextInput.style.display = "none";
       contentFileInput.style.display = "block";
     }
+    // console.log(e);
   });
 }
 
@@ -62,11 +63,14 @@ if (closeModal) {
       "#description-create-post-textarea"
     );
     let content = document.querySelector("#content-create-post-textarea");
-    console.log(title.value);
-    console.log(description.value);
-    console.log(content.value);
+    // console.log(title.value);
+    // console.log(description.value);
+    // console.log(content.value);
 
     //clear value in textarea
+    document.querySelector("#source-create-post-textarea").value = "";
+    document.querySelector("#origin-create-post-textarea").value = "";
+    document.querySelector("#categories-create-post-textarea").value = "";
     document.querySelector("#title-create-post-textarea").value = "";
     document.querySelector("#description-create-post-textarea").value = "";
     document.querySelector("#content-create-post-textarea").value = "";
@@ -88,77 +92,143 @@ if (submitModel) {
       "#contenttype-create-post-textarea"
     );
     let content;
-    if (
-      contentType.value === "text/markdown" ||
-      contentType.value === "text/plain"
-    ) {
-      content = document.querySelector("#content-create-post-textarea");
-    } else {
-      content = document.querySelector("#content-create-post-file");
-    }
     let categories = document.querySelector("#categories-create-post-textarea");
-    let unlisted = document.querySelector(
-      'input[name="visibility-create-post-select"]:checked'
-    );
+    let unlisted = document.querySelector('input[name="visibility-create-post-select"]:checked');
     let visibility = document.querySelector('input[name="se"]:checked');
-
+    
     let author = title.getAttribute("data-author");
     let date = new Date().toISOString();
     let payload;
-    try {
-      // create post without id, payload needs append post id in backend
-      payload = {
-        title: title.value,
-        origin: location.hostname,
-        source: location.hostname,
-        description: description.value,
-        contentType: contentType.value,
-        content: content.value,
-        author: { id: author },
-        categories: categories.value.split(",").map((x) => x.trim()),
-        count: 0,
-        comments: location.hostname,
-        commentsSrc: {
-          size: parseInt(size.value),
-          page: parseInt(page.value),
-          type: "comments",
-          comments: []
-        },
-        published: date,
-        visibility: visibility.value,
-        unlisted: unlisted.value,
-        likes: [],
-      };
-    } catch (e) {
-      console.log(e);
-      alert(e);
+    if (contentType.value === "text/markdown" ||contentType.value === "text/plain") {
+      content = document.querySelector("#content-create-post-textarea");
+      content = content.value;
+      try {
+        console.log(content);
+        console.log(typeof content);
+        // create post without id, payload needs append post id in backend
+        payload = {
+          title: title.value,
+          origin: location.hostname,
+          source: location.hostname,
+          description: description.value,
+          contentType: contentType.value,
+          content: content,
+          author: { id: author },
+          categories: categories.value.split(",").map((x) => x.trim()),
+          count: parseInt(size.value)*parseInt(page.value),
+          comments: location.hostname,
+          commentsSrc: {
+            size: parseInt(size.value),
+            page: parseInt(page.value),
+            type: "comments",
+            comments: []
+          },
+          published: date,
+          visibility: visibility.value,
+          unlisted: unlisted.value,
+          likes: [],
+        };
+      } catch (e) {
+        console.log(e);
+        alert(e);
+        return;
     }
-
-    page.innerHTML = "";
-    size.innerHTML = "";
-    categories.innerHTML = "";
-    document.querySelector("#title-create-post-textarea").value = "";
-    document.querySelector("#description-create-post-textarea").value = "";
-    document.querySelector("#content-create-post-textarea").value = "";
-    modal.close();
-    fetch(submitModel.getAttribute("data-url"), {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((response) => {
-        return response.json(payload);
+  
+      document.querySelector("#source-create-post-textarea").value = "";
+      document.querySelector("#origin-create-post-textarea").value = "";
+      document.querySelector("#categories-create-post-textarea").value = "";
+      document.querySelector("#title-create-post-textarea").value = "";
+      document.querySelector("#description-create-post-textarea").value = "";
+      document.querySelector("#content-create-post-textarea").value = "";
+      modal.close();
+      fetch(submitModel.getAttribute("data-url"), {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       })
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((err) => {
-        console.log(err);
+        .then((response) => {
+          return response.json(payload);
+        })
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } 
+    else {
+      content = document.querySelector("#content-create-post-file");
+      content = content.files[0];
+      const reader = new FileReader();
+      reader.readAsDataURL(content);
+      
+      reader.addEventListener("load", ()=> {
+        content = reader.result;
+  
+        try {
+          console.log(content);
+          console.log(typeof content);
+          // create post without id, payload needs append post id in backend
+          payload = {
+            title: title.value,
+            origin: location.hostname,
+            source: location.hostname,
+            description: description.value,
+            contentType: contentType.value,
+            content: content,
+            author: { id: author },
+            categories: categories.value.split(",").map((x) => x.trim()),
+            count: parseInt(size.value)*parseInt(page.value),
+            comments: location.hostname,
+            commentsSrc: {
+              size: parseInt(size.value),
+              page: parseInt(page.value),
+              type: "comments",
+              comments: []
+            },
+            published: date,
+            visibility: visibility.value,
+            unlisted: unlisted.value,
+            likes: [],
+          };
+        } catch (e) {
+          console.log(e);
+          alert(e);
+          return;
+      }
+    
+        document.querySelector("#source-create-post-textarea").value = "";
+        document.querySelector("#origin-create-post-textarea").value = "";
+        document.querySelector("#categories-create-post-textarea").value = "";
+        document.querySelector("#title-create-post-textarea").value = "";
+        document.querySelector("#description-create-post-textarea").value = "";
+        document.querySelector("#content-create-post-textarea").value = "";
+        modal.close();
+        fetch(submitModel.getAttribute("data-url"), {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        })
+          .then((response) => {
+            return response.json(payload);
+          })
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       });
+      
+    }
   });
+
 }
 
 if (followBtn) {

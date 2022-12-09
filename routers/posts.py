@@ -101,13 +101,13 @@ async def read_posts(author_id: str) -> list[dict]:
     return []
 
 @router.post("/{author_id}/posts/")
-async def create_post_without_id(author_id: str, post: Post):
+async def create_post_without_id(request:Request, author_id: str, post: Post):
     '''Create a new post'''
     while True:
         post.id = str(uuid.uuid4())
         if not SocialDatabase().get_post_by_id(post.id):
             break
-
+    
     if SocialDatabase().create_post(author_id, post):
         return post.json()
 

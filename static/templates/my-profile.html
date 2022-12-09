@@ -26,7 +26,7 @@
   </select>
   <h3>Content:</h3>
   <textarea id="content-create-post-textarea" class="dialog-input"></textarea>
-  <input type="file" id="content-create-post-file" class="dialog-input" style="display: none;"></input>
+  <input type="file" id="content-create-post-file" class="dialog-input" style="display: none;" onchange="fileSelected"></input>
   <h3>Categories (separate with commas):</h3>
   <textarea id="categories-create-post-textarea" class="dialog-input"></textarea>
   <!-- <h3>Content Type:</h3>
@@ -101,6 +101,22 @@
       <div id="allpost-info">
         <div id="allpost-title">{{post.posts[p].title}}</div>
         <div id="allpost-description">{{post.posts[p].description}}</div>
+
+        {% if post.posts[p].contentType == 'image/jpeg;base64' or post.posts[p].contentType == 'image/png;base64'%}
+        <img id="image-display" src="{{post.posts[p].content}}" alt="image not found"></image>
+        <style>
+          #allpost-single-container {
+            overflow: auto;
+            height: fit-content;
+            width: fit-content;
+          }
+          #image-display {
+            display: flex;
+            height: fit-content;
+            width: fit-content;
+          }
+        </style>
+        {% endif %}
       </div>
       <div id="allpost-btn-container">
         <a

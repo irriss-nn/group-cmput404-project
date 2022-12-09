@@ -118,7 +118,7 @@ async def read_comments(request: Request, author_id: str, post_id: str, page: in
         size = 5
         comments = list(request.app.database["comments"].find({"post": post_id}).sort(
             "_id", 1).skip(((page - 1) * size) if page > 0 else 0).limit(size))
-        for i in range(len(comments)):
+        for i in range(len(comments)):                                                                                                                
             author = SocialDatabase().get_author(
                 comments[i]["author"])  # get comment's author
             author.hashedPassword = None  # clear password before return author object
