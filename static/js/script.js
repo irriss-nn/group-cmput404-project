@@ -16,7 +16,9 @@ search.addEventListener("submit", (e) => {
 
 shareBtn.forEach((share) => {
   share.addEventListener("click", (e) => {
+    currentPost = e.target.getAttribute("data-url");
     shareUrl = e.target.getAttribute("data-url");
+    console.log(shareUrl);
     sharePopup.show();
   });
 });
@@ -43,5 +45,7 @@ following.forEach((person) => {
       .catch((err) => {
         console.log(err);
       });
+
+    shareUrl = currentPost;
   });
 });
