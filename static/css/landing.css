@@ -3,6 +3,7 @@
 #landing-container {
   box-sizing: border-box;
   padding: 20px;
+
 }
 
 #landing-search-container {
@@ -34,7 +35,38 @@
   flex: 1;
 }
 
+
 #landing-search-btn {
+  background: linear-gradient(to bottom right, #4897f7, #0a39d1);
+  border: 0;
+  border-radius: 12px;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  font-family: -apple-system,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 2.5;
+  outline: transparent;
+  padding: 0 1rem;
+  text-align: center;
+  text-decoration: none;
+  transition: box-shadow .2s ease-in-out;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+}
+
+#landing-search-btn:not([disabled]):focus {
+  box-shadow: 0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(239, 71, 101, 0.5), .125rem .125rem 1rem rgba(255, 154, 90, 0.5);
+}
+
+#landing-search-btn:not([disabled]):hover {
+  box-shadow: 0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(239, 71, 101, 0.5), .125rem .125rem 1rem rgba(255, 154, 90, 0.5);
+}
+
+#landing-search-btn1 {
   padding: 6px 10px;
   border-radius: 5px;
   font-size: 16px;
@@ -44,7 +76,7 @@
   cursor: pointer;
 }
 
-#landing-search-btn:hover {
+#landing-search-btn1:hover {
   background-color: #007bff;
 }
 
@@ -110,7 +142,8 @@
 #allpost-btn-container {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  gap: 1px;
+  margin-left: 0;
 }
 #myModal {
   border: none !important;
@@ -160,7 +193,7 @@
   cursor: pointer; /* Pointer/hand icon */
 }
 
-.allpost-btn {
+.allpost-btn1 {
   font-family: var(--main-font);
   flex: 1;
   border: none;
@@ -168,11 +201,41 @@
   color: white;
   padding: 10px 0;
   border-radius: 20px;
-  font-size: 13px;
+  font-size: 10px;
   text-align: center;
   text-decoration: none;
 }
 
-.allpost-btn:hover {
+.allpost-btn1:hover {
   background-color: #007bff;
+}
+
+.allpost-btn {
+  background: linear-gradient(to bottom right, #acf3e7, #2513ec);
+  border: 0;
+  border-radius: 12px;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  font-family: -apple-system,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 2.5;
+  outline: transparent;
+  padding: 10px 5;
+  text-align: center;
+  text-decoration: none;
+  transition: box-shadow .2s ease-in-out;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+}
+
+.allpost-btn:not([disabled]):focus {
+  box-shadow: 0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(105, 188, 247, 0.5), .125rem .125rem 1rem rgba(255, 154, 90, 0.5);
+}
+
+.allpost-btn:not([disabled]):hover {
+  box-shadow: 0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(97, 179, 237, 0.5), .125rem .125rem 1rem rgba(255, 154, 90, 0.5);
 }
