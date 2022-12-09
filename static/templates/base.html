@@ -14,9 +14,9 @@
         <div class="navbar">
           <a href="/home">Home</a><br />
           {%if inbox_size is defined %}
-          <a href="/inbox">Inbox ({{inbox_size}})</a><br />
+          <a href="/inbox" id="inbox-ref">Inbox ({{inbox_size}})</a><br />
           {% else %}
-          <a href="/inbox">Inbox</a><br />
+          <a href="/inbox" id="inbox-ref">Inbox</a><br />
           {% endif %}
           <a href="/logout">Logout</a><br />
         </div>

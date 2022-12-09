@@ -166,5 +166,25 @@
     </div>
   </div>
   {% endfor %}
+  <script>
+    
+    let inboxATag = document.getElementById("inbox-ref");
+    const fetchInboxSizeAndUpdate = () => {
+      console.log("Running AJAX Function to See if we got new inbox items")
+      fetch("/service/authors/inboxsize/{{user.id}}")
+      .then(response => response.json())
+      .then(data => {
+        console.log("data, " + data)
+        if(inboxATag == null) return;
+        if(data > 0) {
+          inboxATag.innerHTML = "Inbox (" + data + ")";
+        } else {
+          inboxATag.innerHTML = "Inbox (0)";
+        }
+      });
+    };
+    
+    setInterval(fetchInboxSizeAndUpdate,5000);
+  </script>
 </div>
 {% endblock %}
