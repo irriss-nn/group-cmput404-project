@@ -251,10 +251,13 @@ class SocialDatabase:
         return result.acknowledged
 
     def create_share_post_notification(self, target_author_id: str, post_id: str, origin_author_name: str) -> bool:
+        post = self.get_post_by_id(post_id)
+        post_author = post["author"]["id"]
         inbox_item = InboxItem(
             action=f"Share Notification",
             actionDescription="{} sent you a post".format(origin_author_name),
-            actionReference=post_id,
+            actionReference="/service/authors/{}/posts/{}/view".format(
+                post_author, post_id),
         )
         inbox_item = jsonable_encoder(inbox_item)
         result = self.database.authorManagers.update_one({"_id": target_author_id},
