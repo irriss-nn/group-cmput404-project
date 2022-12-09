@@ -32,3 +32,4 @@ python main.py
 - Post image is available
 - Adjust url in comments' field to actual hostname
 - Added error handling in backend
+- Added ability to share posts with other users
