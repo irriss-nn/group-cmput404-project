@@ -49,6 +49,8 @@
   color: white;
   background-color: #2c92ff;
   cursor: pointer;
+  text-decoration: none;
+  text-align: center;
 }
 
 .req-reject-btn {

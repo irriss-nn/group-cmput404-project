@@ -35,6 +35,22 @@
         Reject
       </button>
     </div>
+    {% else %} {% if inbox_items.action == "Share Notification" %}
+    <div class="req-btn-container">
+      <a
+        href="{{inbox_items.actionReference}}"
+        class="req-button"
+        data-url="/dismiss/{{inbox_items.id}}"
+      >
+        View Post
+      </a>
+      <button
+        class="req-button req-dismiss-btn"
+        data-url="/dismiss/{{inbox_items.id}}"
+      >
+        Dismiss
+      </button>
+    </div>
     {% else %}
     <button
       class="req-button req-dismiss-btn"
@@ -42,7 +58,7 @@
     >
       Dismiss
     </button>
-    {% endif %}
+    {% endif %} {% endif %}
   </div>
   {% endfor %}
 </div>

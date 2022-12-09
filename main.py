@@ -248,6 +248,7 @@ async def get_inbox(request: Request, session: str = Cookie(None)):
     except HTTPException:
         return RedirectResponse(url='/login', status_code=307)
     all_inbox_posts = SocialDatabase().get_inbox(sessionUserId)
+    print(all_inbox_posts)
     found_user = app.database["authors"].find_one({"_id": sessionUserId})
     return templates.TemplateResponse("inbox.html", {"request": request, "user": found_user, "inbox": all_inbox_posts})
 
