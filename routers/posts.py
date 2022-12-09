@@ -64,12 +64,10 @@ async def read_post(request: Request, author_id: str, post_id: str, session: str
     raise HTTPException(status_code=404, detail="Post not found")
 
 
-@router.get("/share/{post_id}/{author_id}")
-async def share_post_to_author(request: Request, post_id: str, author_id: str, session: str = Cookie(None)):
+@router.get("/share/{post_id}/{author_id}/{origin_author_id}")
+async def share_post_to_author(request: Request, post_id: str, author_id: str, origin_author_id: str, session: str = Cookie(None)):
     try:
-        # current user
-        our_profile_id = await get_userId_from_token(session)
-        our_profile = SocialDatabase().get_author(our_profile_id)
+        our_profile = SocialDatabase().get_author(origin_author_id)
     except HTTPException as e:
         # Should we redirect to /home if session is token expires?
         print("Error getting profile from session, in method read_post:")
