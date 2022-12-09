@@ -25,3 +25,10 @@ Run the server with
 ```py
 python main.py
 ```
+
+## Update after Monday's demo:
+
+- Added ajax feature for inbox
+- Post image is available
+- Adjust url in comments' field to actual hostname
+- Added error handling in backend
