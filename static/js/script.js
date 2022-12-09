@@ -18,19 +18,16 @@ shareBtn.forEach((share) => {
   share.addEventListener("click", (e) => {
     currentPost = e.target.getAttribute("data-url");
     shareUrl = e.target.getAttribute("data-url");
-    console.log(shareUrl);
     sharePopup.show();
   });
 });
 
 shareClose.addEventListener("click", () => {
-  console.log("close");
   sharePopup.close();
 });
 
 following.forEach((person) => {
   person.addEventListener("click", (e) => {
-    console.log(e.target.getAttribute("data-author"));
     shareUrl += e.target.getAttribute("data-author");
 
     fetch(shareUrl, {
@@ -41,6 +38,7 @@ following.forEach((person) => {
     })
       .then((response) => {
         console.log(response);
+        person.disabled = true;
       })
       .catch((err) => {
         console.log(err);
