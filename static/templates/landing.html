@@ -103,11 +103,29 @@
 </script>
 
 
-<dialog class="modal" id="myModal">
+<dialog class="modal" >
   <textarea id="content-create-post-textarea" placeholder="leave your comment here.."></textarea>
   <div class="flex-cont">
     <button id="open" class="btn" onclick="postComment()">post</button>
     <button id="close" class="btn" onclick="closeModal()">close</button>
+  </div>
+</dialog>
+
+<dialog class="modal" id="share-model">
+  <div id="popup-header">
+    <div class="popup-title">Share</div>
+    <div class="popup-close">×</div>
+  </div>
+  <div class="follow-container">
+    {% for p in following %}
+    <div class="follow-person">
+      <div class="follow-person-author">
+        <img src={{p.profileImage}} class="follow-person-pic" alt="profile-pic"/>
+        <div class="follow-person-name">{{p.displayName}}</div>
+      </div>
+      <button class="person-share-btn" data-author={{p.id}}/{{user.id}}>Share</button>
+    </div>
+    {% endfor %}    
   </div>
 </dialog>
 
@@ -162,7 +180,7 @@
         >View Post</a
       >
       <button id="myBtn" class="allpost-btn" onclick="myfunction('{{l._id}}')">Create Comments</button>
-      <button id="sharebtn" class="allpost-btn">Share Post</button>
+      <button id="sharebtn" class="allpost-btn" data-url="service/authors/share/{{l._id}}/">Share Post</button>
     </div>
   </div>
   {% endfor %}
