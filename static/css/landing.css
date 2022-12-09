@@ -310,6 +310,7 @@
   position: fixed;
   height: 400px;
   width: 400px;
+  overflow-y: auto;
   margin: auto;
   /* display: flex; */
   flex-direction: column;
@@ -367,7 +368,4 @@
 .follow-person-name {
   font-size: 20px;
   font-weight: 500;
-}
-
-.person-share-btn {
 }
