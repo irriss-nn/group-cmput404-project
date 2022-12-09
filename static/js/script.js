@@ -1,5 +1,5 @@
 const search = document.querySelector("#search-form");
-const shareBtn = document.querySelector("#sharebtn");
+const shareBtn = document.querySelectorAll("#sharebtn");
 
 const sharePopup = document.querySelector("#share-model");
 const shareClose = document.querySelector(".popup-close");
@@ -14,9 +14,11 @@ search.addEventListener("submit", (e) => {
   window.location.replace(`/author/${name}`);
 });
 
-shareBtn.addEventListener("click", (e) => {
-  shareUrl = e.target.getAttribute("data-url");
-  sharePopup.show();
+shareBtn.forEach((share) => {
+  share.addEventListener("click", (e) => {
+    shareUrl = e.target.getAttribute("data-url");
+    sharePopup.show();
+  });
 });
 
 shareClose.addEventListener("click", () => {
@@ -29,17 +31,17 @@ following.forEach((person) => {
     console.log(e.target.getAttribute("data-author"));
     shareUrl += e.target.getAttribute("data-author");
 
-    // fetch(shareUrl, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    // })
-    //   .then((response) => {
-    //     console.log(response);
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
+    fetch(shareUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   });
 });
