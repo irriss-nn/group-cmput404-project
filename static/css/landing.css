@@ -37,7 +37,7 @@
 
 
 #landing-search-btn {
-  background: linear-gradient(to bottom right, #4897f7, #0a39d1);
+  background: linear-gradient(to bottom right, #eed48b, #f773bb);
   border: 0;
   border-radius: 12px;
   color: #FFFFFF;
@@ -270,7 +270,7 @@
 }
 
 .allpost-btn {
-  background: linear-gradient(to bottom right, #acf3e7, #2513ec);
+  background: linear-gradient(to bottom right, #f3d9ac, #f15792);
   border: 0;
   border-radius: 12px;
   color: #FFFFFF;
@@ -292,9 +292,9 @@
 }
 
 .allpost-btn:not([disabled]):focus {
-  box-shadow: 0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(105, 188, 247, 0.5), .125rem .125rem 1rem rgba(255, 154, 90, 0.5);
+  box-shadow: 0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(246, 159, 171, 0.5), .125rem .125rem 1rem rgba(255, 154, 90, 0.5);
 }
 
 .allpost-btn:not([disabled]):hover {
-  box-shadow: 0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(97, 179, 237, 0.5), .125rem .125rem 1rem rgba(255, 154, 90, 0.5);
+  box-shadow: 0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(243, 138, 177, 0.5), .125rem .125rem 1rem rgba(255, 154, 90, 0.5);
 }
