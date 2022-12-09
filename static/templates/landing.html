@@ -134,6 +134,21 @@
     <div id="allpost-info">
       <div id="allpost-title">{{l.title}}</div>
       <div id="allpost-description">{{l.description}}</div>
+      {% if l.contentType == 'image/jpeg;base64' or l.contentType == 'image/png;base64'%}
+        <img id="image-display" src="{{l.content}}" alt="image not found"></image>
+        <style>
+          #allpost-info {
+            overflow: auto;
+          }
+          #image-display {
+            display: block;
+            max-width:650px;
+            max-height:650px;
+            width: auto;
+            height: auto;
+          }
+        </style>
+        {% endif %}
     </div>
     <div id="allpost-btn-container">
       <a

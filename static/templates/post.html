@@ -16,7 +16,7 @@
       </div>
       {% if post.contentType != 'text/plain' %}
       <img
-        src="data:image/png;base64, {{post.content}}"
+        src="{{post.content}}"
         alt="post"
         id="post-image"
       />
